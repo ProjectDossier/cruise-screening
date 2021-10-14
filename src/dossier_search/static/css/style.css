@@ -16,6 +16,10 @@
   transform: translate(-50%, -50%);
 } */
 
+.navbar-item{
+  size: 15rem;
+}
+
 input[type=text] {
   width: 50%;
   box-sizing: border-box;

@@ -6,7 +6,9 @@
         <form method="POST">
         {% csrf_token %}
         {{form.as_p}}
-            <button style="background-color:#F4EB16; color:blue" class="btn btn-outline-info" type="submit">Login</button>
+            <div class="control">
+                <button type="submit" class="button is-link">Login</button>
+            </div>
         </form>
         Don't have an account? <a href="/register" target="blank"><strong>register here</strong></a>!
     </div>

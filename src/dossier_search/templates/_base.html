@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,8 +7,16 @@
     <title>SimpleFind search engine</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
 </head>
 <body>
+    {% if messages %}
+        {% for message in messages %}
+          <script>M.toast({html: "{{message}}", classes: 'blue rounded', displayLength:2000});</script>
+        {% endfor %}
+    {% endif %}
+
 {% block content %}
     <div class="content">
         <div class="container">
