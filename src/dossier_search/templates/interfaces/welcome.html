@@ -1,5 +1,10 @@
-{% extends "base.html" %}
+{% extends '_base.html' %}
 
-{%block test%}
+
+{% block content %}
+    {% include "_header.html" %}
 <h1> Hello! Your server is now working </h1>
+
+    {% include "_footer.html" %}
+
 {% endblock %}

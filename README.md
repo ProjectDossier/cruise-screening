@@ -1,11 +1,32 @@
-### Run this command to install the conda environment
+## Installation
 
-conda create --name dossier --file requirements.txt
+```bash
+$ conda create --name dossier python==3.8.8
+```
 
-source activate dossier
+```bash
+$ source activate dossier
+```
 
-if using pip use:
+If using pip use:
 
+```bash
 pip install -r requirements.txt
+```
 
+
+## Running
+
+
+```bash
+python manage.py makemigrations engine
+```
+
+```bash
+python manage.py migrate
+```
+
+```bash
+python manage.py runserver 8000
+```
 

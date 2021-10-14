@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    {% include "_header.html" %}
+    <br />
+
+    <form method="POST">
+        {% csrf_token %}
+        {{form.as_p}}
+        <div class="control">
+            <button type="submit" class="button is-link">Sign Up!</button>
+        </div>
+
+{#        <button style="background-color:#F4EB16; color:blue" class="btn btn-outline-info" type="submit">Sign Up</button>#}
+
+    </form>
+
+    If you already have an account <a href="/login" target="blank"><strong>login</strong></a> instead.
+
+
+    {% include "_footer.html" %}
+
+{% endblock %}
