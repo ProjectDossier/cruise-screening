@@ -1,0 +1,37 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    {% include "_header.html" %}
+
+    <h2 class="title is-2">Search results</h2>
+    {% if search_result_list %}
+
+        <section class="section">
+            <p>Returned {{ unique_searches }} unique search results.</p>
+            <table class="table is-hoverable is-fullwidth">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                {% for search_result in search_result_list %}
+                    <tr>
+                        <td>
+                            <a href={{ search_result.url }}>{{ search_result.title }}</a>
+                        </td>
+                        <td>
+                            {{ search_result.description }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </section>
+
+    {% else %}
+        <p>No search results are available.</p>
+    {% endif %}
+
+    {% include "_footer.html" %}
+
+{% endblock %}

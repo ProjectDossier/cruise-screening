@@ -18,14 +18,31 @@ def index(request):
 
     """
     if request.method == "GET":
-        query = 'The appellant on February 9, 1961 was appointed as an Officer in Grade III in the respondent Bank ( for short).'
-        index = 'whole_doc_w_summ_intro'
-        top_k = 1
-        candidate_list = search(query, index, top_k)
         return render(
             request,
             "interfaces/welcome.html",
         )
+
+
+def home(request):
+    if request.method == "POST":
+        search_query = request.POST.get("search_query", None)
+
+        # query = 'The appellant on February 9, 1961 was appointed as an Officer in Grade III in the respondent Bank ( for short).'
+        index = 'whole_doc_w_summ_intro'
+        top_k = 1
+        # candidate_list = search(search_query, index, top_k)
+        return render(request=request,
+                      template_name='interfaces/search_result.html',
+                      context={"search_query": search_query})
+
+    else:
+        return render(request, "interfaces/home.html")
+
+
+def print_results(request, search_query):
+    print(search_query)
+    return render(request, "interfaces/home.html")
 
 
 def register(request):
@@ -79,7 +96,3 @@ def login_request(request):
         request=request, template_name="users/login.html", context={"form": form}
     )
 
-
-def home(request):
-    if request.method == "GET":
-        return render(request, "interfaces/home.html")
