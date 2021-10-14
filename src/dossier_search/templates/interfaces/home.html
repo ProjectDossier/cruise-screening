@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form id="search_box" method="post" action="">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search"
+        aria-describedby="search-addon" />
+        <button type="button" class="btn btn-outline-primary">search</button>
+      </div>
+      <input type='hidden' name='search_button' value="search_button">
+</form>
+{% endblock %}

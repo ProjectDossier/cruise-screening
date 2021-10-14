@@ -73,3 +73,8 @@ def login_request(request):
     return render(
         request=request, template_name="users/login.html", context={"form": form}
     )
+
+
+def home(request):
+    if request.method == "GET":
+        return render(request, "interfaces/home.html")
