@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
@@ -5,6 +6,7 @@ from django.urls import reverse
 import simplejson as json
 from django.utils import timezone
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 # Create your views here.
 
@@ -41,3 +43,15 @@ def register(request):
     return render(request=request,
                   template_name="users/register.html",
                   context={"form": form})
+
+
+def logout_request(request):
+    logout(request)
+    messages.info(request, "Logged out successfully!")
+    return redirect("index")
+
+def login_request(request):
+    form = AuthenticationForm()
+    return render(request = request,
+                  template_name = "users/login.html",
+                  context={"form":form})
