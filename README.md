@@ -3,7 +3,6 @@
 conda create --name dossier --file requirements.txt
 
 
- \n
- 
+
 source activate dossier
 
