@@ -1,7 +1,7 @@
 ## Installation
 
 ```bash
-$ conda create --name dossier --file requirements.txt
+$ conda create --name dossier python==3.8.8
 ```
 
 ```bash
