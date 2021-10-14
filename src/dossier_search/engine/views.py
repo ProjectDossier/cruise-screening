@@ -28,21 +28,24 @@ def register(request):
         form = NewUserForm(request.POST)
         if form.is_valid():
             user = form.save()
-            username = form.cleaned_data.get('username')
+            username = form.cleaned_data.get("username")
+            messages.success(request, f"New account created: {username}")
             login(request, user)
             return redirect("index")
         else:
             for msg in form.error_messages:
-                print(form.error_messages[msg])
+                messages.error(request, f"{msg}: {form.error_messages[msg]}")
 
-            return render(request = request,
-                          template_name = "users/register.html",
-                          context={"form":form})
+            return render(
+                request=request,
+                template_name="users/register.html",
+                context={"form": form},
+            )
 
     form = NewUserForm
-    return render(request=request,
-                  template_name="users/register.html",
-                  context={"form": form})
+    return render(
+        request=request, template_name="users/register.html", context={"form": form}
+    )
 
 
 def logout_request(request):
@@ -52,21 +55,21 @@ def logout_request(request):
 
 
 def login_request(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AuthenticationForm(request=request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
                 messages.info(request, f"You are now logged in as {username}")
-                return redirect('/')
+                return redirect("/")
             else:
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
     form = AuthenticationForm()
-    return render(request = request,
-                    template_name = "users/login.html",
-                    context={"form":form})
+    return render(
+        request=request, template_name="users/login.html", context={"form": form}
+    )
