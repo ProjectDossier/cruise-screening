@@ -8,7 +8,7 @@ $ conda create --name dossier python==3.8.8
 $ source activate dossier
 ```
 
-if using pip use:
+If using pip use:
 
 ```bash
 pip install -r requirements.txt
