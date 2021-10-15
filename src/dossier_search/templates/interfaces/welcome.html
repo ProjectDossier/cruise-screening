@@ -1,10 +1,12 @@
 {% extends '_base.html' %}
+{% load static %}
 
 
 {% block content %}
     {% include "_header.html" %}
-<h1> Hello! Your server is now working </h1>
-
+<center><h1><strong> Hallo! Dein Cruise-Server läuft! 🤗</strong></h1>
+            <img src="{% static 'logo.png' %}" width="450" height="450">
+</center>
     {% include "_footer.html" %}
 
 {% endblock %}

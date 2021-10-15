@@ -30,7 +30,7 @@ def home(request):
 
         # query = 'The appellant on February 9, 1961 was appointed as an Officer in Grade III in the respondent Bank ( for short).'
         index = 'coliee'
-        top_k = 1
+        top_k = 15
         search_result = search(search_query, index, top_k)
 
         context = {
