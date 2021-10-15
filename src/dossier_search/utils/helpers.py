@@ -8,6 +8,7 @@ import csv
 import os
 import re
 from elasticsearch import Elasticsearch
+import configparser
 
 
 class ES_conn():
@@ -17,10 +18,14 @@ class ES_conn():
         self.start_connection()
 
     def start_connection(self):
-        self.client = Elasticsearch("http://localhost:9200")
+        config = configparser.ConfigParser()
+        config.read('utils/example.ini')
 
-    #def search(self,user_request: str):
-    #    print(self.client.info())
+        self.client = Elasticsearch(
+            cloud_id=config['ELASTIC']['cloud_id'],
+            http_auth=(config['ELASTIC']['user'], config['ELASTIC']['password'])
+        )
+
 
     # ES server needs to exist already, index needs to exist already
 
