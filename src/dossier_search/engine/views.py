@@ -31,12 +31,17 @@ def home(request):
         # query = 'The appellant on February 9, 1961 was appointed as an Officer in Grade III in the respondent Bank ( for short).'
         index = 'coliee'
         top_k = 1
-        candidate_list = search(search_query, index, top_k)
-        print(candidate_list)
+        search_result = search(search_query, index, top_k)
+
+        context = {
+            "search_result_list": search_result,
+            "unique_searches": len(search_result),
+            "search_query": search_query
+        }
+
         return render(request=request,
                       template_name='interfaces/search_result.html',
-                      context={"search_query": search_query})
-
+                      context=context)
     else:
         return render(request, "interfaces/home.html")
 
