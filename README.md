@@ -1,5 +1,8 @@
 ## Installation
 
+
+Create conda environtment:
+
 ```bash
 $ conda create --name dossier python==3.8.8
 ```
@@ -8,7 +11,7 @@ $ conda create --name dossier python==3.8.8
 $ source activate dossier
 ```
 
-If using pip use:
+Use pip to install requirements:
 
 ```bash
 pip install -r requirements.txt
