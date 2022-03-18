@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +59,12 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
+
+
+SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+# STATIC_ROOT = (os.path.join(SITE_ROOT, 'static_files/'))
+STATICFILES_DIRS = (os.path.join(SITE_ROOT, "static/"),)
+
 
 TEMPLATES = [
     {
