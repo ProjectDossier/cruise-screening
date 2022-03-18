@@ -22,8 +22,8 @@ class ES_conn():
         config.read('utils/example.ini')
 
         self.client = Elasticsearch(
-            cloud_id=config['ELASTIC']['cloud_id'],
-            http_auth=(config['ELASTIC']['user'], config['ELASTIC']['password'])
+            [{'host': '127.0.0.1',
+              'port': 9205}]
         )
 
 
@@ -33,15 +33,13 @@ class ES_conn():
 elastic_server = ES_conn()
 elastic_server.start_connection()
 
-
 def search(query, index, top_k):
-
     bool_query = {
         "size": top_k,
         "query": {
             "bool": {
                 "should": [
-                    {"match": {'content': query}}
+                    {"match": {'document': query}}
                 ]
                 , "minimum_should_match": 0,
                 "boost": 1.0
@@ -53,7 +51,7 @@ def search(query, index, top_k):
 
     candidate_list = []
     for candidate in candidates['hits']['hits']:
-        candidate_list.append({'id': candidate["_id"], 'content': candidate['_source'].get('content')})
+        candidate_list.append({'id': candidate["_id"], 'content': candidate['_source'].get('document')})
 
     return candidate_list
 
