@@ -28,20 +28,21 @@ def home(request):
     if request.method == "POST":
         search_query = request.POST.get("search_query", None)
 
-        # query = 'The appellant on February 9, 1961 was appointed as an Officer in Grade III in the respondent Bank ( for short).'
-        index = 'coliee'
+        index = "papers"
         top_k = 15
         search_result = search(search_query, index, top_k)
 
         context = {
             "search_result_list": search_result,
             "unique_searches": len(search_result),
-            "search_query": search_query
+            "search_query": search_query,
         }
 
-        return render(request=request,
-                      template_name='interfaces/search_result.html',
-                      context=context)
+        return render(
+            request=request,
+            template_name="interfaces/search_result.html",
+            context=context,
+        )
     else:
         return render(request, "interfaces/home.html")
 
@@ -101,4 +102,3 @@ def login_request(request):
     return render(
         request=request, template_name="users/login.html", context={"form": form}
     )
-
