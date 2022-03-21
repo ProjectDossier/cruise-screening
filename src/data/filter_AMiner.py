@@ -28,7 +28,7 @@ def extract_docs(dataset_path):
             abstract = paper["abstract"]
 
             """Skip papers with empty abstract"""
-            if abstract is not None:
+            if abstract:
                 if len(abstract) == 0 or abstract.__class__ != str or abstract == "N/A":
                     continue
             else:
