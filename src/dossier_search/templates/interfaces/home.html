@@ -1,13 +1,17 @@
-{% extends "base.html" %}
+{% extends "_base.html" %}
+{% load static %}
 {% block content %}
 
-<form id="search_box" method="post" action="">
-    {% csrf_token %}
-    <div class="input-group">
-        <input type="search" class="form-control rounded" name="search_query" value="Natural Language Processing" placeholder="Search" aria-label="Search"
-        aria-describedby="search-addon" />
-        <button type="submit" class="btn btn-outline-primary">search</button>
-      </div>
-      <input type='hidden' name='search_button' value="search_button">
-</form>
+<div class="search-box">
+  <img src="{% static 'logo.png' %}" class="search-box__logo" width="300" height="300">
+
+  <form id="search_box" method="post" action="">
+      {% csrf_token %}
+      <div class="search-box__input">
+          <input type="search" class="input mr-2" name="search_query" value="Natural Language Processing" placeholder="Search" aria-label="Search" />
+          <button class="button is-primary">Search</button>
+        </div>
+        <input type='hidden' name='search_button' value="search_button">
+  </form>
+</div>
 {% endblock %}
