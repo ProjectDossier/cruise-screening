@@ -20,7 +20,7 @@ def index(request):
     if request.method == "GET":
         return render(
             request,
-            "interfaces/welcome.html",
+            "interfaces/home.html",
         )
 
 
