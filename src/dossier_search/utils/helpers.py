@@ -1,11 +1,12 @@
 import requests
+import json
 
 
 def search(query: str, index: str, top_k: int):
     headers = {
         'Content-type': 'application/json'
     }
-    res = requests.post( 'localhost:9880' + '/search', data={'query': query}, headers=headers)
+    res = requests.post( 'http://localhost:9880' + '/search', data=json.dumps({'query': query}), headers=headers)
     results = res.json()['results']
     candidate_list = []
     for candidate in results["hits"]["hits"]:
