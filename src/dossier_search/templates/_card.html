@@ -8,7 +8,7 @@
             <template x-if="open">
                 <p>{{ search_result.abstract }}</p>
             </template>
-            <template x-if="!open">
+            <template x-if="!open" x-cloak>
                 <p>{{ search_result.abstract_short }} <button type="button" class="card__show-more" x-on:click="open = true">Show more</button></p>
             </template>
         </div>

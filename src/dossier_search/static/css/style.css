@@ -73,3 +73,7 @@
 .card__show-more:hover {
   text-decoration: none;
 }
+
+[x-cloak] {
+  display: none;
+}
