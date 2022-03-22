@@ -13,9 +13,7 @@ class Concept:
         self.children = children
 
 
-def main(query):
-    from src.concept_search.taxonomy import Taxonomy
-    tax = Taxonomy('/data/external/acm_ccs.xml')
+def tax_search(query, tax):
 
     id = tax.get_id(query)
     query = Concept(id, query)
@@ -26,5 +24,3 @@ def main(query):
     return query
 
 
-if __name__ == '__main__':
-    main(query)
