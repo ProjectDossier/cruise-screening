@@ -24,7 +24,14 @@ Use pip to install requirements:
 
 First install [docker](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04) and [docker-compose](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04#step-1-installing-docker-compose):
 
-Go to the `db` directory and run docker compose 
+Go to the `db` directory. Choose an existing directory on your local instead of [your/directory/on/your/local/] in docker-compose.yml:
+
+- "${HOME}[your/directory/on/your/local/]:/usr/share/elasticsearch/data"
+
+Use 'chmod 777 [your/directory/on/your/local/]' to set the correct permissions for elastic search.
+Run docker compose:
+
+
 ```bash
 $ cd db
 $ docker compose up -d
