@@ -53,10 +53,10 @@ python scripts/add_docs.py
 You need to create an SSH tunnel:
 
 ```bash
-$ ssh -L 9205:127.0.0.1:9200 YOUR_USER@YOUR_IP
+$ ssh -L 9200:127.0.0.1:SERVER_PORT YOUR_USER@SERVER_IP
 ```
 
-ElasticSearch will be accessible on your local machine at `127.0.0.1:9005`.
+ElasticSearch will be accessible on your local machine at `127.0.0.1:9200`.
 
 _____
 __DEPRECATED:__ Connection parameters to the ElasticSearch database should be stored in `src/dossier_search/utils/example.ini` file containing three params: `cloud_id`, `user`and `password`.

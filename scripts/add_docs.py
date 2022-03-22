@@ -4,7 +4,7 @@ from tqdm.auto import tqdm
 import json
 
 FIRST_N_DOCS = 1000
-PORT = 9205
+PORT = 9200
 HOST = "127.0.0.1"
 AMINER_SAMPLE_PATH = "../data/AMiner_sample.jsonl"
 

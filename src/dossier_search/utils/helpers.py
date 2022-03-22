@@ -5,7 +5,7 @@ class ES_connection:
     def __init__(self):
         self.client = None
 
-    def start_connection(self, port: int = 9205, host: str = "127.0.0.1"):
+    def start_connection(self, port: int = 9200, host: str = "127.0.0.1"):
         self.client = Elasticsearch([{"host": host, "port": port}])
 
 
