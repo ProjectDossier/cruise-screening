@@ -1,34 +1,15 @@
 from elasticsearch import Elasticsearch
-
-
-class ES_connection:
-    def __init__(self):
-        self.client = None
-
-    def start_connection(self, port: int = 9205, host: str = "127.0.0.1"):
-        self.client = Elasticsearch([{"host": host, "port": port}])
-
-
-elastic_server = ES_connection()
-elastic_server.start_connection()
+import requests
 
 
 def search(query: str, index: str, top_k: int):
-    bool_query = {
-        "size": top_k,
-        "query": {
-            "bool": {
-                "should": [{"match": {"document": query}}],
-                "minimum_should_match": 0,
-                "boost": 1.0,
-            }
-        },
+    headers = {
+        'Content-type': 'application/json'
     }
-
-    candidates = elastic_server.client.search(index=index, body=bool_query)
-
+    res = requests.post( 'localhost:9880' + '/search', data={'query': query}, headers=headers)
+    results = res.json()['results']
     candidate_list = []
-    for candidate in candidates["hits"]["hits"]:
+    for candidate in results["hits"]["hits"]:
         candidate_list.append(
             {"id": candidate["_id"], "content": candidate["_source"].get("document")}
         )
