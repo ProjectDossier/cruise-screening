@@ -2,8 +2,6 @@ from flask import Flask, escape, request
 import json
 import requests
 import logging
-#from index_pipeline.index.tokenize import SpacyTokenizer
-#from index_pipeline.index.normalize import LegalNormalizer
 
 app = Flask(__name__)
 
