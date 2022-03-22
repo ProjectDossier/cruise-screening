@@ -20,13 +20,12 @@ def index(request):
     if request.method == "GET":
         return render(
             request,
-            "interfaces/welcome.html",
+            "interfaces/home.html",
         )
 
-
-def home(request):
-    if request.method == "POST":
-        search_query = request.POST.get("search_query", None)
+def search_results(request):
+    if request.method == "GET":
+        search_query = request.GET.get("search_query", None)
 
         index = "papers"
         top_k = 15
@@ -43,8 +42,6 @@ def home(request):
             template_name="interfaces/search_result.html",
             context=context,
         )
-    else:
-        return render(request, "interfaces/home.html")
 
 
 def print_results(request, search_query):

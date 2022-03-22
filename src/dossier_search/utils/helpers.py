@@ -1,4 +1,3 @@
-from elasticsearch import Elasticsearch
 import requests
 
 

@@ -24,7 +24,14 @@ Use pip to install requirements:
 
 First install [docker](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04) and [docker-compose](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04#step-1-installing-docker-compose):
 
-Go to the `db` directory and run docker compose 
+Go to the `db` directory. Choose an existing directory on your local instead of [your/directory/on/your/local/] in docker-compose.yml:
+
+- "${HOME}[your/directory/on/your/local/]:/usr/share/elasticsearch/data"
+
+Use 'chmod 777 [your/directory/on/your/local/]' to set the correct permissions for elastic search.
+Run docker compose:
+
+
 ```bash
 $ cd db
 $ docker compose up -d
@@ -46,10 +53,10 @@ python scripts/add_docs.py
 You need to create an SSH tunnel:
 
 ```bash
-$ ssh -L 9205:127.0.0.1:9200 YOUR_USER@YOUR_IP
+$ ssh -L 9200:127.0.0.1:SERVER_PORT YOUR_USER@SERVER_IP
 ```
 
-ElasticSearch will be accessible on your local machine at `127.0.0.1:9005`.
+ElasticSearch will be accessible on your local machine at `127.0.0.1:9200`.
 
 _____
 __DEPRECATED:__ Connection parameters to the ElasticSearch database should be stored in `src/dossier_search/utils/example.ini` file containing three params: `cloud_id`, `user`and `password`.
