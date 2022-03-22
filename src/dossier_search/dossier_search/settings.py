@@ -60,11 +60,7 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
-
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
-# STATIC_ROOT = (os.path.join(SITE_ROOT, 'static_files/'))
-STATICFILES_DIRS = (os.path.join(SITE_ROOT, "static/"),)
-
 
 TEMPLATES = [
     {
