@@ -40,13 +40,13 @@ def search():
         in_data = request.get_json()
         query = in_data['query']
 
-        results, query_data = search(query)
+        results, query_data = search_es(query)
     else:
         results = "Only POST allowed"
     return {"results": results, "query": query_data}
 
 
-def search(query):
+def search_es(query):
     host = config['host']
     # use the query builder to create the elastic search json query object
     query_data = build_query(query, top_k=config['top_k'])
