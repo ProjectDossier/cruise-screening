@@ -1,1 +1,34 @@
-Concept map
+<div class="concept-map">
+    <div class="concept-map__row">
+        {% for parent in concept.parents %}
+            {% for subparent in parent.parents %}
+                <a href="#" class="button is-small">{{ subparent.title }}</a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="concept-map__row">
+        {% for parent in concept.parents %}
+            <a href="#" class="button">{{ parent.title }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="concept-map__row">
+        <a href="#" class="button is-medium">{{ concept.title }}</a><br>
+    </div>
+
+    <div class="concept-map__row">
+        {% for child in concept.children %}
+            <a href="#" class="button">{{ child.title }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="concept-map__row">
+        {% for child in concept.children %}
+            {% for subchild in child.children %}
+                <a href="#" class="button is-small">{{ subchild.title }}</a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+</div>

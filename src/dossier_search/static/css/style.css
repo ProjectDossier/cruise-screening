@@ -85,3 +85,16 @@
 [x-cloak] {
   display: none;
 }
+
+.concept-map {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.concept-map__row {
+  display: flex;
+  margin: 10px 0;
+}
