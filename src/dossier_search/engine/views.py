@@ -11,11 +11,10 @@ from .forms import NewUserForm
 from concept_search.taxonomy import Taxonomy
 from concept_search.concept import tax_search
 
-
 # Create your views here.
 
 # Taxonomy instantiation
-tax = Taxonomy('/Users/oscarespitia/Downloads/cruise-literature/data/external/acm_ccs.xml')
+tax = Taxonomy('../../data/external/acm_ccs.xml')
 
 
 def index(request):
