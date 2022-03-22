@@ -1,6 +1,6 @@
 import pandas as pd
 import xmltodict
-from src.concept_search.concept import Concept
+from .concept import Concept
 
 
 class Taxonomy:
