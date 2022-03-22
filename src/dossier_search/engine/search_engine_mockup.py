@@ -1,9 +1,6 @@
 import json
 
-path_to_file = '/home/fps/Downloads/AMiner_sample_l10.jsonl'
-
-
-def search_engine_mockup():
+def search_engine_mockup(path_to_file):
     with open(path_to_file, 'r') as json_file:
         json_list = list(json_file)
 
@@ -11,5 +8,4 @@ def search_engine_mockup():
     for json_str in json_list:
         result = json.loads(json_str)
         results_list.append(result)
-        print(f"result: {result}")
     return results_list
