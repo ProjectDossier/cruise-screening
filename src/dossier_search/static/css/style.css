@@ -1,17 +1,11 @@
-.layout {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  min-height: 100vh;
-}
-
 .footer {
+  background: transparent;
   padding: 16px;
   text-align: center;
 }
 
 .search-box {
+  min-height: 50vh;
   max-width: 500px;
   margin: 16px auto;
   width: 100%;
