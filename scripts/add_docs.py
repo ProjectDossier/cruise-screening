@@ -6,11 +6,13 @@ import json
 FIRST_N_DOCS = 1000
 PORT = 9205
 HOST = "127.0.0.1"
+AMINER_SAMPLE_PATH = "../data/AMiner_sample.jsonl"
+
 
 es = Elasticsearch([{"host": HOST, "port": PORT}])
 
 docs_list = []
-with open("../data/AMiner_sample.jsonl") as fp:
+with open(AMINER_SAMPLE_PATH) as fp:
     json_list = list(fp)
 
 
