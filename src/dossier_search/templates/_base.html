@@ -12,13 +12,9 @@
 </head>
 
 <body>
-    <div class="layout">
-        {% include "_header.html" %}
+    {%block content%}
+    {%endblock%}
 
-        {%block content%}
-        {%endblock%}
-
-        {% include "_footer.html" %}
-    </div>
+    {% include "_footer.html" %}
 </body>
 </html>
