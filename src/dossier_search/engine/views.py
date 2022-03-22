@@ -29,8 +29,7 @@ def search_results(request):
 
         index = "papers"
         top_k = 15
-        # search_result = search(search_query, index, top_k)
-        search_result = []
+        search_result = search(search_query, index, top_k)
 
         context = {
             "search_result_list": search_result,
