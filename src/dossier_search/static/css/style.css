@@ -58,12 +58,24 @@
   padding: 16px;
 }
 
-.seach-small {
+.search-small {
   border-bottom: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.search-small__logo {
+  margin-right: 10px;
+  width: 60px;
+}
+
+.search-small__input {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  padding: 16px;
+  width: 100%;
 }
 
 .card__show-more {
