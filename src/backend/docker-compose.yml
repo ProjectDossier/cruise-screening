@@ -1,5 +1,18 @@
 version: "2"
 services:
+  search_app:
+    build:
+        context: .
+        args:
+          - http_proxy
+          - https_proxy
+          - no_proxy
+          - config_file=search_app_config.json
+        dockerfile: search_app.Dockerfile
+    image: dossier/cruise-literature-search_app:1
+    restart: on-failure
+    ports:
+      - "9880:8880"
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
     container_name: es-cruise-literature
