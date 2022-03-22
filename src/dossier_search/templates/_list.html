@@ -1,0 +1,11 @@
+<div class="search-results__list">
+    <h2 class="title is-4 mb-1">Search results: {{ search_query }}</h2>
+    {% if search_result_list %}
+        <p class="mb-4">Returned <strong>{{ unique_searches }} unique search results</strong>.</p>
+        {% for search_result in search_result_list %}
+            {% include "_card.html" %}
+        {% endfor %}
+    {% else %}
+        <p>No search results are available.</p>
+    {% endif %}
+</div>
