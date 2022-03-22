@@ -82,6 +82,10 @@
   text-decoration: none;
 }
 
+.card--wiki {
+  outline: 3px solid;
+}
+
 [x-cloak] {
   display: none;
 }

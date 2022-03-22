@@ -33,11 +33,9 @@ def search_results(request):
         search_result = search(search_query, index, top_k)
         matched_wiki_page = search_wikipedia(query=search_query)
 
-        if matched_wiki_page:
-            search_result.insert(0, matched_wiki_page)
-
         context = {
             "search_result_list": search_result,
+            "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
         }

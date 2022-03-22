@@ -1,0 +1,13 @@
+{% load static %}
+
+<article class="card mb-4 card--wiki">
+    <div class="card-content">
+        <a href={{ matched_wiki_page.url }}><p class="title">{{ matched_wiki_page.title }}</p></a>
+        <p class="subtitle"><img src="{% static 'wikipedia.png' %}" width="24" height="24"> Wikipedia</p>
+    </div>
+    <div class="card-content">
+        <div class="content">
+            <p>{{ matched_wiki_page.snippet }}</p>
+        </div>
+      </div>
+</article>
