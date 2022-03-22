@@ -32,6 +32,14 @@ $ docker compose up -d
 
 ElasticSearch will start on `9200`
 
+### 1.3 Add docs to the index
+
+Create a `data` folder in the root directory. Add `AMiner_sample.jsonl` file to the `data/` folder.
+
+```bash
+python scripts/add_docs.py
+```
+
 
 #### Access ElasticSearch from your local machine
 

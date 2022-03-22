@@ -2,3 +2,4 @@ Django==3.2.12
 simplejson==3.17.5
 elasticsearch==7.15.1
 pycld3==0.22
+tqdm~=4.63.0
