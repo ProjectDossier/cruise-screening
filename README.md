@@ -28,6 +28,7 @@ Go to the `db` directory. Choose an existing directory on your local instead of 
 
 - "${HOME}[your/directory/on/your/local/]:/usr/share/elasticsearch/data"
 
+Use 'chmod 777 [your/directory/on/your/local/]' to set the correct permissions for elastic search.
 Run docker compose:
 
 
