@@ -2,9 +2,11 @@ version: "2"
 services:
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
-    container_name: es
+    container_name: es-cruise-literature
     environment:
       - discovery.type=single-node
       - xpack_security_enabled=false
     volumes:
       - "${HOME}/pyprojects/data-literature:/usr/share/elasticsearch/data"
+    ports:
+      - "9800:9200"
