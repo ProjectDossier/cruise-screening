@@ -1,6 +1,12 @@
 <article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false }">
     <div class="card-content">
-        <p class="title"><a href="{{ search_result.url }}">{{ search_result.title }}</a></p>
+        <p class="title">
+            {% if search_result.url %}
+                <a href="{{ search_result.url }}">{{ search_result.title }}</a>
+            {% else %}
+                {{ search_result.title }}
+            {% endif %}
+        </p>
         <p class="subtitle">{{ search_result.authors }}</p>
     </div>
     <div class="card-content">
