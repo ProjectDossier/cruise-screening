@@ -15,16 +15,18 @@
                 {% for keyword in search_result.keywords_snippet %}
                     <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
                 {% endfor %}
-                <template x-if="!openKeywords">
-                    <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
-                </template>
-                <template x-if="openKeywords">
-                    <span>
-                        {% for keyword in search_result.keywords_rest %}
-                            <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
-                        {% endfor %}
-                    </span>
-                </template>
+                {% if search_result.keywords_rest|length > 0 %}
+                    <template x-if="!openKeywords">
+                        <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
+                    </template>
+                    <template x-if="openKeywords">
+                        <span>
+                            {% for keyword in search_result.keywords_rest %}
+                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                            {% endfor %}
+                        </span>
+                    </template>
+                {% endif %}
             </p>
         </div>
       </div>
