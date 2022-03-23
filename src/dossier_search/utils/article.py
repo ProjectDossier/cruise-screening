@@ -22,3 +22,4 @@ class WikipediaArticle:
     url: str
     snippet: str
     content: str
+    ambiguous: bool = True
