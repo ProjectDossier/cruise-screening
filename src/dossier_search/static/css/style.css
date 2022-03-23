@@ -78,6 +78,11 @@
   width: 100%;
 }
 
+.card__text em {
+  background: #ffeaa7;
+  border-radius: 8px;
+}
+
 .card__show-more {
   background: transparent;
   border: 0;

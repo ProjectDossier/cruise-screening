@@ -6,10 +6,10 @@
     <div class="card-content">
         <div class="content">
             <template x-if="openAbstract">
-                <p>{{ search_result.abstract }}</p>
+                <p class="card__text">{{ search_result.abstract | safe }}</p>
             </template>
             <template x-if="!openAbstract" x-cloak>
-                <p>{{ search_result.snippet }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
+                <p class="card__text">{{ search_result.snippet | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
             </template>
             <p>
                 {% for keyword in search_result.keywords_snippet %}
