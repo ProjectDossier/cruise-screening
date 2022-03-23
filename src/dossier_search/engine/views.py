@@ -34,7 +34,7 @@ def search_results(request):
 
         index = "papers"
         top_k = 15
-        search_result=search(search_query, index, top_k)
+        search_result = search(search_query, index, top_k)
         tax_query = tax.search_relationships(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
 
