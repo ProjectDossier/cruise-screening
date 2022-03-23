@@ -9,7 +9,7 @@ from utils.helpers import search
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import NewUserForm
 from .search_wikipedia import search_wikipedia
-
+from search_engine_mockup import search_eng_mockup
 # Create your views here.
 
 
@@ -30,7 +30,10 @@ def search_results(request):
 
         index = "papers"
         top_k = 15
-        search_result = search(search_query, index, top_k)
+        try:
+            search_result = search(search_query, index, top_k)
+        except:
+            search_result = search_eng_mockup()
         matched_wiki_page = search_wikipedia(query=search_query)
 
         if matched_wiki_page:

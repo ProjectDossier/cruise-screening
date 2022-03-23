@@ -19,7 +19,7 @@ res4 = {"id": "53e99784b7602d9701f3f95d", "title": "FCLOS", "url": "https://www.
 #        results_list.append(result)
 #    return results_list
 
-def search_engine_mockup() -> List[Dict[str,str]]:
+def search_eng_mockup() -> List[Dict[str,str]]:
 
     results_list = []
     results_list.append(res1)
