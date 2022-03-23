@@ -14,7 +14,7 @@ res2_article = Article(**res2)
 res3_article = Article(**res3)
 res4_article = Article(**res4)
 
-def search_eng_mockup() -> List[Dict[str,str]]:
+def search_eng_mockup() -> List[Article]:
 
     results_list = []
     results_list.append(res1_article)
