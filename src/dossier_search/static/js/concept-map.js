@@ -23,7 +23,8 @@ window.conceptMap = () => {
             graphRef.width = Math.max(topRow.clientWidth, bottomRow.clientWidth)
             graphRef.height = CANVAS_BOTTOM_PX
 
-            const context = graphRef.getContext('2d')
+            const offScreenCanvas = this.createOffScreenCanvas(graphRef.width, graphRef.height)
+            const context = offScreenCanvas.getContext("2d");
             context.strokeStyle = '#dbdbdb'
             
             ;[...topRow.children].forEach(node => {
@@ -37,6 +38,20 @@ window.conceptMap = () => {
                 context.lineTo(bottomCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
                 context.stroke()
             })
+
+            this.copyToOnScreen(offScreenCanvas, graphRef)
+        },
+
+        createOffScreenCanvas(width, height) {
+            const offScreenCanvas = document.createElement('canvas')
+            offScreenCanvas.width = width
+            offScreenCanvas.height = height
+            return offScreenCanvas
+        },
+
+        copyToOnScreen(offScreenCanvas, onScreenCanvas) {
+            const context = onScreenCanvas.getContext('2d');
+            context.drawImage(offScreenCanvas, 0, 0);
         },
 
         zoom(event) {
