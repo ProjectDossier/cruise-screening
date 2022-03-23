@@ -5,12 +5,25 @@
     </div>
     <div class="card-content">
         <div class="content">
-            <template x-if="open">
+            <template x-if="openAbstract">
                 <p>{{ search_result.abstract }}</p>
             </template>
-            <template x-if="!open" x-cloak>
-                <p>{{ search_result.snippet }} <button type="button" class="card__show-more" x-on:click="open = true">Show more</button></p>
+            <template x-if="!openAbstract" x-cloak>
+                <p>{{ search_result.snippet }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
             </template>
+            <p>
+                {% for keyword in search_result.keywords_small %}
+                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                {% endfor %}
+                <template x-if="!openKeywords">
+                    <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button>
+                </template>
+                <template x-if="openKeywords">
+                    {% for keyword in search_result.keywords %}
+                        <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                    {% endfor %}
+                </template>
+            </p>
         </div>
       </div>
 </article>
