@@ -110,6 +110,13 @@
   justify-content: center;
 }
 
+.concept-map > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .concept-map__row {
   display: flex;
   justify-content: center;
