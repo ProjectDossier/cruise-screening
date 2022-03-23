@@ -44,7 +44,7 @@ class Taxonomy:
         except:
             scores = taxonomy.text.apply(lambda x: fuzz.ratio(x, query))
             max_value, idx = scores.max(), scores.idxmax()
-            id = taxonomy.iloc[idx].id if max_value > 90 else []
+            id = taxonomy.iloc[idx].id if max_value > 90 else -100  # -100 is the id we use for when the query is not found in the taxonomy
         return id
 
     def get_1st_level_parents(self, id):
@@ -60,6 +60,8 @@ class Taxonomy:
 
     def search_relationships(self, query):
         id = self.get_id(query)
+        if id == -100:
+            return Concept(-100,query)
         query = Concept(id, query)
         query.parents = self.get_1st_level_parents(id)
         for item in query.parents:
