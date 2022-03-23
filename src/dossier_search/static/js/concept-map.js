@@ -2,7 +2,11 @@ window.conceptMap = () => {
     const CANVAS_TOP_PX = 0
     const CANVAS_BOTTOM_PX = 30
 
+    let zoomLevel = 1
+
     return {
+        transform: '',
+
         init() {
             this.drawGraph(this.$refs.conceptParents, 'top')
             this.drawGraph(this.$refs.parentsSubParents, 'top')
@@ -33,6 +37,13 @@ window.conceptMap = () => {
                 context.lineTo(bottomCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
                 context.stroke()
             })
+        },
+
+        zoom(event) {
+            const zoomLevelPlusDelta = zoomLevel + event.deltaY / 100
+            zoomLevel = Math.max(zoomLevelPlusDelta, 0.25)
+            zoomLevel = Math.min(zoomLevel, 1)
+            this.transform = `transform: scale(${zoomLevel})`
         },
     }
 }
