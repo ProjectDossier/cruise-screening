@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ee64f764-efc5-47c3-8ac1-371d859dcf8d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dossier_search/concept_search/taxonomy.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/dossier_search/concept_search/taxonomy.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/dossier_search/engine/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/dossier_search/engine/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +69,7 @@
       <option name="presentableId" value="Default" />
       <updated>1647946461425</updated>
       <workItem from="1647946462635" duration="5834000" />
-      <workItem from="1648034144804" duration="1024000" />
+      <workItem from="1648034144804" duration="3074000" />
     </task>
     <servers />
   </component>
