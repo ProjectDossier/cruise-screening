@@ -34,17 +34,19 @@ class Taxonomy:
 
         table = pd.DataFrame(example_list, columns=["id", "text", "child"])
         table = table.drop_duplicates()
+        table.text = table.text.str.lower()
 
         return table
 
     def get_id(self, query: str) -> str:
+        query = query.lower().lstrip()
         taxonomy = self.taxonomy
         try:
             id = taxonomy[taxonomy.text == query].id.values[0]
         except:
             scores = taxonomy.text.apply(lambda x: fuzz.ratio(x, query))
             max_value, idx = scores.max(), scores.idxmax()
-            id = taxonomy.iloc[idx].id if max_value > 90 else []
+            id = taxonomy.iloc[idx].id if max_value > 90 else -100  # -100 is the id we use for when the query is not found in the taxonomy
         return id
 
     def get_1st_level_parents(self, id):
@@ -61,6 +63,8 @@ class Taxonomy:
 
     def search_relationships(self, query):
         id = self.get_id(query)
+        if id == -100:
+            return Concept(-100,query)
         query = Concept(id, query)
         query.parents = self.get_1st_level_parents(id)
         for item in query.parents:

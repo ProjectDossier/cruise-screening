@@ -36,7 +36,9 @@ def search(query: str, index: str, top_k: int):
             abstract=candidate["_source"].get("document"),
             authors=", ".join(author_details),
             publication_date="publication_date",
-            venue=venue
+            venue=venue,
+            keywords_snippet=candidate["_source"].get("keywords")[:4],
+            keywords_rest=candidate["_source"].get("keywords")[4:]
         )
         candidate_list.append(retrieved_art)
 
