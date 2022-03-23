@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 import simplejson as json
 from django.utils import timezone
-from utils.helpers import search
+from .search_documents import search
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import NewUserForm
 from .search_wikipedia import search_wikipedia
