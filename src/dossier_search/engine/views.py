@@ -43,9 +43,9 @@ def search_results(request):
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
 
-        index = "papers"
+        index_name = "papers"
         top_k = 15
-        search_result = search(search_query, index, top_k)
+        search_result = search(query=search_query, index=index_name, top_k=top_k)
         tax_query = tax.search_relationships(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
 

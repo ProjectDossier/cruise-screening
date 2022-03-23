@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List, Union
 
 
 @dataclass
@@ -12,6 +13,8 @@ class Article:
     authors: str
     publication_date: str = ""
     venue: str = ""
+    keywords_snippet: Union[List[str], None] = None
+    keywords_rest: Union[List[str], None] = None
 
 
 @dataclass()
@@ -23,3 +26,4 @@ class WikipediaArticle:
     snippet: str
     content: str
     ambiguous: bool = True
+    keywords: Union[List[str], None] = None
