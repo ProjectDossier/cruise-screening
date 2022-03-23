@@ -1,4 +1,4 @@
-<article class="card mb-4" x-data="{ open: false }">
+<article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false }">
     <div class="card-content">
         <p class="title">{{ search_result.title }}</p>
         <p class="subtitle">{{ search_result.authors }}</p>
@@ -12,16 +12,18 @@
                 <p>{{ search_result.snippet }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
             </template>
             <p>
-                {% for keyword in search_result.keywords_small %}
+                {% for keyword in search_result.keywords_snippet %}
                     <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
                 {% endfor %}
                 <template x-if="!openKeywords">
-                    <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button>
+                    <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
                 </template>
                 <template x-if="openKeywords">
-                    {% for keyword in search_result.keywords %}
-                        <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
-                    {% endfor %}
+                    <span>
+                        {% for keyword in search_result.keywords_rest %}
+                            <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                        {% endfor %}
+                    </span>
                 </template>
             </p>
         </div>

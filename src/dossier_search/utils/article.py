@@ -13,8 +13,8 @@ class Article:
     authors: str
     publication_date: str = ""
     venue: str = ""
-    keywords: Union[List[str], None] = None
-    keywords_small: Union[List[str], None] = None
+    keywords_snippet: Union[List[str], None] = None
+    keywords_rest: Union[List[str], None] = None
 
 
 @dataclass()
