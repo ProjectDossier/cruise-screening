@@ -12,8 +12,15 @@ def highlighter(query: str, doc:str):
                 sentence = '<em>' + sentence + '</em>'
                 break
         sentence_pool.append(sentence)
-    highlighted_text = ' '.join(sentence_pool)
-    return highlighted_text
+    highlighted_text = '.'.join(sentence_pool)
+
+    snippet = ""
+    for sentence in sentence_pool:
+        if len(snippet)<200:
+            snippet += sentence + '.'
+
+    return highlighted_text, snippet
+  
 
 def search(query: str, index: str, top_k: int):
     headers = {
@@ -25,8 +32,9 @@ def search(query: str, index: str, top_k: int):
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("document")
         if doc_text:
-            snippet = doc_text[:160]
+            abstract, snippet = highlighter(query, doc_text)
         else:
+            abstract = ""
             snippet = ""
         authors_raw = candidate["_source"].get("authors")
         if authors_raw:
@@ -50,7 +58,7 @@ def search(query: str, index: str, top_k: int):
             title=candidate["_source"].get("title"),
             url=url,
             snippet=snippet,
-            abstract=highlighter(query, candidate["_source"].get("document")), # candidate["_source"].get("document"),
+            abstract=abstract, # candidate["_source"].get("document"),
             authors=", ".join(author_details),
             publication_date="publication_date",
             venue=venue,
