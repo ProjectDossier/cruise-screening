@@ -61,8 +61,10 @@ class Taxonomy:
     def search_relationships(self, query):
         id = self.get_id(query)
         query = Concept(id, query)
-        query.set_parents(self.get_1st_level_parents(id))
-        [item.set_parents(self.get_1st_level_parents(item.id)) for item in query.parents]
-        query.set_children(self.get_1st_level_children(id))
-        [item.set_children(self.get_1st_level_children(item.id)) for item in query.children]
+        query.parents = self.get_1st_level_parents(id)
+        for item in query.parents:
+            item.parents = self.get_1st_level_parents(item.id)
+        query.children = self.get_1st_level_children(id)
+        for item in query.children:
+            item.children = self.get_1st_level_children(item.id)
         return query

@@ -3,14 +3,23 @@ from dataclasses import dataclass
 
 @dataclass
 class Concept:
-    def __init__(self, id: str, text: str):
-        self.id = id
-        self.text = text
-        self.parents = []
-        self.children = []
+    id: str
+    text : str
+    _parents = []
+    _children = []
 
-    def set_parents(self, parents):
-        self.parents = parents
+    @property
+    def parents(self):
+        return self._parents
 
-    def set_children(self, children):
-        self.children = children
+    @parents.setter
+    def parents(self, parents):
+        self._parents = parents
+
+    @property
+    def children(self):
+        return self._children
+
+    @children.setter
+    def children(self, children):
+        self._children = children
