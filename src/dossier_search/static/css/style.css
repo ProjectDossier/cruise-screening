@@ -1,71 +1,120 @@
+/* 
+  TODO: This file should be refactored (split) into smaller files. Depending
+        on CSS expertise it can be done in one of two ways:
+  
+        1. Move it to postcss and use imports;
+        2. Split it into home.css, search-results.css and common.css.
+*/
 
-/* div.search-form{
-  background: #fff;
-  display: flex;
-  border: 1px solid #dfe1e5;
-  box-shadow: none;
-  border-radius: 24px;
-  z-index: 3;
-  height: 44px;
-  margin: 0 auto;
-  position: center;
-  width: 482px;
-  width: auto;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-} */
-
-.navbar-item{
-  size: 15rem;
-}
-
-input[type=text] {
-  width: 50%;
-  box-sizing: border-box;
-  border: 1px solid #dfe1e5;
-  border-radius: 24px;
-  font-size: 16px;
-  z-index: 3;
-  background-color: #f9f9f9;
-  background-position: 10px 10px;
-  background-repeat: no-repeat;
-  width: 620px !important;
-  padding: 12px 20px 12px 40px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: fixed;
-}
-/* input[type=text] {
-  background: #fff;
-  display: flex;
-  border: 1px solid #dfe1e5;
-  box-shadow: none;
-  border-radius: 24px;
-  z-index: 3;
-  height: 44px;
-  margin: 0 auto;
-  position: center;
-  width: 620px !important;
-  width: auto;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-} */
-input[type=submit] {
-  background-color: #5790f9;
-  border: none;
-  color: white;
-  padding: 15px 32px;
+.footer {
+  background: transparent;
+  padding: 16px;
   text-align: center;
+}
+
+.search-box {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: column;
+  min-height: calc(100vmin - 100px);
+  max-width: 500px;
+  margin: 16px auto;
+  width: 100%;
+}
+
+.search-box__logo {
+  display: block;
+  margin: 0 auto;
+  max-width: 250px;
+}
+
+.search-box__input {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.search-results {
+  display: grid;
+  height: 100vh;
+  grid-template-columns: 1fr 1fr;
+}
+
+.search-results > div {
+  overflow-y: auto;
+}
+
+.search-results > div:first-child {
+  border-right: 1px solid #efefef;
+}
+
+.search-results > div:last-child {
+  border-left: 1px solid #efefef;
+  margin-left: -1px;
+}
+
+.search-results__list {
+  padding: 16px;
+}
+
+.search-small {
+  border-bottom: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.search-small__logo {
+  margin-right: 10px;
+  width: 60px;
+}
+
+.search-small__input {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.card__show-more {
+  background: transparent;
+  border: 0;
+  color: #3498db;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  line-height: inherit;
+  text-decoration: underline;
+}
+
+.card__show-more:hover {
   text-decoration: none;
-  display: inline-block;
-  font-size: 12px;
-  top: 50%;
-  left: 50%;
-  margin-top: 30px;
-  margin-left: -50px;
-  position: fixed;
-  border-radius: 24px;
+}
+
+.card--wiki {
+  outline: 3px solid;
+}
+
+[x-cloak] {
+  display: none;
+}
+
+.concept-map {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.concept-map__row {
+  display: flex;
+  margin: 10px 0;
+}
+
+.concept-map__row a {
+  margin: 0 5px;
 }

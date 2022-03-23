@@ -5,11 +5,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 import simplejson as json
 from django.utils import timezone
-from utils.helpers import search
+from .search_documents import search
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import NewUserForm
 from concept_search.taxonomy import Taxonomy
-
+from .search_wikipedia import search_wikipedia
 
 # Create your views here.
 
@@ -25,21 +25,22 @@ def index(request):
     if request.method == "GET":
         return render(
             request,
-            "interfaces/welcome.html",
+            "interfaces/home.html",
         )
 
-
-def home(request):
-    if request.method == "POST":
-        search_query = request.POST.get("search_query", None)
+def search_results(request):
+    if request.method == "GET":
+        search_query = request.GET.get("search_query", None)
 
         index = "papers"
         top_k = 15
         search_result = search(search_query, index, top_k)
         tax_query = tax.search_relationships(query=search_query)
+        matched_wiki_page = search_wikipedia(query=search_query)
 
         context = {
             "search_result_list": search_result,
+            "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
             "concept_map": tax_query
@@ -50,8 +51,6 @@ def home(request):
             template_name="interfaces/search_result.html",
             context=context,
         )
-    else:
-        return render(request, "interfaces/home.html")
 
 
 def print_results(request, search_query):

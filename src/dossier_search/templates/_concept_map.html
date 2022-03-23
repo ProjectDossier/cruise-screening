@@ -1,0 +1,34 @@
+<div class="concept-map">
+    <div class="concept-map__row">
+        {% for parent in concept.parents %}
+            {% for subparent in parent.parents %}
+                <a href="{% url 'search_results' %}?search_query={{ subparent.title | urlencode }}" class="button is-small">{{ subparent.title }}</a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="concept-map__row">
+        {% for parent in concept.parents %}
+            <a href="{% url 'search_results' %}?search_query={{ parent.title | urlencode }}" class="button">{{ parent.title }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="concept-map__row">
+        <a href="{% url 'search_results' %}?search_query={{ concept.title | urlencode }}" class="button is-medium">{{ concept.title }}</a><br>
+    </div>
+
+    <div class="concept-map__row">
+        {% for child in concept.children %}
+            <a href="{% url 'search_results' %}?search_query={{ child.title | urlencode }}" class="button">{{ child.title }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="concept-map__row">
+        {% for child in concept.children %}
+            {% for subchild in child.children %}
+                <a href="{% url 'search_results' %}?search_query={{ subchild.title | urlencode }}" class="button is-small">{{ subchild.title }}</a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+</div>

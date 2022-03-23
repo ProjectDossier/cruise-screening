@@ -20,9 +20,6 @@ from engine import views
 urlpatterns = [
     path("", views.index, name="index"),
     path("admin/", admin.site.urls),
-    path("home/", views.home, name="home"),
-    path("results/<str:query>", views.home, name="home"),
-    path("register/", views.register, name="register"),
-    path("logout", views.logout_request, name="logout"),
-    path("login/", views.login_request, name="login"),
+    path("home/", views.index, name="home"),
+    path("search", views.search_results, name="search_results"),
 ]

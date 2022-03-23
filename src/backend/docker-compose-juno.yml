@@ -1,0 +1,5 @@
+version: "2"
+services:
+  es:
+    volumes:
+      - "/newstorage4/fink/dossier/data-literature:/usr/share/elasticsearch/data"
