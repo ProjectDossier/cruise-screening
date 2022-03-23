@@ -40,10 +40,15 @@ def search(query: str, index: str, top_k: int):
         else:
             venue = ""
 
+        url_candidates = candidate["_source"].get("url")
+        url = ""
+        if url_candidates:
+            url = url_candidates[0]
+
         retrieved_art = Article(
             id=candidate["_id"],
             title=candidate["_source"].get("title"),
-            url=candidate["_source"].get("url"),
+            url=url,
             snippet=snippet,
             abstract=highlighter(query, candidate["_source"].get("document")), # candidate["_source"].get("document"),
             authors=", ".join(author_details),
