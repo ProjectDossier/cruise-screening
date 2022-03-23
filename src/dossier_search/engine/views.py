@@ -9,7 +9,7 @@ from utils.helpers import search
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import NewUserForm
 from concept_search.taxonomy import Taxonomy
-from concept_search.concept import tax_search
+
 
 # Create your views here.
 
@@ -36,8 +36,8 @@ def home(request):
         index = "papers"
         top_k = 15
         search_result = search(search_query, index, top_k)
-        tax_query = tax_search(search_query)
-        print(tax_query)
+        tax_query = tax.search_relationships(query=search_query)
+
         context = {
             "search_result_list": search_result,
             "unique_searches": len(search_result),

@@ -1,6 +1,7 @@
 import pandas as pd
 import xmltodict
 from .concept import Concept
+from fuzzywuzzy import fuzz
 
 
 class Taxonomy:
@@ -38,7 +39,13 @@ class Taxonomy:
 
     def get_id(self, query: str) -> str:
         taxonomy = self.taxonomy
-        return taxonomy[taxonomy.text == query].id.values[0]
+        try:
+            id = taxonomy[taxonomy.text == query].id.values[0]
+        except:
+            scores = taxonomy.text.apply(lambda x: fuzz.ratio(x, query))
+            max_value, idx = scores.max(), scores.idxmax()
+            id = taxonomy.iloc[idx].id if max_value > 90 else []
+        return id
 
     def get_1st_level_parents(self, id):
         taxonomy = self.taxonomy
@@ -50,3 +57,12 @@ class Taxonomy:
         children = list(taxonomy[taxonomy.id == id].child)
         children = taxonomy[taxonomy.id.isin(children)][["id", "text"]].values
         return [Concept(item[0], item[1]) for item in children]
+
+    def search_relationships(self, query):
+        id = self.get_id(query)
+        query = Concept(id, query)
+        query.set_parents(self.get_1st_level_parents(id))
+        [item.set_parents(self.get_1st_level_parents(item.id)) for item in query.parents]
+        query.set_children(self.get_1st_level_children(id))
+        [item.set_children(self.get_1st_level_children(item.id)) for item in query.children]
+        return query

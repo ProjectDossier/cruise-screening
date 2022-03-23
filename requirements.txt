@@ -6,3 +6,4 @@ tqdm~=4.63.0
 wikipedia~=1.4.0
 pandas==1.4.1
 xmltodict==0.12.0
+fuzzywuzzy==0.18.0
