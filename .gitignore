@@ -1,5 +1,6 @@
 src/dossier_search/utils/example.ini
 data/
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
