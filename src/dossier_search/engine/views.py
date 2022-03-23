@@ -8,9 +8,13 @@ from django.utils import timezone
 from .search_documents import search
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import NewUserForm
+from concept_search.taxonomy import Taxonomy
 from .search_wikipedia import search_wikipedia
 
 # Create your views here.
+
+# Taxonomy instantiation
+tax = Taxonomy('../../data/external/acm_ccs.xml')
 
 
 def index(request):
@@ -31,6 +35,7 @@ def search_results(request):
         index = "papers"
         top_k = 15
         search_result = search(search_query, index, top_k)
+        tax_query = tax.search_relationships(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
 
         context = {
@@ -38,6 +43,7 @@ def search_results(request):
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
+            "concept_map": tax_query
         }
 
         return render(
