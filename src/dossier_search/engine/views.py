@@ -28,6 +28,17 @@ def index(request):
             "interfaces/home.html",
         )
 
+def about(request):
+    """
+    about page
+
+    """
+    if request.method == "GET":
+        return render(
+            request,
+            "interfaces/about.html",
+        )
+
 def search_results(request):
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
