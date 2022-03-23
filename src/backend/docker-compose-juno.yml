@@ -1,5 +1,10 @@
 version: "2"
 services:
+  search_app:
+    ports:
+      - "9880:8880"
   es:
     volumes:
       - "/newstorage4/fink/dossier/data-literature:/usr/share/elasticsearch/data"
+    ports:
+      - "9800:9200"

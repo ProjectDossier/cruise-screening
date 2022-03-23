@@ -1,16 +1,39 @@
-<article class="card mb-4" x-data="{ open: false }">
+<article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false }">
     <div class="card-content">
-        <p class="title">{{ search_result.title }}</p>
+        <p class="title">
+            {% if search_result.url %}
+                <a href="{{ search_result.url }}">{{ search_result.title }}</a>
+            {% else %}
+                {{ search_result.title }}
+            {% endif %}
+        </p>
         <p class="subtitle">{{ search_result.authors }}</p>
     </div>
     <div class="card-content">
         <div class="content">
-            <template x-if="open">
-                <p>{{ search_result.abstract }}</p>
+            <template x-if="openAbstract">
+                <p class="card__text">{{ search_result.abstract | safe }}</p>
             </template>
-            <template x-if="!open" x-cloak>
-                <p>{{ search_result.snippet }} <button type="button" class="card__show-more" x-on:click="open = true">Show more</button></p>
+            <template x-if="!openAbstract" x-cloak>
+                <p class="card__text">{{ search_result.snippet | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
             </template>
+            <p>
+                {% for keyword in search_result.keywords_snippet %}
+                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                {% endfor %}
+                {% if search_result.keywords_rest|length > 0 %}
+                    <template x-if="!openKeywords">
+                        <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
+                    </template>
+                    <template x-if="openKeywords">
+                        <span>
+                            {% for keyword in search_result.keywords_rest %}
+                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                            {% endfor %}
+                        </span>
+                    </template>
+                {% endif %}
+            </p>
         </div>
       </div>
 </article>

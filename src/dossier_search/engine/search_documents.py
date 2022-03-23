@@ -20,6 +20,7 @@ def highlighter(query: str, doc:str):
             snippet += sentence + '.'
 
     return highlighted_text, snippet
+  
 
 def search(query: str, index: str, top_k: int):
     headers = {
@@ -47,15 +48,22 @@ def search(query: str, index: str, top_k: int):
         else:
             venue = ""
 
+        url_candidates = candidate["_source"].get("url")
+        url = ""
+        if url_candidates:
+            url = url_candidates[0]
+
         retrieved_art = Article(
             id=candidate["_id"],
             title=candidate["_source"].get("title"),
-            url=candidate["_source"].get("url"),
+            url=url,
             snippet=snippet,
             abstract=abstract, # candidate["_source"].get("document"),
             authors=", ".join(author_details),
             publication_date="publication_date",
-            venue=venue
+            venue=venue,
+            keywords_snippet=candidate["_source"].get("keywords")[:4],
+            keywords_rest=candidate["_source"].get("keywords")[4:]
         )
         candidate_list.append(retrieved_art)
 
