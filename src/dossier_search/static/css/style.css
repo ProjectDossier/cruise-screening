@@ -127,3 +127,22 @@
 .concept-map__row a {
   margin: 0 5px;
 }
+
+.about {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.about__logo {
+  display: block;
+  margin: 0 auto;
+}
+
+.about__text {
+  line-height: 1.5;
+}
+
+.about__text p {
+  margin: 16px 0;
+}

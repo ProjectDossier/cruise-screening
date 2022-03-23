@@ -1,0 +1,21 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block content %}
+
+<article class="about">
+    <p><img src="{% static 'logo.png' %}" class="about__logo" width="300" height="300"></p>
+
+    <h1 class="title is-1">About Us</h1>
+    <div class="about__text">
+        <p>Hello world!</p>
+        <p>CRUISE is a collaborative project initiated by DoSSIER student researchers. As a part of CRUISE, this search engine aims to help academics coming into a space understand how the concepts associated with a specific field relate to each other and give them some structuring of the information space.</p> 
+        <p>DoSSIER is an EU Horizon 2020 ITN/ETN on Domain Specific Systems for Information Extraction and Retrieval. DoSSIER will elucidate, model, and address the different information needs of professional users.</p>
+        <p><a href="https://dossier-project.eu/researchers.html" target="_blank">Meet our team: PhD STUDENTS</a></p>
+        <p><a href="https://dossier-project.eu" target="_blank">More about DoSSIER</a></p>
+    </div>
+
+    <p><a href="{% url 'home' %}" class="button is-primary">Make a search</a></p>
+</article>
+
+{% include "_footer.html" %}
+{% endblock %}
