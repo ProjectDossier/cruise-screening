@@ -27,6 +27,12 @@ def build_query(query_text, top_k):
                 "minimum_should_match": 0,
                 "boost": 1.0,
             }
+            ,
+        },
+         "highlight": {
+         "fields": {
+        "document": {}
+         }
         },
     }
     return data_json

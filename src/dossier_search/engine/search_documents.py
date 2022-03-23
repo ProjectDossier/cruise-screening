@@ -3,6 +3,18 @@ import json
 from utils.article import Article
 
 
+def highlighter(query: str, doc:str):
+    keywords = query.split()
+    sentence_pool = []
+    for sentence in doc.split('.'):
+        for key in keywords:
+            if key in sentence:
+                sentence = '<em>' + sentence + '</em>'
+                break
+        sentence_pool.append(sentence)
+    highlighted_text = ' '.join(sentence_pool)
+    return highlighted_text
+
 def search(query: str, index: str, top_k: int):
     headers = {
         'Content-type': 'application/json'
@@ -33,7 +45,7 @@ def search(query: str, index: str, top_k: int):
             title=candidate["_source"].get("title"),
             url=candidate["_source"].get("url"),
             snippet=snippet,
-            abstract=candidate["_source"].get("document"),
+            abstract=highlighter(query, candidate["_source"].get("document")), # candidate["_source"].get("document"),
             authors=", ".join(author_details),
             publication_date="publication_date",
             venue=venue,
