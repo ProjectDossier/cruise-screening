@@ -112,7 +112,9 @@
 
 .concept-map__row {
   display: flex;
-  margin: 10px 0;
+  justify-content: center;
+  position: relative;
+  width: 100%;
 }
 
 .concept-map__row a {
