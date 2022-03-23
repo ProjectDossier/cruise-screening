@@ -55,7 +55,8 @@ class Taxonomy:
     def get_1st_level_children(self, id):
         taxonomy = self.taxonomy
         children = list(taxonomy[taxonomy.id == id].child)
-        children = taxonomy[taxonomy.id.isin(children)][["id", "text"]].values
+        children = taxonomy[taxonomy.id.isin(children)][["id", "text"]]
+        children = children.drop_duplicates().values
         return [Concept(item[0], item[1]) for item in children]
 
     def search_relationships(self, query):
