@@ -34,10 +34,12 @@ class Taxonomy:
 
         table = pd.DataFrame(example_list, columns=["id", "text", "child"])
         table = table.drop_duplicates()
+        table.text = table.text.str.lower()
 
         return table
 
     def get_id(self, query: str) -> str:
+        query = query.lower().lstrip()
         taxonomy = self.taxonomy
         try:
             id = taxonomy[taxonomy.text == query].id.values[0]
