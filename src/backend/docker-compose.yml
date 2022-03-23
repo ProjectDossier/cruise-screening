@@ -22,4 +22,4 @@ services:
     volumes:
       - "${HOME}/pyprojects/data-literature:/usr/share/elasticsearch/data"
     ports:
-      - "9800:9200"
+      - "9200:9200"
