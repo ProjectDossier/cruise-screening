@@ -1,7 +1,11 @@
-<form id="search_box" method="GET" action="/search">
-    <div class="seach-small">
+{% load static %}
+<form id="search_box" class="search-small" method="GET" action="/search">
+    <a class="search-small__logo" href="{% url 'home' %}">
+        <img src="{% static 'logo.png' %}" width="60" height="60">
+    </a>
+    <div class="search-small__input">
         <input type="search" class="input mr-2" name="search_query" value="{{ search_query }}" placeholder="Search" aria-label="Search" />
+        <input type='hidden' name='search_button' value="search_button">
         <button class="button is-primary">Search</button>
-      </div>
-      <input type='hidden' name='search_button' value="search_button">
+    </div>
 </form>
