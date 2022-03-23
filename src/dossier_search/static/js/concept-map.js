@@ -1,6 +1,6 @@
 window.conceptMap = () => {
     const CANVAS_TOP_PX = 0
-    const CANVAS_BOTTOM_PX = 15
+    const CANVAS_BOTTOM_PX = 30
 
     return {
         init() {
@@ -20,6 +20,7 @@ window.conceptMap = () => {
             graphRef.height = CANVAS_BOTTOM_PX
 
             const context = graphRef.getContext('2d')
+            context.strokeStyle = '#dbdbdb'
             
             ;[...topRow.children].forEach(node => {
                 const parentNodeId = parseInt(node.dataset.parent, 10)

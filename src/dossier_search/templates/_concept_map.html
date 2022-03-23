@@ -7,7 +7,7 @@
         {% endfor %}
     </div>
 
-    <canvas width="1" height="15" x-ref="parentsSubParents"></canvas>
+    <canvas width="1" height="30" x-ref="parentsSubParents"></canvas>
 
     <div class="concept-map__row" data-id="parents">
         {% for parent in concept.parents %}
@@ -15,13 +15,13 @@
         {% endfor %}
     </div>
 
-    <canvas width="1" height="15" x-ref="conceptParents"></canvas>
+    <canvas width="1" height="30" x-ref="conceptParents"></canvas>
 
     <div class="concept-map__row" data-id="concept">
         <a href="{% url 'search_results' %}?search_query={{ concept.title | urlencode }}" class="button is-medium">{{ concept.title }}</a><br>
     </div>
 
-    <canvas width="1" height="15" x-ref="conceptChildren"></canvas>
+    <canvas width="1" height="30" x-ref="conceptChildren"></canvas>
 
     <div class="concept-map__row" data-id="children">
         {% for child in concept.children %}
@@ -29,7 +29,7 @@
         {% endfor %}
     </div>
 
-    <canvas width="1" height="15" x-ref="childrenSubChildren"></canvas>
+    <canvas width="1" height="30" x-ref="childrenSubChildren"></canvas>
 
     <div class="concept-map__row" data-id="subchildren">
         {% for child in concept.children %}
