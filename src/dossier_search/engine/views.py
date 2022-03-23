@@ -10,6 +10,15 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import NewUserForm
 from concept_search.taxonomy import Taxonomy
 from .search_wikipedia import search_wikipedia
+import logging
+
+logger = logging.getLogger("user_queries")
+hdlr = logging.FileHandler("../../data/user_queries.log")
+formatter = logging.Formatter("%(asctime)s %(message)s")
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.INFO)
+
 
 # Create your views here.
 
@@ -42,6 +51,7 @@ def about(request):
 def search_results(request):
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
+        logger.info(search_query)
 
         index_name = "papers"
         top_k = 15
