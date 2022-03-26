@@ -38,7 +38,7 @@ def search(query: str, index: str, top_k: int):
             snippet = ""
         authors_raw = candidate["_source"].get("authors")
         if authors_raw:
-            author_details = [author["name"] for author in authors_raw]
+            author_details = [author["name"] for author in authors_raw if "name" in author]
         else:
             author_details = []
         
