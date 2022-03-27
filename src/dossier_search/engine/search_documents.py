@@ -1,26 +1,29 @@
+import requests
 import json
+import re
+from typing import List
 
 import requests
 from utils.article import Article
 
 
-def highlighter(query: str, doc: str):
-    keywords = query.split()
-    sentence_pool = []
-    for sentence in doc.split("."):
-        for key in keywords:
-            if key in sentence:
-                sentence = "<em>" + sentence + "</em>"
-                break
-        sentence_pool.append(sentence)
-    highlighted_text = ".".join(sentence_pool)
+def highlighter(query: str, doc: str, es_highlighted_texts: List[str]):
+    pattern = re.compile(r'<em>(.*?)</em>')
+    highlight_terms = []
+    for line in es_highlighted_texts:
+        highlight_terms += re.findall(pattern, line)
 
-    snippet = ""
-    for sentence in sentence_pool:
-        if len(snippet) < 200:
-            snippet += sentence + "."
+    highlighted_abstract = ""
+    highlighted_snippet = ""
+    for term in doc.split():
+        if re.sub(r'[^\w]', '', term) in highlight_terms:
+            term = '<em>' + term + '</em>'
+        term += " "
+        highlighted_abstract += term
+        if len(highlighted_snippet) < 160:
+            highlighted_snippet += term
 
-    return highlighted_text, snippet
+    return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
 def search(query: str, index: str, top_k: int):
@@ -35,7 +38,7 @@ def search(query: str, index: str, top_k: int):
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("document")
         if doc_text:
-            abstract, snippet = highlighter(query, doc_text)
+            abstract, snippet = highlighter(query, doc_text, candidate["highlight"]["document"])
         else:
             abstract = ""
             snippet = ""
@@ -63,7 +66,7 @@ def search(query: str, index: str, top_k: int):
             title=candidate["_source"].get("title"),
             url=url,
             snippet=snippet,
-            abstract=abstract,  # candidate["_source"].get("document"),
+            abstract=abstract,
             authors=", ".join(author_details),
             publication_date="publication_date",
             venue=venue,
