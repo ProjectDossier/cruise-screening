@@ -1,16 +1,14 @@
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
-from django.urls import reverse
-import simplejson as json
-from django.utils import timezone
-from .search_documents import search
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import NewUserForm
-from concept_search.taxonomy import Taxonomy
-from .search_wikipedia import search_wikipedia
 import logging
+
+from concept_search.taxonomy import Taxonomy
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect
+
+from .forms import NewUserForm
+from .search_documents import search
+from .search_wikipedia import search_wikipedia
 
 logger = logging.getLogger("user_queries")
 hdlr = logging.FileHandler("../../data/user_queries.log")
@@ -23,7 +21,7 @@ logger.setLevel(logging.INFO)
 # Create your views here.
 
 # Taxonomy instantiation
-tax = Taxonomy('../../data/external/acm_ccs.xml')
+tax = Taxonomy("../../data/external/acm_ccs.xml")
 
 
 def index(request):
@@ -37,6 +35,7 @@ def index(request):
             "interfaces/home.html",
         )
 
+
 def about(request):
     """
     about page
@@ -47,6 +46,7 @@ def about(request):
             request,
             "interfaces/about.html",
         )
+
 
 def search_results(request):
     if request.method == "GET":
@@ -64,7 +64,7 @@ def search_results(request):
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
-            "concept_map": tax_query
+            "concept_map": tax_query,
         }
 
         return render(

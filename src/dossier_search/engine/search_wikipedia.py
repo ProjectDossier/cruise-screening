@@ -1,5 +1,6 @@
-import wikipedia
 from typing import Dict, Union
+
+import wikipedia
 from utils.article import WikipediaArticle
 
 

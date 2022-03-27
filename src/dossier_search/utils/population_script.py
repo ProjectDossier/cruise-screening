@@ -1,6 +1,7 @@
+import os
 import sys
 import xml.etree.ElementTree as ET
-import os
+
 import django
 
 topic_subset_file = "topic_file.csv"

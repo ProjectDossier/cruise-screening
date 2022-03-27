@@ -1,33 +1,36 @@
-import requests
 import json
+
+import requests
 from utils.article import Article
 
 
-def highlighter(query: str, doc:str):
+def highlighter(query: str, doc: str):
     keywords = query.split()
     sentence_pool = []
-    for sentence in doc.split('.'):
+    for sentence in doc.split("."):
         for key in keywords:
             if key in sentence:
-                sentence = '<em>' + sentence + '</em>'
+                sentence = "<em>" + sentence + "</em>"
                 break
         sentence_pool.append(sentence)
-    highlighted_text = '.'.join(sentence_pool)
+    highlighted_text = ".".join(sentence_pool)
 
     snippet = ""
     for sentence in sentence_pool:
-        if len(snippet)<200:
-            snippet += sentence + '.'
+        if len(snippet) < 200:
+            snippet += sentence + "."
 
     return highlighted_text, snippet
-  
+
 
 def search(query: str, index: str, top_k: int):
-    headers = {
-        'Content-type': 'application/json'
-    }
-    res = requests.post( 'http://localhost:9880' + '/search', data=json.dumps({'query': query}), headers=headers)
-    results = res.json()['results']
+    headers = {"Content-type": "application/json"}
+    res = requests.post(
+        "http://localhost:9880" + "/search",
+        data=json.dumps({"query": query}),
+        headers=headers,
+    )
+    results = res.json()["results"]
     candidate_list = []
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("document")
@@ -38,10 +41,12 @@ def search(query: str, index: str, top_k: int):
             snippet = ""
         authors_raw = candidate["_source"].get("authors")
         if authors_raw:
-            author_details = [author["name"] for author in authors_raw if "name" in author]
+            author_details = [
+                author["name"] for author in authors_raw if "name" in author
+            ]
         else:
             author_details = []
-        
+
         venue_raw = candidate["_source"].get("venue")
         if venue_raw:
             venue = venue_raw.get("raw")
@@ -58,12 +63,12 @@ def search(query: str, index: str, top_k: int):
             title=candidate["_source"].get("title"),
             url=url,
             snippet=snippet,
-            abstract=abstract, # candidate["_source"].get("document"),
+            abstract=abstract,  # candidate["_source"].get("document"),
             authors=", ".join(author_details),
             publication_date="publication_date",
             venue=venue,
             keywords_snippet=candidate["_source"].get("keywords")[:4],
-            keywords_rest=candidate["_source"].get("keywords")[4:]
+            keywords_rest=candidate["_source"].get("keywords")[4:],
         )
         candidate_list.append(retrieved_art)
 

@@ -5,6 +5,7 @@ from typing import List, Union
 @dataclass
 class Article:
     """Class for representing article from AMiner."""
+
     id: str
     title: str
     url: str
@@ -20,6 +21,7 @@ class Article:
 @dataclass()
 class WikipediaArticle:
     """Class for representing Wikipedia article."""
+
     id: str
     title: str
     url: str

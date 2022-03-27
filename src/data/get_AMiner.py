@@ -1,8 +1,8 @@
-from os.path import join as join_path
-import re
+import argparse
 import ast
 import json
-import argparse
+import re
+from os.path import join as join_path
 
 parser = argparse.ArgumentParser(description='jsonl formater')
 parser.add_argument('-p',

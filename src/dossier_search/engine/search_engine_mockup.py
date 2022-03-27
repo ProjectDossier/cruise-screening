@@ -1,8 +1,9 @@
 import json
 from typing import List, Dict
 
-def search_engine_mockup(path_to_file: str) -> List[Dict[str,str]]:
-    with open(path_to_file, 'r') as json_file:
+
+def search_engine_mockup(path_to_file: str) -> List[Dict[str, str]]:
+    with open(path_to_file, "r") as json_file:
         json_list = list(json_file)
 
     results_list = []
