@@ -64,29 +64,25 @@ class Taxonomy:
 
     def assign_parents(self, item):
         parent = Concept(item[0], item[1])
-        parent.parents = self.get_parents(item[0], item[1])
+        parent.parents = self.get_parents(id=item[0])
         return parent
 
-    def get_parents(self, id, text):
+    def get_parents(self, id):
         taxonomy = self.taxonomy
         parents = taxonomy[taxonomy.child == id][["id", "text"]].values
-        query = Concept(id, text)
-        query.parents = [self.assign_parents(item) for item in parents]
-        return query.parents
+        return [self.assign_parents(item) for item in parents]
 
     def assign_children(self, item):
         child = Concept(item[0], item[1])
-        child.children = self.get_children(item[0], item[1])
+        child.children = self.get_children(item[0])
         return child
 
-    def get_children(self, id, text):
+    def get_children(self, id):
         taxonomy = self.taxonomy
         children = list(taxonomy[taxonomy.id == id].child)
         children = taxonomy[taxonomy.id.isin(children)][["id", "text"]]
         children = children.drop_duplicates().values
-        query = Concept(id, text)
-        query.children = [self.assign_children(item) for item in children]
-        return query.children
+        return [self.assign_children(item) for item in children]
 
     def search_relationships(self, query):
         id = self.get_id(query)
@@ -106,7 +102,6 @@ class Taxonomy:
         if id == -100:
             return Concept(-100, query)
         query = Concept(id, query)
-        query.parents = self.get_parents(id, query)
-        query.children = self.get_children(id, query)
+        query.parents = self.get_parents(id)
+        query.children = self.get_children(id)
         return query
-
