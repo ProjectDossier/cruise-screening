@@ -2,6 +2,8 @@ import requests
 import json
 import re
 from typing import List
+
+import requests
 from utils.article import Article
 
 
@@ -25,11 +27,13 @@ def highlighter(query: str, doc: str, es_highlighted_texts: List[str]):
 
 
 def search(query: str, index: str, top_k: int):
-    headers = {
-        'Content-type': 'application/json'
-    }
-    res = requests.post( 'http://localhost:9880' + '/search', data=json.dumps({'query': query}), headers=headers)
-    results = res.json()['results']
+    headers = {"Content-type": "application/json"}
+    res = requests.post(
+        "http://localhost:9880" + "/search",
+        data=json.dumps({"query": query}),
+        headers=headers,
+    )
+    results = res.json()["results"]
     candidate_list = []
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("document")
@@ -40,10 +44,12 @@ def search(query: str, index: str, top_k: int):
             snippet = ""
         authors_raw = candidate["_source"].get("authors")
         if authors_raw:
-            author_details = [author["name"] for author in authors_raw if "name" in author]
+            author_details = [
+                author["name"] for author in authors_raw if "name" in author
+            ]
         else:
             author_details = []
-        
+
         venue_raw = candidate["_source"].get("venue")
         if venue_raw:
             venue = venue_raw.get("raw")
@@ -65,7 +71,7 @@ def search(query: str, index: str, top_k: int):
             publication_date="publication_date",
             venue=venue,
             keywords_snippet=candidate["_source"].get("keywords")[:4],
-            keywords_rest=candidate["_source"].get("keywords")[4:]
+            keywords_rest=candidate["_source"].get("keywords")[4:],
         )
         candidate_list.append(retrieved_art)
 
