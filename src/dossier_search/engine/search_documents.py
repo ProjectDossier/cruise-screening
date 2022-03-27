@@ -1,10 +1,11 @@
 import requests
 import json
-from utils.article import Article
 import re
+from typing import List
+from utils.article import Article
 
 
-def highlighter(query: str, doc: str, es_highlighted_texts: list):
+def highlighter(query: str, doc: str, es_highlighted_texts: List[str]):
     pattern = re.compile(r'<em>(.*?)</em>')
     highlight_terms = []
     for line in es_highlighted_texts:
@@ -59,7 +60,7 @@ def search(query: str, index: str, top_k: int):
             title=candidate["_source"].get("title"),
             url=url,
             snippet=snippet,
-            abstract=abstract,  # candidate["_source"].get("document"),
+            abstract=abstract,
             authors=", ".join(author_details),
             publication_date="publication_date",
             venue=venue,
