@@ -1,16 +1,14 @@
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
-from django.urls import reverse
-import simplejson as json
-from django.utils import timezone
-from .search_documents import search
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import NewUserForm
-from concept_search.taxonomy import Taxonomy
-from .search_wikipedia import search_wikipedia
 import logging
+
+from concept_search.taxonomy import Taxonomy
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect
+
+from .forms import NewUserForm
+from .search_documents import search
+from .search_wikipedia import search_wikipedia
 
 logger = logging.getLogger("user_queries")
 hdlr = logging.FileHandler("../../data/user_queries.log")

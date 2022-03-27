@@ -1,7 +1,8 @@
 import pandas as pd
 import xmltodict
-from .concept import Concept
 from fuzzywuzzy import fuzz
+
+from .concept import Concept
 
 
 class Taxonomy:

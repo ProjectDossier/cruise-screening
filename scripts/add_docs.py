@@ -1,7 +1,8 @@
 """Simple script for adding documents to the elastic db"""
+import json
+
 from elasticsearch import Elasticsearch
 from tqdm.auto import tqdm
-import json
 
 FIRST_N_DOCS = 1000
 PORT = 9200

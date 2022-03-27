@@ -1,7 +1,8 @@
-from flask import Flask, escape, request
 import json
-import requests
 import logging
+
+import requests
+from flask import Flask, request
 
 app = Flask(__name__)
 

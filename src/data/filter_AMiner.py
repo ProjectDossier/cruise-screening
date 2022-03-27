@@ -1,8 +1,9 @@
-from os.path import join as join_path
 import argparse
-from datetime import datetime
-from time import mktime
 import json
+from datetime import datetime
+from os.path import join as join_path
+from time import mktime
+
 import cld3
 
 FIELDS = ["abstract", "title", "year", "id", "keywords"]
