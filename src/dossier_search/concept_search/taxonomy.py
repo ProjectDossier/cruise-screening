@@ -46,7 +46,8 @@ class Taxonomy:
         except:
             scores = taxonomy.text.apply(lambda x: fuzz.ratio(x, query))
             max_value, idx = scores.max(), scores.idxmax()
-            id = taxonomy.iloc[idx].id if max_value > 90 else -100  # -100 is the id we use for when the query is not found in the taxonomy
+            # -100 is the id we use when the query is not found in the taxonomy
+            id = taxonomy.iloc[idx].id if max_value > 90 else -100
         return id
 
     def get_1st_level_parents(self, id):
@@ -61,10 +62,32 @@ class Taxonomy:
         children = children.drop_duplicates().values
         return [Concept(item[0], item[1]) for item in children]
 
+    def assign_parents(self, item):
+        parent = Concept(item[0], item[1])
+        parent.parents = self.get_parents(id=item[0])
+        return parent
+
+    def get_parents(self, id):
+        taxonomy = self.taxonomy
+        parents = taxonomy[taxonomy.child == id][["id", "text"]].values
+        return [self.assign_parents(item) for item in parents]
+
+    def assign_children(self, item):
+        child = Concept(item[0], item[1])
+        child.children = self.get_children(item[0])
+        return child
+
+    def get_children(self, id):
+        taxonomy = self.taxonomy
+        children = list(taxonomy[taxonomy.id == id].child)
+        children = taxonomy[taxonomy.id.isin(children)][["id", "text"]]
+        children = children.drop_duplicates().values
+        return [self.assign_children(item) for item in children]
+
     def search_relationships(self, query):
         id = self.get_id(query)
         if id == -100:
-            return Concept(-100,query)
+            return Concept(-100, query)
         query = Concept(id, query)
         query.parents = self.get_1st_level_parents(id)
         for item in query.parents:
@@ -72,4 +95,13 @@ class Taxonomy:
         query.children = self.get_1st_level_children(id)
         for item in query.children:
             item.children = self.get_1st_level_children(item.id)
+        return query
+
+    def search(self, query):
+        id = self.get_id(query)
+        if id == -100:
+            return Concept(-100, query)
+        query = Concept(id, query)
+        query.parents = self.get_parents(id)
+        query.children = self.get_children(id)
         return query
