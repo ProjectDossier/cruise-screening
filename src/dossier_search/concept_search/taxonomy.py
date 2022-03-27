@@ -15,23 +15,25 @@ class Taxonomy:
     def get_ccs(self, path):
         with open(path, "r") as f:
             text = f.read()
-            examples = xmltodict.parse(text)['rdf:RDF']['skos:Concept']
+            examples = xmltodict.parse(text)["rdf:RDF"]["skos:Concept"]
 
-        id = '@rdf:about'
-        name = 'skos:prefLabel'
-        childs = 'skos:narrower'
-        child = '@rdf:resource'
+        id = "@rdf:about"
+        name = "skos:prefLabel"
+        childs = "skos:narrower"
+        child = "@rdf:resource"
         example_list = []
         for example in examples:
             try:
                 if len(example[childs]) == 1:
                     example[childs] = [example[childs]]
-                for e_child in [i[child].split('.')[-1] for i in example[childs]]:
-                    example_list.append([example[id].split('.')[-1],
-                                         example[name]['#text'],
-                                         e_child])
+                for e_child in [i[child].split(".")[-1] for i in example[childs]]:
+                    example_list.append(
+                        [example[id].split(".")[-1], example[name]["#text"], e_child]
+                    )
             except:
-                example_list.append([example[id].split('.')[-1], example[name]['#text'], None])
+                example_list.append(
+                    [example[id].split(".")[-1], example[name]["#text"], None]
+                )
 
         table = pd.DataFrame(example_list, columns=["id", "text", "child"])
         table = table.drop_duplicates()

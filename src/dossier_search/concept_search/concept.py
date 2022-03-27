@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class Concept:
     id: str
-    text : str
+    text: str
     _parents = []
     _children = []
 

@@ -21,7 +21,7 @@ logger.setLevel(logging.INFO)
 # Create your views here.
 
 # Taxonomy instantiation
-tax = Taxonomy('../../data/external/acm_ccs.xml')
+tax = Taxonomy("../../data/external/acm_ccs.xml")
 
 
 def index(request):
@@ -35,6 +35,7 @@ def index(request):
             "interfaces/home.html",
         )
 
+
 def about(request):
     """
     about page
@@ -45,6 +46,7 @@ def about(request):
             request,
             "interfaces/about.html",
         )
+
 
 def search_results(request):
     if request.method == "GET":
@@ -62,7 +64,7 @@ def search_results(request):
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
-            "concept_map": tax_query
+            "concept_map": tax_query,
         }
 
         return render(
