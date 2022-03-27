@@ -20,6 +20,8 @@ def search_wikipedia(query: str) -> Union[Dict[str, str], None]:
         )
     except wikipedia.PageError:
         result = None
+    except KeyError:
+        result = None
     except wikipedia.DisambiguationError as e:
         page_object = wikipedia.page(e.options[0], auto_suggest=False)
 
