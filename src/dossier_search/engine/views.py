@@ -51,6 +51,13 @@ def about(request):
 def search_results(request):
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
+
+        if not search_query:
+            return render(
+                request,
+                "interfaces/home.html",
+            )
+
         logger.info(search_query)
 
         index_name = "papers"
