@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import pandas as pd
 import xmltodict
 from fuzzywuzzy import fuzz
@@ -5,8 +6,12 @@ from fuzzywuzzy import fuzz
 from .concept import Concept
 
 
-class Taxonomy:
+class Taxonomy(ABC):
     def __init__(self):
+        pass
+
+    @abstractmethod
+    def read_taxonomy(self):
         pass
 
     def get_id(self, query: str) -> str:
