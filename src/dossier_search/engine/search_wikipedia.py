@@ -12,7 +12,6 @@ def search_wikipedia(query: str) -> Union[Dict[str, str], None]:
 
     try:
         page_object = wikipedia.page(query, auto_suggest=False)
-        print(page_object)
         result = WikipediaArticle(
             id=page_object.pageid,
             title=page_object.title,
