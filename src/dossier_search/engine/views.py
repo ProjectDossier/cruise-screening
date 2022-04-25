@@ -1,4 +1,5 @@
 import logging
+import time
 
 from concept_search.taxonomy import TaxonomyCSO, TaxonomyCCS
 from django.contrib import messages
@@ -59,6 +60,7 @@ def search_results(request):
             )
 
         logger.info(search_query)
+        s_time = time.time()
 
         index_name = "papers"
         top_k = 15
@@ -86,6 +88,7 @@ def search_results(request):
             "search_query": search_query,
             "tax_result": tax_result,
             "tax_results": tax_results,
+            "search_time": f"{(time.time() - s_time):.2f}",
         }
 
         return render(
