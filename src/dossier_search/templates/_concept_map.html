@@ -1,3 +1,15 @@
+<div class="select is-primary">
+  <select>
+      {% for key, value in tax_results.items %}
+        <option>{{ key }}</option>
+      {% endfor %}
+  </select>
+  {% for key, value in tax_results.items %}
+    <a href="{% url 'search_results' %}?search_query={{ key | urlencode }}" class="button is-small">{{ key }}</a>
+  {% endfor %}
+</div>
+{# here assign a value into jinja template #}
+{% with concept_map=tax_results.cso %}
 <div class="concept-map" x-data="conceptMap()" x-on:wheel.prevent="zoom">
     <div :style="transform">
         <div class="concept-map__row">
@@ -41,3 +53,4 @@
         </div>
     </div>
 </div>
+{% endwith %}

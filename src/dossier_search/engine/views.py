@@ -1,6 +1,6 @@
 import logging
 
-from concept_search.taxonomy import TaxonomyCCS as Taxonomy
+from concept_search.taxonomy import TaxonomyCSO, TaxonomyCCS
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -21,8 +21,8 @@ logger.setLevel(logging.INFO)
 # Create your views here.
 
 # Taxonomy instantiation
-tax = Taxonomy("../../data/external/acm_ccs.xml")
-
+tax_ccs = TaxonomyCCS("../../data/external/acm_ccs.xml")
+tax_cso = TaxonomyCSO("../../data/external/CSO.3.3.csv")
 
 def index(request):
     """
@@ -63,15 +63,27 @@ def search_results(request):
         index_name = "papers"
         top_k = 15
         search_result = search(query=search_query, index=index_name, top_k=top_k)
-        tax_query = tax.search_relationships(query=search_query)
+        tax_results = {
+            "cso": tax_cso.search_relationships(query=search_query),
+            "ccs": tax_ccs.search_relationships(query=search_query),
+        }
+        # tax_query = tax_cso.search_relationships(query=search_query)
+        tax_query = tax_cso.search_relationships(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
+
+        tax_result = {
+            "concept": tax_query,
+            "parents": tax_query.parents,
+            "subparents": list(set([item for sublist in tax_query.parents for item in sublist.parents])),
+        }
 
         context = {
             "search_result_list": search_result,
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
-            "concept_map": tax_query,
+            "tax_result": tax_result,
+            "tax_results": tax_results,
         }
 
         return render(

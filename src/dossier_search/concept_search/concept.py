@@ -8,6 +8,14 @@ class Concept:
     _parents = []
     _children = []
 
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.id == other.id and self.text == other.text
+        return False
+
+    def __hash__(self):
+        return hash(self.id) ^ hash(self.text)
+
     @property
     def parents(self):
         return self._parents
