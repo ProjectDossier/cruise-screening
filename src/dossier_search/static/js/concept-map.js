@@ -8,10 +8,10 @@ window.conceptMap = () => {
         transform: '',
 
         init() {
-            this.drawGraph(this.$refs.conceptParents, 'top')
-            this.drawGraph(this.$refs.parentsSubParents, 'top')
-            this.drawGraph(this.$refs.conceptChildren, 'bottom')
-            this.drawGraph(this.$refs.childrenSubChildren, 'bottom')
+            this.drawGraph(this.$refs.conceptParents, 'bottom')
+            this.drawGraph(this.$refs.parentsSubParents, 'bottom')
+            this.drawGraph(this.$refs.conceptChildren, 'top')
+            this.drawGraph(this.$refs.childrenSubChildren, 'top')
         },
 
         drawGraph(graphRef, direction) {
@@ -25,18 +25,26 @@ window.conceptMap = () => {
 
             const offScreenCanvas = this.createOffScreenCanvas(graphRef.width, graphRef.height)
             const context = offScreenCanvas.getContext("2d");
-            context.strokeStyle = '#dbdbdb'
+            context.strokeStyle = '#ababab'
             
             ;[...topRow.children].forEach(node => {
                 const parentNodeId = parseInt(node.dataset.parent, 10)
+                const parentIds = isDirectionTop ? node.dataset.childrenid : node.dataset.parentid
+
                 if (isNaN(parentNodeId)) return
 
-                const parentNode = bottomRow.children[parentNodeId]
-                const bottomCenter = parentNode.offsetLeft + parentNode.clientWidth / 2
-                const topCenter = node.offsetLeft + node.clientWidth / 2
-                context.moveTo(topCenter, isDirectionTop ? CANVAS_TOP_PX : CANVAS_BOTTOM_PX)
-                context.lineTo(bottomCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
-                context.stroke()
+                ;[...bottomRow.children].forEach(bottomNode => {
+                    const currentId = parseInt(bottomNode.dataset.currentid, 10)
+
+                    if (parentIds.split('-').includes(currentId.toString())) {
+                        const bottomCenter = bottomNode.offsetLeft + bottomNode.clientWidth / 2
+                        const topCenter = node.offsetLeft + node.clientWidth / 2
+                        context.moveTo(topCenter, isDirectionTop ? CANVAS_TOP_PX : CANVAS_BOTTOM_PX)
+                        context.lineTo(bottomCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
+                        context.stroke()
+
+                    }
+                })
             })
 
             this.copyToOnScreen(offScreenCanvas, graphRef)

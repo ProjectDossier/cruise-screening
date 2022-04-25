@@ -5,6 +5,8 @@ from dataclasses import dataclass
 class Concept:
     id: str
     text: str
+    children_ids: str = ""
+    parent_ids: str = ""
     _parents = []
     _children = []
 

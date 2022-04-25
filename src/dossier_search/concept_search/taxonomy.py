@@ -41,6 +41,7 @@ class Taxonomy(ABC):
     def assign_parents(self, item):
         parent = Concept(item[0], item[1])
         parent.parents = self.get_parents(id=item[0])
+        parent.parent_ids = "-".join([item.id for item in parent.parents])
         return parent
 
     def get_parents(self, id):
@@ -51,6 +52,7 @@ class Taxonomy(ABC):
     def assign_children(self, item):
         child = Concept(item[0], item[1])
         child.children = self.get_children(item[0])
+        child.children_ids = "-".join([child_.id for child_ in child.children])
         return child
 
     def get_children(self, id):
@@ -68,6 +70,7 @@ class Taxonomy(ABC):
         query.parents = self.get_1st_level_parents(id)
         for item in query.parents:
             item.parents = self.get_1st_level_parents(item.id)
+            item.children_ids = "-".join([child_.id for child_ in item.children])
         query.children = self.get_1st_level_children(id)
         for item in query.children:
             item.children = self.get_1st_level_children(item.id)
@@ -80,6 +83,8 @@ class Taxonomy(ABC):
         query = Concept(id, query)
         query.parents = self.get_parents(id)
         query.children = self.get_children(id)
+        query.children_ids = "-".join([item.id for item in query.children])
+        query.parent_ids = "-".join([item.id for item in query.parents])
         return query
 
 

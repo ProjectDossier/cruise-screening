@@ -63,18 +63,20 @@ def search_results(request):
         index_name = "papers"
         top_k = 15
         search_result = search(query=search_query, index=index_name, top_k=top_k)
+        matched_wiki_page = search_wikipedia(query=search_query)
+
+        # FIXME: we need to decide on one approach for using multiple taxonomies
         tax_results = {
             "cso": tax_cso.search_relationships(query=search_query),
             "ccs": tax_ccs.search_relationships(query=search_query),
         }
-        # tax_query = tax_cso.search_relationships(query=search_query)
-        tax_query = tax_cso.search_relationships(query=search_query)
-        matched_wiki_page = search_wikipedia(query=search_query)
-
+        tax_query = tax_cso.search(query=search_query)
         tax_result = {
             "concept": tax_query,
             "parents": tax_query.parents,
             "subparents": list(set([item for sublist in tax_query.parents for item in sublist.parents])),
+            "children": tax_query.children,
+            "subchildren": list(set([item for sublist in tax_query.children for item in sublist.children])),
         }
 
         context = {

@@ -13,42 +13,38 @@
 <div class="concept-map" x-data="conceptMap()" x-on:wheel.prevent="zoom">
     <div :style="transform">
         <div class="concept-map__row">
-            {% for parent in concept_map.parents %}
-                {% for subparent in parent.parents %}
-                    <a href="{% url 'search_results' %}?search_query={{ subparent.text | urlencode }}" class="button is-small" data-parent="{{ forloop.parentloop.counter0 }}">{{ subparent.text }}</a>
-                {% endfor %}
+            {% for parent in tax_result.subparents %}
+                <a href="{% url 'search_results' %}?search_query={{ parent.text | urlencode }}" class="button is-small" data-currentid="{{ parent.id }}" data-childrenid="{{ parent.children_ids }}" data-parent="{{ parent.id }}">{{ parent.text }}</a>
             {% endfor %}
         </div>
 
         <canvas width="1" height="30" x-ref="parentsSubParents"></canvas>
 
         <div class="concept-map__row">
-            {% for parent in concept_map.parents %}
-                <a href="{% url 'search_results' %}?search_query={{ parent.text | urlencode }}" class="button" data-parent="0">{{ parent.text }}</a>
+            {% for parent in tax_result.parents %}
+                <a href="{% url 'search_results' %}?search_query={{ parent.text | urlencode }}" class="button" data-currentid="{{ parent.id }}" data-childrenid="{{ parent.children_ids }}" data-parentid="{{ parent.parent_ids }}" data-parent="0">{{ parent.text }}</a>
             {% endfor %}
         </div>
 
         <canvas width="1" height="30" x-ref="conceptParents"></canvas>
 
         <div class="concept-map__row">
-            <a href="{% url 'search_results' %}?search_query={{ concept_map.text | urlencode }}" class="button is-medium">{{ concept_map.text }}</a><br>
+            <a href="{% url 'search_results' %}?search_query={{ tax_result.concept.text | urlencode }}" class="button is-medium" data-currentid="{{ tax_result.concept.id }}" data-childrenid="{{ tax_result.concept.children_ids }}" data-parentid="{{ tax_result.concept.parent_ids }}" data-parent="0">{{ tax_result.concept.text }}</a><br>
         </div>
 
         <canvas width="1" height="30" x-ref="conceptChildren"></canvas>
 
         <div class="concept-map__row">
-            {% for child in concept_map.children %}
-                <a href="{% url 'search_results' %}?search_query={{ child.text | urlencode }}" class="button" data-parent="0">{{ child.text }}</a>
+            {% for child in tax_result.children %}
+                <a href="{% url 'search_results' %}?search_query={{ child.text | urlencode }}" class="button" data-currentid="{{ child.id }}" data-childrenid="{{ child.children_ids }}" data-parentid="{{ child.parent_ids }}" data-parent="0">{{ child.text }}</a>
             {% endfor %}
         </div>
 
         <canvas width="1" height="30" x-ref="childrenSubChildren"></canvas>
 
         <div class="concept-map__row">
-            {% for child in concept_map.children %}
-                {% for subchild in child.children %}
-                    <a href="{% url 'search_results' %}?search_query={{ subchild.text | urlencode }}" class="button is-small" data-parent="{{ forloop.parentloop.counter0 }}">{{ subchild.text }}</a>
-                {% endfor %}
+            {% for child in tax_result.subchildren %}
+                <a href="{% url 'search_results' %}?search_query={{ child.text | urlencode }}" class="button is-small" data-currentid="{{ child.id }}" data-childrenid="{{ child.children_ids }}" data-parentid="{{ child.parent_ids }}" data-parent="{{ forloop.parentloop.counter0 }}">{{ child.text }}</a>
             {% endfor %}
         </div>
     </div>
