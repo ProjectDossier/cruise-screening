@@ -160,3 +160,8 @@
 .about__text p {
   margin: 16px 0;
 }
+
+.navbar__logo {
+  height: 60px;
+}
+
