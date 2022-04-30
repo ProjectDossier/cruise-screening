@@ -1,13 +1,31 @@
-<div class="select is-primary">
-  <select>
-      {% for key, value in tax_results.items %}
-        <option>{{ key }}</option>
-      {% endfor %}
-  </select>
+<div x-data=" { taxonomy: {{ tax_results.cso }} } ">
   {% for key, value in tax_results.items %}
-    <a href="{% url 'search_results' %}?search_query={{ key | urlencode }}" class="button is-small">{{ key }}</a>
+    <button @click="taxonomy = {{ value }}" class="button is-medium is-info">{{ key }}</button>
   {% endfor %}
+
+     <div class="concept-map__row">
+        <template x-for="concept in taxonomy.parents">
+                <a :href="'{% url 'search_results' %}?search_query=' + concept" class="button is-small">
+                    <span x-text="concept"></span>
+                </a>
+        </template>
+        </div>
+     <div class="concept-map__row">
+                <a :href="'{% url 'search_results' %}?search_query=' + taxonomy.concept" class="button is-small">
+                    <span x-text="taxonomy.concept"></span>
+                </a>
+        </div>
+
+     <div class="concept-map__row">
+        <template x-for="concept in taxonomy.children">
+                <a :href="'{% url 'search_results' %}?search_query=' + concept" class="button is-small">
+                    <span x-text="concept"></span>
+                </a>
+        </template>
+        </div>
+
 </div>
+
 {# here assign a value into jinja template #}
 {% with concept_map=tax_results.cso %}
 <div class="concept-map" x-data="conceptMap()" x-on:wheel.prevent="zoom">
