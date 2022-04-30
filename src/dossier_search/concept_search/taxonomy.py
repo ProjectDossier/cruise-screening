@@ -76,7 +76,7 @@ class Taxonomy(ABC):
             item.children = self.get_1st_level_children(item.id)
         return query
 
-    def search(self, query):
+    def search(self, query, to_json=False):
         id = self.get_id(query)
         if id == -100:
             return Concept(-100, query)
@@ -85,6 +85,17 @@ class Taxonomy(ABC):
         query.children = self.get_children(id)
         query.children_ids = "-".join([item.id for item in query.children])
         query.parent_ids = "-".join([item.id for item in query.parents])
+
+        if to_json:
+            subparents = list(set([item for sublist in query.parents for item in sublist.parents]))
+            subchildren = list(set([item for sublist in query.children for item in sublist.children]))
+            return {
+                "concept": query.to_json(),
+                "subparents": [item.to_json() for item in subparents],
+                "subchildren": [item.to_json() for item in subchildren],
+                "parents": [x.to_json() for x in query.parents],
+                "children": [x.to_json() for x in query.children],
+            }
         return query
 
 

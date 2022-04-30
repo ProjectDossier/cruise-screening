@@ -84,14 +84,8 @@ def search_results(request):
         tax_results = {
         }
         for name, taxonomy in {'cso': tax_cso, 'ccs': tax_ccs}.items():
-            tax_query = taxonomy.search(query=search_query)
-            tax_results[name] = {
-                "concept": tax_query.text,
-                "parents": [x.text for x in tax_query.parents],
-                # "subparents": list(set([item for sublist in tax_query.parents for item in sublist.parents])),
-                "children": [x.text for x in tax_query.children],
-                # "subchildren": list(set([item for sublist in tax_query.children for item in sublist.children])),
-            }
+            tax_query = taxonomy.search(query=search_query, to_json=True)
+            tax_results[name] = tax_query
 
         context = {
             "search_result_list": search_result,

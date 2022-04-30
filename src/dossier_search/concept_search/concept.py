@@ -18,6 +18,14 @@ class Concept:
     def __hash__(self):
         return hash(self.id) ^ hash(self.text)
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "text": self.text,
+            "children_ids": self.children_ids,
+            "parent_ids": self.parent_ids,
+        }
+
     @property
     def parents(self):
         return self._parents
