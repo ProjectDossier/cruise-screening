@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
+from django.template.defaulttags import register
 
 from .forms import NewUserForm
 from .search_documents import search
@@ -19,11 +20,17 @@ logger.addHandler(hdlr)
 logger.setLevel(logging.INFO)
 
 
-# Create your views here.
-
 # Taxonomy instantiation
-tax_ccs = TaxonomyCCS("../../data/external/acm_ccs.xml")
-tax_cso = TaxonomyCSO("../../data/external/CSO.3.3.csv")
+taxonomies = {
+    "cso": TaxonomyCSO("../../data/external/CSO.3.3.csv"),
+    "ccs": TaxonomyCCS("../../data/external/acm_ccs.xml"),
+}
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 
 def index(request):
     """
@@ -67,25 +74,28 @@ def search_results(request):
         search_result = search(query=search_query, index=index_name, top_k=top_k)
         matched_wiki_page = search_wikipedia(query=search_query)
 
-        # FIXME: we need to decide on one approach for using multiple taxonomies
-        tax_results = {
-            "cso": tax_cso.search_relationships(query=search_query),
-            "ccs": tax_ccs.search_relationships(query=search_query),
-        }
-        tax_query = tax_cso.search(query=search_query)
+        tax_query = taxonomies["cso"].search(query=search_query)
         tax_result = {
             "concept": tax_query,
             "parents": tax_query.parents,
-            "subparents": list(set([item for sublist in tax_query.parents for item in sublist.parents])),
+            "subparents": list(
+                set([item for sublist in tax_query.parents for item in sublist.parents])
+            ),
             "children": tax_query.children,
-            "subchildren": list(set([item for sublist in tax_query.children for item in sublist.children])),
+            "subchildren": list(
+                set(
+                    [
+                        item
+                        for sublist in tax_query.children
+                        for item in sublist.children
+                    ]
+                )
+            ),
         }
 
-        tax_results = {
-        }
-        for name, taxonomy in {'cso': tax_cso, 'ccs': tax_ccs}.items():
-            tax_query = taxonomy.search(query=search_query, to_json=True)
-            tax_results[name] = tax_query
+        tax_results = {}
+        for name, taxonomy in taxonomies.items():
+            tax_results[name] = taxonomy.search(query=search_query, to_json=True)
 
         context = {
             "search_result_list": search_result,
@@ -95,6 +105,7 @@ def search_results(request):
             "tax_result": tax_result,
             "tax_results": tax_results,
             "search_time": f"{(time.time() - s_time):.2f}",
+            "default_taxonomy": "ccs",
         }
 
         return render(

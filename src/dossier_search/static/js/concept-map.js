@@ -1,4 +1,4 @@
-window.conceptMap = () => {
+window.conceptMap = (taxonomy) => {
     const CANVAS_TOP_PX = 0
     const CANVAS_BOTTOM_PX = 30
 

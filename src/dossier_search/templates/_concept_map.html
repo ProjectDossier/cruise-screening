@@ -1,5 +1,4 @@
-<div>
-    <div x-data=" { taxonomy: {{ tax_results.ccs }} } ">
+<div x-data=" { taxonomy: {{ tax_results|get_item:default_taxonomy }} } ">
         <div class="card">
             {% for key, value in tax_results.items %}
                 <button @click="taxonomy = {{ value }}" class="button is-medium is-info">{{ key }}</button>
@@ -7,7 +6,7 @@
         </div>
         <hr/>
 
-        <div class="concept-map" >
+        <div class="concept-map">
             <div :style="transform">
                 <div class="concept-map__row">
                     <template x-for="concept in taxonomy.subparents">
@@ -72,10 +71,11 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="concept-map" x-data="conceptMap()" x-on:wheel.prevent="zoom">
+    <div class="concept-map__row" x-ref="childrenConcepts"></div>
+
+
+<div class="concept-map" x-data="conceptMap(taxonomy=taxonomy)" x-on:wheel.prevent="zoom">
     <div :style="transform">
         <div class="concept-map__row">
             {% for parent in tax_result.subparents %}
@@ -125,4 +125,5 @@
             {% endfor %}
         </div>
     </div>
+</div>
 </div>
