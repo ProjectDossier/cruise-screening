@@ -8,17 +8,17 @@ window.conceptMap = () => {
         transform: '',
 
         init() {
-            this.drawGraph(this.$refs.conceptParents, 'bottom')
-            this.drawGraph(this.$refs.parentsSubParents, 'bottom')
-            this.drawGraph(this.$refs.conceptChildren, 'top')
-            this.drawGraph(this.$refs.childrenSubChildren, 'top')
+            this.drawGraph(this.$refs.conceptParents, 'top')
+            this.drawGraph(this.$refs.parentsSubParents, 'top')
+            this.drawGraph(this.$refs.conceptChildren, 'bottom')
+            this.drawGraph(this.$refs.childrenSubChildren, 'bottom')
         },
 
         drawGraph(graphRef, direction) {
             const isDirectionTop = direction === 'top'
 
-            const topRow = isDirectionTop ? graphRef.previousElementSibling : graphRef.nextElementSibling
-            const bottomRow = isDirectionTop ? graphRef.nextElementSibling : graphRef.previousElementSibling
+            const topRow = isDirectionTop ? graphRef.nextElementSibling : graphRef.previousElementSibling
+            const bottomRow = isDirectionTop ? graphRef.previousElementSibling : graphRef.nextElementSibling
 
             graphRef.width = Math.max(topRow.clientWidth, bottomRow.clientWidth)
             graphRef.height = CANVAS_BOTTOM_PX
@@ -26,10 +26,10 @@ window.conceptMap = () => {
             const offScreenCanvas = this.createOffScreenCanvas(graphRef.width, graphRef.height)
             const context = offScreenCanvas.getContext("2d");
             context.strokeStyle = '#ababab'
-            
+
             ;[...topRow.children].forEach(node => {
                 const parentNodeId = parseInt(node.dataset.parent, 10)
-                const parentIds = isDirectionTop ? node.dataset.childrenid : node.dataset.parentid
+                const parentIds = isDirectionTop ? node.dataset.parentid : node.dataset.childrenid
 
                 if (isNaN(parentNodeId)) return
 
@@ -39,10 +39,9 @@ window.conceptMap = () => {
                     if (parentIds.split('-').includes(currentId.toString())) {
                         const bottomCenter = bottomNode.offsetLeft + bottomNode.clientWidth / 2
                         const topCenter = node.offsetLeft + node.clientWidth / 2
-                        context.moveTo(topCenter, isDirectionTop ? CANVAS_TOP_PX : CANVAS_BOTTOM_PX)
-                        context.lineTo(bottomCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
+                        context.moveTo(topCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
+                        context.lineTo(bottomCenter, isDirectionTop ? CANVAS_TOP_PX : CANVAS_BOTTOM_PX)
                         context.stroke()
-
                     }
                 })
             })
