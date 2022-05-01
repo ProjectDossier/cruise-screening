@@ -8,10 +8,20 @@ window.conceptMap = (taxonomy) => {
         transform: '',
 
         init() {
+            this.createConcepts(this.$refs.childrenConcepts, taxonomy.children)
+            this.createConcepts(this.$refs.parentConcepts, taxonomy.parents)
+
             this.drawGraph(this.$refs.conceptParents, 'top')
             this.drawGraph(this.$refs.parentsSubParents, 'top')
             this.drawGraph(this.$refs.conceptChildren, 'bottom')
             this.drawGraph(this.$refs.childrenSubChildren, 'bottom')
+        },
+
+        createConcepts(divRef, items) {
+
+            ;[...items].forEach(concept => {
+                divRef.innerHTML += "<a href=\"?search_query=" + concept.text + "\" class=\"button is-small is-warning\" >" + concept.text + "</a>"
+            })
         },
 
         drawGraph(graphRef, direction) {

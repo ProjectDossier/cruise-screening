@@ -72,11 +72,14 @@
             </div>
         </div>
 
-    <div class="concept-map__row" x-ref="childrenConcepts"></div>
 
 
 <div class="concept-map" x-data="conceptMap(taxonomy=taxonomy)" x-on:wheel.prevent="zoom">
     <div :style="transform">
+
+        <div class="concept-map__row" x-ref="parentConcepts"></div>
+        <div class="concept-map__row" x-ref="childrenConcepts"></div>
+
         <div class="concept-map__row">
             {% for parent in tax_result.subparents %}
                 <a href="{% url 'search_results' %}?search_query={{ parent.text | urlencode }}"
