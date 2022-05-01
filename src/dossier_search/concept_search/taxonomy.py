@@ -88,7 +88,17 @@ class Taxonomy(ABC):
     def search(self, query, to_json=False):
         id = self.get_id(query)
         if id == -100:
-            return Concept(-100, query)
+            query = Concept(-100, query)
+            if to_json:
+                return {
+                "concept": query.to_json(),
+                "subparents": [],
+                "subchildren": [],
+                "parents": [],
+                "children": [],
+                }
+            else:
+                return query
         query = Concept(id, query)
 
         depth = 0
