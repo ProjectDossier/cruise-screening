@@ -79,6 +79,7 @@
   align-items: stretch;
   justify-content: space-between;
   width: 100%;
+  min-width: 350px;
 }
 
 .card__text em {
