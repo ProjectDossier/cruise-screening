@@ -1,6 +1,7 @@
 from typing import Dict, Union
 
 import wikipedia
+from requests import ConnectionError
 from utils.article import WikipediaArticle
 
 
@@ -22,6 +23,8 @@ def search_wikipedia(query: str) -> Union[Dict[str, str], None]:
     except wikipedia.PageError:
         result = None
     except KeyError:
+        result = None
+    except ConnectionError:
         result = None
     except wikipedia.DisambiguationError as e:
         for option in e.options:
