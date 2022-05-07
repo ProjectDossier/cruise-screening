@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import xmltodict
 from fuzzywuzzy import fuzz
+from .faiss_search import SemanticSearch
+from .lexical_search import LexicalSearch
 
 from .concept import Concept
 
@@ -24,7 +26,18 @@ class Taxonomy(ABC):
             max_value, idx = scores.max(), scores.idxmax()
             # -100 is the id we use when the query is not found in the taxonomy
             id = taxonomy.iloc[idx].id if max_value > 90 else -100
-        return id
+            if id == -100:
+                try:
+                    query_ = self.lexical_search(query)
+                    id = taxonomy[taxonomy.text == query_].id.values[0]
+                except: pass
+            if id == -100:
+                try:
+                    query, _ = self.semantic_search(query)
+                    id = taxonomy[taxonomy.text == query].id.values[0]
+                except: pass
+
+        return id, query
 
     def get_1st_level_parents(self, id):
         taxonomy = self.taxonomy
@@ -61,7 +74,7 @@ class Taxonomy(ABC):
         return [self.assign_children(item) for item in children]
 
     def search_relationships(self, query):
-        id = self.get_id(query)
+        id, query = self.get_id(query)
         if id == -100:
             return Concept(-100, query)
         query = Concept(id, query)
@@ -87,8 +100,11 @@ class TaxonomyCCS(Taxonomy):
     def __init__(self, path):
         super().__init__()
         self.path = path
-        self.taxonomy = self.read_taxonomy()
-        print("Taxonomy instantiated")
+        self.taxonomy, concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CCS").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.concept_list, tax_name="CCS").lexical_search
+
+    print("Taxonomy instantiated")
 
     def read_taxonomy(self):
         with open(self.path, "r") as f:
@@ -116,15 +132,20 @@ class TaxonomyCCS(Taxonomy):
         table = pd.DataFrame(example_list, columns=["id", "text", "child"])
         table = table.drop_duplicates()
         table.text = table.text.str.lower()
+        table.sort_values('text', inplace=True)
+        concept_list = list(table.text.unique())
+        concept_list.sort()
 
-        return table
+        return table, concept_list
 
 
 class TaxonomyCSO(Taxonomy):
     def __init__(self, path):
         super().__init__()
         self.path = path
-        self.taxonomy = self.read_taxonomy()
+        self.taxonomy, self.concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=self.concept_list, tax_name="CSO").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.concept_list, tax_name="CSO").lexical_search
         print("Taxonomy instantiated")
 
     def read_taxonomy(self):
@@ -137,19 +158,25 @@ class TaxonomyCSO(Taxonomy):
         df.relationship = df.relationship.apply(lambda x: x.split('#')[-1])
         # labels and type might not be used. contributesTo not sure what it is yet
         # related links seem not well curated
-        df = df[~df.relationship.isin(['label', 'type', 'contributesTo', 'relatedLink'])]
+        df = df[~df.relationship.isin(['label', 'type', 'relatedLink'])]
         # there are some strings with a segment after %
         # e.g, numerical_analysis % 2C_computer - assisted
         df = df.applymap(lambda x: x.split('%')[0])
-        # names are give with '_'
+        # names are given with '_'
         # e.g. automated_pattern_recognition
         df = df.applymap(lambda x: ' '.join(x.split('_')).lower().lstrip())
+        # names are given with '-'
+        # e.g. context-aware systems
+        df = df.applymap(lambda x: ' '.join(x.split('-')).lower().lstrip())
         # there are several relationships showing different ways of
         # writing/referring to the concept
-        # relationships = ['relatedEquivalent',
-        #                  'relatedEquivalent', 'preferentialEquivalent'
-        #                  'sameAs', 'relatedLink']
-        # trying to get same format adopted for ccs:
+        # relationships = ['relatedequivalent', 'preferentialequivalent',
+        #                  'sameas', 'contributesto']
+        df_temp = df[df.item != df.item_rel].copy()
+        unique_concepts = list(df_temp[df_temp.relationship == 'preferentialequivalent'].item)
+        unique_concepts += set(df.item) - set(df[df.relationship.isin(['preferentialequivalent'])].item)
+        redundant_concepts = set(df.item) - set(unique_concepts)
+        df = df[df.item.isin(unique_concepts) & (~df.item_rel.isin(redundant_concepts))].copy()
         taxonomy = df[df.relationship == 'supertopicof'].copy()
         # assign unique numbers to each concept
         text = set(list(taxonomy.item.values) + list(taxonomy.item_rel.values))
@@ -163,7 +190,9 @@ class TaxonomyCSO(Taxonomy):
         taxonomy = taxonomy.merge(ids, left_on='item_rel', right_on='item', how='left')
         taxonomy.drop(columns=['item', 'relationship', 'item_rel'], inplace=True)
         taxonomy = taxonomy.drop_duplicates()
-
-        # careful! it seems like there are some parenting loops
-        # 'search' method won't work
-        return taxonomy
+        taxonomy = taxonomy[~(taxonomy.text == '')]
+        # required to match index
+        taxonomy.sort_values('text', inplace=True)
+        concept_list = list(taxonomy.text.unique())
+        concept_list.sort()
+        return taxonomy, concept_list

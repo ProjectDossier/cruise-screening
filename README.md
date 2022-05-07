@@ -18,6 +18,7 @@ Use pip to install requirements:
 
 ```bash
 (cruise-literature)$ pip install -r requirements.txt
+(cruise-literature)$ pip install faiss-gpu
 ```
 
 ### 1.2 ElasticSearch and Search API
