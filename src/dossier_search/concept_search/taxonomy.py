@@ -7,6 +7,9 @@ from .lexical_search import LexicalSearch
 
 from .concept import Concept
 
+from os.path import join as path_join
+from rdflib import Graph, Namespace, SKOS
+
 
 class Taxonomy(ABC):
     def __init__(self):
@@ -100,11 +103,11 @@ class TaxonomyCCS(Taxonomy):
     def __init__(self, path):
         super().__init__()
         self.path = path
-        self.taxonomy, concept_list = self.read_taxonomy()
-        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CCS").do_faiss_lookup
+        self.taxonomy, self.concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=self.concept_list, tax_name="CCS").do_faiss_lookup
         self.lexical_search = LexicalSearch(data=self.concept_list, tax_name="CCS").lexical_search
 
-    print("Taxonomy instantiated")
+        print("Taxonomy instantiated")
 
     def read_taxonomy(self):
         with open(self.path, "r") as f:
@@ -196,3 +199,130 @@ class TaxonomyCSO(Taxonomy):
         concept_list = list(taxonomy.text.unique())
         concept_list.sort()
         return taxonomy, concept_list
+
+
+class TaxonomyCSORDF(Taxonomy):
+    def __init__(self, path):
+        super().__init__()
+        self.MAX_DEPTH = 2
+        self.path = path
+        self.graph, self.namespace, self.taxonomy, concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CSO_RDF").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.taxonomy, tax_name="CSO_RDF").lexical_search
+        print("Taxonomy instantiated")
+
+    def read_taxonomy(self):
+        namespace = Namespace('')
+        graph = Graph().parse(self.path, format='ttl')
+
+        query = f"""
+                    select ?x ?z where
+                    {{
+                        ?x ns1:label ?z .
+                    }}
+                """
+        res = graph.query(query)
+
+        df = pd.DataFrame([(x['x'].n3(graph.namespace_manager),
+                            x['z'].n3(graph.namespace_manager)[1:-4]) for x in res],
+                          columns=['node', 'text'])
+
+        df.node = df.node.apply(lambda x: x[1:-1])
+        # names are given with '-'
+        # e.g. context-aware systems
+        df.text = df.text.apply(lambda x: ' '.join(x.split('-')).lower().lstrip())
+        df.rename(columns={'node': 'id'}, inplace=True)
+        df = df[~(df.text == '')]
+        df = df.reset_index(drop=True)
+
+        df.sort_values('text', inplace=True)
+        concept_list = list(df.text.unique())
+        concept_list.sort()
+
+        return graph, namespace, df, concept_list
+
+    def assign_children(self, node, text, depth):
+        child = Concept(node, text)
+        if depth == self.MAX_DEPTH:
+            return child
+        child.children = self.get_children(child, depth)
+        return child
+
+    def get_children(self, query, depth):
+        depth += 1
+        rdf_query = f"""
+                        select ?x ?z where
+                        {{
+                            {{
+                                {{
+                                    ?x ns0:preferentialEquivalent ?x .
+                                }}
+                                {{
+                                    select * where
+                                    {{
+                                        <{query.id}> ns0:superTopicOf ?x . ?x ns1:label ?z .
+                                    }}
+                                }}
+                            }}
+                            UNION
+                            {{
+                                select * where
+                                {{
+                                    <{query.id}> ns0:superTopicOf ?x . ?x ns1:label ?z
+                                    FILTER (!EXISTS
+                                    {{
+                                        ?x ns0:preferentialEquivalent ?y
+                                    }})
+                                }}
+                            }}
+                        }}
+                    """
+        res = self.graph.query(rdf_query)
+        return [self.assign_children(i['x'], i['z'].n3(self.graph.namespace_manager)[1:-4], depth) for i in res]
+
+    def assign_parents(self, node, text, depth):
+        parent = Concept(node, text)
+        if depth == self.MAX_DEPTH:
+            return parent
+        parent.parents = self.get_parents(parent, depth)
+        return parent
+
+    def get_parents(self, query, depth):
+        depth += 1
+        rdf_query = f"""
+                        select ?x ?z where
+                        {{
+                            {{
+                                {{
+                                    ?x ns0:preferentialEquivalent ?x .
+                                }}
+                                {{
+                                    select * where
+                                    {{
+                                        ?x ns0:superTopicOf <{query.id}> . ?x ns1:label ?z .
+                                    }}
+                                }}
+                            }}
+                            UNION
+                            {{
+                                select * where
+                                {{
+                                    ?x ns0:superTopicOf <{query.id}> . ?x ns1:label ?z
+                                    FILTER (!EXISTS
+                                    {{
+                                        ?x ns0:preferentialEquivalent ?y
+                                    }})
+                                }}
+                            }}
+                        }}
+                    """
+        res = self.graph.query(rdf_query)
+        return [self.assign_parents(i['x'], i['z'].n3(self.graph.namespace_manager)[1:-4], depth) for i in res]
+
+    def search(self, query):
+        node, query = self.get_id(query)
+        if id == -100:
+            return Concept(-100, query)
+        query = Concept(self.namespace[node], query)
+        query.children, query.parents = (self.get_children(query, depth=0), self.get_parents(query, depth=0))
+        return query
