@@ -61,7 +61,7 @@ def search_results(request):
         s_time = time.time()
 
         index_name = "papers"
-        top_k = 15
+        top_k = 4
         search_result = search(query=search_query, index=index_name, top_k=top_k)
         tax_query = tax.search_relationships(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)

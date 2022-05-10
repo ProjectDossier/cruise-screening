@@ -17,9 +17,9 @@ with open(CONFIG_PATH, "r") as fp:
     config = json.load(fp)
 
 
-def build_query(query_text, top_k):
+def build_query(query_text, es_top_k):
     data_json = {
-        "size": top_k,
+        "size": es_top_k,
         "query": {
             "bool": {
                 "should": [{"match": {"document": query_text}}],
@@ -37,23 +37,24 @@ def search():
     if request.method == "POST":
         in_data = request.get_json()
         query = in_data["query"]
-
-        results, query_data = search_es(query)
+        es_index = in_data["es_index"]
+        es_top_k = int(in_data["es_top_k"])
+        results, query_data = search_es(query, index_name=es_index, top_k=es_top_k)
     else:
         results = "Only POST allowed"
     return {"results": results, "query": query_data}
 
 
-def search_es(query):
+def search_es(query, index_name, top_k: int):
     host = config["host"]
     # use the query builder to create the elastic search json query object
-    query_data = build_query(query, top_k=config["top_k"])
+    query_data = build_query(query, es_top_k=top_k)
     data_json = json.dumps(query_data)
     headers = {
         "Content-type": "application/json",
     }
     r = requests.post(
-        host + "/" + ",".join(config["indices"]) + "/_search",
+        host + "/" + ",".join([index_name]) + "/_search",
         data=data_json,
         headers=headers,
     )

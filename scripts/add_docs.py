@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--data_file",
+        "--data_path",
         type=str,
         default="../data/AMiner_sample.jsonl",
         help="path to the file containing data which should be added to the index. "
@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
     for index_i, json_str in tqdm(enumerate(docs_list)):
         item = json.loads(json_str)
-        res = es.index(index=args.index, doc_type=args.dodoc_type, document=item)
+        res = es.index(index=args.index, doc_type=args.doc_type, document=item)
