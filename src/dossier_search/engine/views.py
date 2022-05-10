@@ -1,4 +1,3 @@
-import logging
 import time
 
 from concept_search.taxonomy import TaxonomyCCS as Taxonomy
@@ -6,14 +5,9 @@ from django.shortcuts import render
 
 from .search_documents import search
 from .search_wikipedia import search_wikipedia
+from .engine_logger import EngineLogger, get_query_type
 
-logger = logging.getLogger("user_queries")
-hdlr = logging.FileHandler("../../data/user_queries.log")
-formatter = logging.Formatter("%(asctime)s %(message)s")
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.INFO)
-
+engine_logger = EngineLogger()
 
 # Create your views here.
 
@@ -50,14 +44,15 @@ def search_results(request):
     """
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
+        query_type = get_query_type(
+            search_button=request.GET.get("search_button", None)
+        )
 
         if not search_query:
             return render(
                 request,
                 "interfaces/home.html",
             )
-
-        logger.info(search_query)
         s_time = time.time()
 
         index_name = "papers"
@@ -65,6 +60,11 @@ def search_results(request):
         search_result = search(query=search_query, index=index_name, top_k=top_k)
         tax_query = tax.search_relationships(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
+        search_time = time.time() - s_time
+
+        engine_logger.log_query(
+            search_query=search_query, query_type=query_type, search_time=search_time
+        )
 
         context = {
             "search_result_list": search_result,
@@ -72,7 +72,7 @@ def search_results(request):
             "unique_searches": len(search_result),
             "search_query": search_query,
             "concept_map": tax_query,
-            "search_time": f"{(time.time() - s_time):.2f}",
+            "search_time": f"{search_time:.2f}",
         }
 
         return render(
