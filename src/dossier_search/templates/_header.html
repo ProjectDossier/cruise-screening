@@ -56,7 +56,7 @@
         <div class="navbar-end">
             {% if user.is_authenticated %}
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a href="#" class="navbar-link">
+                    <a href="{% url 'user_profile' %}" class="navbar-link">
                         {{ user.username|title }}
                     </a>
                     <div class="navbar-dropdown">

@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.http import HttpResponseNotFound
+
 from .forms import NewUserForm
 from django.shortcuts import render, redirect
 
@@ -31,8 +33,9 @@ def register(request):
 
 
 def logout_request(request):
-    logout(request)
-    messages.info(request, "Logged out successfully!")
+    if request.user.is_authenticated:
+        logout(request)
+        messages.info(request, "Logged out successfully!")
     return redirect("home")
 
 
@@ -55,3 +58,17 @@ def login_request(request):
     return render(
         request=request, template_name="users/login.html", context={"form": form}
     )
+
+
+def user_profile(request):
+    """
+    User profile page
+    """
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            return render(
+                request,
+                "users/about_user.html",
+            )
+
+    return HttpResponseNotFound("<h1>Page not found</h1>")
