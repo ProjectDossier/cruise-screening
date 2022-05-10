@@ -30,7 +30,7 @@ class SemanticSearch:
         except:
             pass
 
-    def embedding(self, word):
+    def embedding(self, word: str):
         """
         embedds the word input as the sum of the last 4 hidden
         states of Bert embeddings
