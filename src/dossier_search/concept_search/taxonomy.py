@@ -33,12 +33,14 @@ class Taxonomy(ABC):
                 try:
                     query_ = self.lexical_search(query)
                     id = taxonomy[taxonomy.text == query_].id.values[0]
-                except: pass
+                except:
+                    pass
             if id == -100:
                 try:
                     query, _ = self.semantic_search(query)
                     id = taxonomy[taxonomy.text == query].id.values[0]
-                except: pass
+                except:
+                    pass
 
         return id, query
 
@@ -201,26 +203,21 @@ class TaxonomyCSO(Taxonomy):
         return taxonomy, concept_list
 
 
-class TaxonomyCSORDF(Taxonomy):
-    def __init__(self, path):
+class TaxonomyRDF(Taxonomy):
+    def __init__(self):
         super().__init__()
+        self.namespace = None
+        self.rdf_query_parents = None
+        self.rdf_query_children = None
+        self.graph = None
         self.MAX_DEPTH = 2
-        self.path = path
-        self.graph, self.namespace, self.taxonomy, concept_list = self.read_taxonomy()
-        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CSO_RDF").do_faiss_lookup
-        self.lexical_search = LexicalSearch(data=self.taxonomy, tax_name="CSO_RDF").lexical_search
-        print("Taxonomy instantiated")
+        self.path = '../../data/external'
 
+    @abstractmethod
     def read_taxonomy(self):
-        namespace = Namespace('')
-        graph = Graph().parse(self.path, format='ttl')
+        pass
 
-        query = f"""
-                    select ?x ?z where
-                    {{
-                        ?x ns1:label ?z .
-                    }}
-                """
+    def format_taxonomy(self, graph, query):
         res = graph.query(query)
 
         df = pd.DataFrame([(x['x'].n3(graph.namespace_manager),
@@ -230,7 +227,8 @@ class TaxonomyCSORDF(Taxonomy):
         df.node = df.node.apply(lambda x: x[1:-1])
         # names are given with '-'
         # e.g. context-aware systems
-        df.text = df.text.apply(lambda x: ' '.join(x.split('-')).lower().lstrip())
+        df.text = df.text.apply(lambda x: x.lower().lstrip())
+        df.text = df.text.apply(lambda x: ' '.join(x.split('-')))
         df.rename(columns={'node': 'id'}, inplace=True)
         df = df[~(df.text == '')]
         df = df.reset_index(drop=True)
@@ -239,7 +237,7 @@ class TaxonomyCSORDF(Taxonomy):
         concept_list = list(df.text.unique())
         concept_list.sort()
 
-        return graph, namespace, df, concept_list
+        return df, concept_list
 
     def assign_children(self, node, text, depth):
         child = Concept(node, text)
@@ -250,33 +248,7 @@ class TaxonomyCSORDF(Taxonomy):
 
     def get_children(self, query, depth):
         depth += 1
-        rdf_query = f"""
-                        select ?x ?z where
-                        {{
-                            {{
-                                {{
-                                    ?x ns0:preferentialEquivalent ?x .
-                                }}
-                                {{
-                                    select * where
-                                    {{
-                                        <{query.id}> ns0:superTopicOf ?x . ?x ns1:label ?z .
-                                    }}
-                                }}
-                            }}
-                            UNION
-                            {{
-                                select * where
-                                {{
-                                    <{query.id}> ns0:superTopicOf ?x . ?x ns1:label ?z
-                                    FILTER (!EXISTS
-                                    {{
-                                        ?x ns0:preferentialEquivalent ?y
-                                    }})
-                                }}
-                            }}
-                        }}
-                    """
+        rdf_query = self.rdf_query_children % {'node': query.id}
         res = self.graph.query(rdf_query)
         return [self.assign_children(i['x'], i['z'].n3(self.graph.namespace_manager)[1:-4], depth) for i in res]
 
@@ -289,33 +261,7 @@ class TaxonomyCSORDF(Taxonomy):
 
     def get_parents(self, query, depth):
         depth += 1
-        rdf_query = f"""
-                        select ?x ?z where
-                        {{
-                            {{
-                                {{
-                                    ?x ns0:preferentialEquivalent ?x .
-                                }}
-                                {{
-                                    select * where
-                                    {{
-                                        ?x ns0:superTopicOf <{query.id}> . ?x ns1:label ?z .
-                                    }}
-                                }}
-                            }}
-                            UNION
-                            {{
-                                select * where
-                                {{
-                                    ?x ns0:superTopicOf <{query.id}> . ?x ns1:label ?z
-                                    FILTER (!EXISTS
-                                    {{
-                                        ?x ns0:preferentialEquivalent ?y
-                                    }})
-                                }}
-                            }}
-                        }}
-                    """
+        rdf_query = self.rdf_query_parents % {'node': query.id}
         res = self.graph.query(rdf_query)
         return [self.assign_parents(i['x'], i['z'].n3(self.graph.namespace_manager)[1:-4], depth) for i in res]
 
@@ -326,3 +272,105 @@ class TaxonomyCSORDF(Taxonomy):
         query = Concept(self.namespace[node], query)
         query.children, query.parents = (self.get_children(query, depth=0), self.get_parents(query, depth=0))
         return query
+
+
+class TaxonomyRDFCSO(TaxonomyRDF):
+    def __init__(self):
+        super().__init__()
+        self.graph, self.namespace, self.taxonomy, concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CSO_RDF").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.taxonomy, tax_name="CSO_RDF").lexical_search
+
+        self.rdf_query_children = f"""
+                            select ?x ?z where
+                            {{
+                                {{
+                                    {{
+                                        ?x ns0:preferentialEquivalent ?x .
+                                    }}
+                                    {{
+                                        select * where
+                                        {{
+                                            <%(node)s> ns0:superTopicOf ?x . ?x ns1:label ?z .
+                                        }}
+                                    }}
+                                }}
+                                UNION
+                                {{
+                                    select * where
+                                    {{
+                                        <%(node)s> ns0:superTopicOf ?x . ?x ns1:label ?z
+                                        FILTER (!EXISTS
+                                        {{
+                                            ?x ns0:preferentialEquivalent ?y
+                                        }})
+                                    }}
+                                }}
+                            }}
+                        """
+        self.rdf_query_parents = f"""
+                            select ?x ?z where
+                            {{
+                                {{
+                                    {{
+                                        ?x ns0:preferentialEquivalent ?x .
+                                    }}
+                                    {{
+                                        select * where
+                                        {{
+                                            ?x ns0:superTopicOf <%(node)s> . ?x ns1:label ?z .
+                                        }}
+                                    }}
+                                }}
+                                UNION
+                                {{
+                                    select * where
+                                    {{
+                                        ?x ns0:superTopicOf <%(node)s> . ?x ns1:label ?z
+                                        FILTER (!EXISTS
+                                        {{
+                                            ?x ns0:preferentialEquivalent ?y
+                                        }})
+                                    }}
+                                }}
+                            }}
+                        """
+        print("Taxonomy instantiated")
+
+    def read_taxonomy(self):
+        namespace = Namespace('')
+        graph = Graph().parse(path_join(self.path, 'CSO.3.3.ttl'), format='ttl')
+
+        query = f"select ?x ?z where {{ ?x ns1:label ?z}}"
+        df, concept_list = self.format_taxonomy(graph, query)
+
+        return graph, namespace, df, concept_list
+
+
+class TaxonomyRDFCCS(TaxonomyRDF):
+    def __init__(self):
+        super().__init__()
+        self.graph, self.namespace, self.taxonomy, concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CCS_RDF").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.taxonomy, tax_name="CCS_RDF").lexical_search
+        self.rdf_query_children = f"select * where {{ <%(node)s> skos:narrower ?x . ?x skos:prefLabel ?z}}"
+        self.rdf_query_parents = f"select * where {{ <%(node)s> skos:broader ?x . ?x skos:prefLabel ?z}}"
+        print("Taxonomy instantiated")
+
+    def read_taxonomy(self):
+        # fix format
+        with open(path_join(self.path, "acm_ccs.xml"), 'r') as f:
+            content = f.read()
+
+        fixed = content.replace('lang=', 'xml:lang=')
+
+        with open(path_join(self.path, "acm_ccs_fixed.xml"), "w") as f:
+            f.write(fixed)
+
+        graph = Graph().parse(path_join(self.path, "acm_ccs_fixed.xml"), format='xml')
+        namespace = Namespace('')
+
+        query = f"select ?x ?z where {{ ?x skos:prefLabel ?z}}"
+        df, concept_list = self.format_taxonomy(graph, query)
+
+        return graph, namespace, df, concept_list
