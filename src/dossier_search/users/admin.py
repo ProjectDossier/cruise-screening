@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import User, Language, KnowledgeArea, KnowledgeGroup
+
+admin.site.register(User)
+admin.site.register(Language)
+admin.site.register(KnowledgeArea)
+admin.site.register(KnowledgeGroup)

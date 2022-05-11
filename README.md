@@ -1,6 +1,6 @@
 ## 1. Installation
 
-### 1.1 Python Backend
+### 1.1 Python Django Backend
 
 Create [conda](https://docs.conda.io/en/latest/miniconda.html) environment:
 
@@ -38,9 +38,22 @@ Go into `src/dossier_search/` directory:
 Make migrations and migrate the database
 
 ```bash
-(cruise-literature)$ python manage.py makemigrations engine
+(cruise-literature)$ python manage.py makemigrations engine users
 (cruise-literature)$ python manage.py migrate
 ```
+
+Create superuser:
+
+```bash
+(cruise-literature)$ python manage.py createsuperuser
+```
+
+Fill in sample data into the database
+
+```bash
+(cruise-literature)$ python manage.py loaddata users_data.json
+```
+
 
 Finally, run Django server
 

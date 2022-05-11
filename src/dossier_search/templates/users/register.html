@@ -1,22 +1,25 @@
 {% extends '_base.html' %}
 
 {% block content %}
-    <br/>
+    <div class="register">
+        <h1 class="title is-1">Create an account</h1>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="control">
-            <button type="submit" class="button is-link">Sign Up!</button>
-        </div>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
 
-        {#        <button style="background-color:#F4EB16; color:blue" class="btn btn-outline-info" type="submit">Sign Up</button>#}
-        By continuing, you are indicating that you accept our Terms of Service and Privacy Policy.
+            <p>
+                By continuing, you are indicating that you accept our Terms of Service and Privacy Policy.
+            </p>
+            <div>
+                <button type="submit" class="button is-link">Sign Up!</button>
+            </div>
+        </form>
 
-    </form>
-
-    If you already have an account <a href="/login" target="blank"><strong>login</strong></a> instead.
-
+        <p>
+            If you already have an account <a href="/login"><strong>sign in</strong></a> instead.
+        </p>
+    </div>
 
     {% include "_footer.html" %}
 

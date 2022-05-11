@@ -46,11 +46,11 @@
   .search-results > div {
     overflow-y: auto;
   }
-  
+
   .search-results > div:first-child {
     border-right: 1px solid #efefef;
   }
-  
+
   .search-results > div:last-child {
     border-left: 1px solid #efefef;
     margin-left: -1px;
@@ -166,3 +166,20 @@
   height: 60px;
 }
 
+.register, .signin, .user-profile {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.register p, .signin p {
+  margin: 10px 0;
+}
+
+.user-profile__text {
+  line-height: 1.5;
+}
+
+.user-profile__text p {
+  margin: 16px 0;
+}

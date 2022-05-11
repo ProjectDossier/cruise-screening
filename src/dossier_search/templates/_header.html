@@ -61,7 +61,7 @@
                     </a>
                     <div class="navbar-dropdown">
                         <a href="{% url 'about' %}" class="navbar-item">
-                            About
+                            About us
                         </a>
                         <hr class="navbar-divider">
                         <a href="{% url 'logout' %}" class="navbar-item">
@@ -80,3 +80,12 @@
         </div>
     </div>
 </nav>
+<div class="messages">
+    {% if messages %}
+        <ul class="messages__list">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>

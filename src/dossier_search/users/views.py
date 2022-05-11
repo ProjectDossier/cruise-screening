@@ -2,9 +2,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponseNotFound
+from django.shortcuts import render, redirect
 
 from .forms import NewUserForm
-from django.shortcuts import render, redirect
 
 
 def register(request):
@@ -25,6 +25,9 @@ def register(request):
                 template_name="users/register.html",
                 context={"form": form},
             )
+
+    if request.user.is_authenticated:
+        return redirect("home")
 
     form = NewUserForm
     return render(
@@ -68,7 +71,7 @@ def user_profile(request):
         if request.user.is_authenticated:
             return render(
                 request,
-                "users/about_user.html",
+                "users/user_profile.html",
             )
 
     return HttpResponseNotFound("<h1>Page not found</h1>")

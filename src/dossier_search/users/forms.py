@@ -1,18 +1,38 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+
+from .models import User, Language
 
 
 class NewUserForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2")
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "date_of_birth",
+            "location",
+            "languages",
+            "knowledge_areas",
+            "password1",
+            "password2",
+        )
+
+    languages = forms.ModelMultipleChoiceField(
+        queryset=Language.objects.all(), widget=forms.CheckboxSelectMultiple
+    )
+    date_of_birth = forms.DateField(
+        widget=forms.SelectDateWidget(years=range(1900, 2010))
+    )
+    email = forms.EmailField(required=True)
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(commit=False)
-        user.email = self.cleaned_data["email"]
+
         if commit:
             user.save()
+            self.save_m2m()
+
         return user
