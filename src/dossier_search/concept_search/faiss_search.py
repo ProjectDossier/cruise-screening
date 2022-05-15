@@ -27,12 +27,15 @@ class SemanticSearch:
             self.taxonomy_index = faiss.read_index(index_path)
         else:
             self.taxonomy_index = self.create_faiss_index()
-            faiss.write_index(faiss.index_gpu_to_cpu(self.taxonomy_index), index_path)
+            try:
+                faiss.write_index(faiss.index_gpu_to_cpu(self.taxonomy_index), index_path)
+            except AttributeError:
+                faiss.write_index(self.taxonomy_index, index_path)
 
         try:
             res = faiss.StandardGpuResources()
             self.taxonomy_index = faiss.index_cpu_to_gpu(res, 0, self.taxonomy_index)
-        except:
+        except AttributeError:
             pass
 
     def embedding(self, word: str):
