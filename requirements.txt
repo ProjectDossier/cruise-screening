@@ -13,4 +13,5 @@ transformers==4.14.1
 python-terrier==0.8.1
 rdflib==6.1.1
 faiss-cpu==1.7.2
+numpy~=1.22.3
 faiss-gpu==1.7.2
