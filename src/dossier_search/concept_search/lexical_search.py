@@ -6,7 +6,7 @@ if not pt.started():
 
 
 class LexicalSearch:
-    def __init__(self, data: pd.DataFrame, tax_name: str):
+    def __init__(self, data: list, tax_name: str):
         self.data = data
         self.path = '../../data/processed/taxonomy{}iter_index'.format(tax_name)
         self.indexref = self.get_index()
@@ -30,7 +30,7 @@ class LexicalSearch:
         return indexref
 
     def lexical_search(self, query):
-        retr_controls = {"wmodel": "TF_IDF",
+        retr_controls = {"wmodel": "BM25",
                          "string.use_utf": "true",
                          "end": 0,
                          }
@@ -38,8 +38,12 @@ class LexicalSearch:
         retr = pt.BatchRetrieve(self.indexref,
                                 controls=retr_controls)
 
-        idx = int(retr.search(query).docno.values[0])
-        return self.data[idx]
+        res = retr.search(query)
+
+        if len(res) > 0 and res.score.values[0] > 7:
+            return self.data[int(res.docno.values[0])]
+        else:
+            return -100
 
 
 

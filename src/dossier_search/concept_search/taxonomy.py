@@ -24,7 +24,7 @@ class Taxonomy(ABC):
         taxonomy = self.taxonomy
         try:
             id = taxonomy[taxonomy.text == query].id.values[0]
-        except:
+        except IndexError:
             scores = taxonomy.text.apply(lambda x: fuzz.ratio(x, query))
             max_value, idx = scores.max(), scores.idxmax()
             # -100 is the id we use when the query is not found in the taxonomy
@@ -33,14 +33,9 @@ class Taxonomy(ABC):
                 try:
                     query_ = self.lexical_search(query)
                     id = taxonomy[taxonomy.text == query_].id.values[0]
-                except:
-                    pass
-            if id == -100:
-                try:
+                except IndexError:
                     query, _ = self.semantic_search(query)
                     id = taxonomy[taxonomy.text == query].id.values[0]
-                except:
-                    pass
 
         return id, query
 
@@ -275,11 +270,13 @@ class TaxonomyRDF(Taxonomy):
 
 
 class TaxonomyRDFCSO(TaxonomyRDF):
-    def __init__(self):
+    def __init__(self, path):
         super().__init__()
-        self.graph, self.namespace, self.taxonomy, concept_list = self.read_taxonomy()
-        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CSO_RDF").do_faiss_lookup
-        self.lexical_search = LexicalSearch(data=self.taxonomy, tax_name="CSO_RDF").lexical_search
+        if path is not None:
+            self.path = path
+        self.graph, self.namespace, self.taxonomy, self.concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=self.concept_list, tax_name="CSO_RDF").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.concept_list, tax_name="CSO_RDF").lexical_search
 
         self.rdf_query_children = f"""
                             select ?x ?z where
@@ -348,11 +345,13 @@ class TaxonomyRDFCSO(TaxonomyRDF):
 
 
 class TaxonomyRDFCCS(TaxonomyRDF):
-    def __init__(self):
+    def __init__(self, path=None):
         super().__init__()
-        self.graph, self.namespace, self.taxonomy, concept_list = self.read_taxonomy()
-        self.semantic_search = SemanticSearch(data=concept_list, tax_name="CCS_RDF").do_faiss_lookup
-        self.lexical_search = LexicalSearch(data=self.taxonomy, tax_name="CCS_RDF").lexical_search
+        if path is not None:
+            self.path = path
+        self.graph, self.namespace, self.taxonomy, self.concept_list = self.read_taxonomy()
+        self.semantic_search = SemanticSearch(data=self.concept_list, tax_name="CCS_RDF").do_faiss_lookup
+        self.lexical_search = LexicalSearch(data=self.concept_list, tax_name="CCS_RDF").lexical_search
         self.rdf_query_children = f"select * where {{ <%(node)s> skos:narrower ?x . ?x skos:prefLabel ?z}}"
         self.rdf_query_parents = f"select * where {{ <%(node)s> skos:broader ?x . ?x skos:prefLabel ?z}}"
         print("Taxonomy instantiated")
