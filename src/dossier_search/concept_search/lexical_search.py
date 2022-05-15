@@ -1,5 +1,5 @@
 from os.path import exists, join
-import pandas as pd
+
 import pyterrier as pt
 
 if not pt.started():

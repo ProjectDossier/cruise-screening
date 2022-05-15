@@ -1,16 +1,23 @@
 from abc import ABC, abstractmethod
+from os.path import join as path_join
 from typing import Tuple
 
 import pandas as pd
 import xmltodict
-from fuzzywuzzy import fuzz
-from .faiss_search import SemanticSearch
 from dossier_search.settings import M1_CHIP
+from fuzzywuzzy import fuzz
+from rdflib import Graph, Namespace
+
+from .concept import Concept
+from .faiss_search import SemanticSearch
 
 if M1_CHIP:
 
     class LexicalSearch:
-        """Mockup for LexicalSearch on laptops with M1 chip."""
+        """Mockup for LexicalSearch on laptops with M1 chip.
+        FIXME: this should be replaced at some point by a different implementation
+        of lexical search.
+        """
 
         def __init__(self, data, tax_name):
             pass
@@ -21,13 +28,10 @@ if M1_CHIP:
 else:
     from .lexical_search import LexicalSearch
 
-from .concept import Concept
-
-from os.path import join as path_join
-from rdflib import Graph, Namespace, SKOS
-
 
 class Taxonomy(ABC):
+    taxonomy = None
+
     def __init__(self):
         pass
 

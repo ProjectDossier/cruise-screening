@@ -1,9 +1,10 @@
+from os.path import exists
+
 import faiss
 import numpy as np
 import torch
-from os.path import exists
-from transformers import AutoTokenizer, AutoModel
 from dossier_search.settings import M1_CHIP
+from transformers import AutoTokenizer, AutoModel
 
 if M1_CHIP:
     # solves problems with MKL library on M1 macbook
@@ -75,7 +76,8 @@ class SemanticSearch:
 
         try:
             token_embeddings = token_embeddings.permute(1, 2, 0, 3)
-        except:
+        except RuntimeError:
+            # RuntimeError: number of dims don't match in permute
             token_embeddings = token_embeddings.unsqueeze(0).permute(0, 2, 1, 3)
 
         out = []
@@ -100,7 +102,7 @@ class SemanticSearch:
             # copy the index to GPU
             res = faiss.StandardGpuResources()
             fastIndex = faiss.index_cpu_to_gpu(res, 0, fastIndex)
-        except:
+        except AttributeError:
             pass
 
         # index data
