@@ -3,7 +3,7 @@ import pandas as pd
 import xmltodict
 from fuzzywuzzy import fuzz
 from .faiss_search import SemanticSearch
-from ..dossier_search.settings import M1_CHIP
+from dossier_search.settings import M1_CHIP
 
 if M1_CHIP:
     class LexicalSearch:

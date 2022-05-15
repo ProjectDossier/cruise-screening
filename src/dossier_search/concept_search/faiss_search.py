@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from os.path import exists
 from transformers import AutoTokenizer, AutoModel
-from ..dossier_search.settings import M1_CHIP
+from dossier_search.settings import M1_CHIP
 if M1_CHIP:
     # solves problems with MKL library on M1 macbook
     # FIXME: this should be replaced by a proper requirements for M1
