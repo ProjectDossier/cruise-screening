@@ -4,19 +4,22 @@ import torch
 from os.path import exists
 from transformers import AutoTokenizer, AutoModel
 from dossier_search.settings import M1_CHIP
+
 if M1_CHIP:
     # solves problems with MKL library on M1 macbook
     # FIXME: this should be replaced by a proper requirements for M1
     import os
-    os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
 
 class SemanticSearch:
     def __init__(self, data: list, tax_name: str):
         model_name = "allenai/scibert_scivocab_cased"
-        self.model = AutoModel.from_pretrained(model_name,
-                                               output_hidden_states=True).eval()
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name,
-                                                       model_max_length=16)
+        self.model = AutoModel.from_pretrained(
+            model_name, output_hidden_states=True
+        ).eval()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, model_max_length=16)
 
         self.n_dimensions = self.model.pooler.dense.out_features
         self.data = data
@@ -28,7 +31,9 @@ class SemanticSearch:
         else:
             self.taxonomy_index = self.create_faiss_index()
             try:
-                faiss.write_index(faiss.index_gpu_to_cpu(self.taxonomy_index), index_path)
+                faiss.write_index(
+                    faiss.index_gpu_to_cpu(self.taxonomy_index), index_path
+                )
             except AttributeError:
                 faiss.write_index(self.taxonomy_index, index_path)
 
@@ -49,8 +54,12 @@ class SemanticSearch:
         marked_text = ["[CLS] " + i + " [SEP]" for i in word]
 
         padding = "max_length"
-        tokenized_text = [tokenizer.tokenize(i, padding=padding, truncation=True) for i in marked_text]
-        tokenized_text_ = [tokenizer.tokenize(i, padding=False, truncation=True) for i in marked_text]
+        tokenized_text = [
+            tokenizer.tokenize(i, padding=padding, truncation=True) for i in marked_text
+        ]
+        tokenized_text_ = [
+            tokenizer.tokenize(i, padding=False, truncation=True) for i in marked_text
+        ]
         wordpiece_vectors = [len(i) - 1 for i in tokenized_text_]
 
         indexed_tokens = [tokenizer.convert_tokens_to_ids(i) for i in tokenized_text]
@@ -64,8 +73,10 @@ class SemanticSearch:
         token_embeddings = torch.stack(hidden_states, dim=0)
         token_embeddings = torch.squeeze(token_embeddings, dim=1)
 
-        try: token_embeddings = token_embeddings.permute(1, 2, 0, 3)
-        except: token_embeddings = token_embeddings.unsqueeze(0).permute(0, 2, 1, 3)
+        try:
+            token_embeddings = token_embeddings.permute(1, 2, 0, 3)
+        except:
+            token_embeddings = token_embeddings.unsqueeze(0).permute(0, 2, 1, 3)
 
         out = []
         for item, wordpiece_vector in zip(token_embeddings, wordpiece_vectors):
@@ -94,18 +105,15 @@ class SemanticSearch:
 
         # index data
         embeddings = self.embedding(self.data).detach().numpy()
-        fastIndex.add(np.stack(embeddings).astype('float32'))
+        fastIndex.add(np.stack(embeddings).astype("float32"))
         return fastIndex
 
     def do_faiss_lookup(self, text):
         """
         the semantic search of word in the indexed collection
         """
-        vector = self.embedding(text).detach().numpy().astype('float32')
+        vector = self.embedding(text).detach().numpy().astype("float32")
 
         score, index = self.taxonomy_index.search(vector, 1)
 
         return self.data[index[0][0]], score
-
-
-
