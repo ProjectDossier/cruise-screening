@@ -3,7 +3,12 @@ import numpy as np
 import torch
 from os.path import exists
 from transformers import AutoTokenizer, AutoModel
-
+from ..dossier_search.settings import M1_CHIP
+if M1_CHIP:
+    # solves problems with MKL library on M1 macbook
+    # FIXME: this should be replaced by a proper requirements for M1
+    import os
+    os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 class SemanticSearch:
     def __init__(self, data: list, tax_name: str):

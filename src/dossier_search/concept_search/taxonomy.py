@@ -3,7 +3,18 @@ import pandas as pd
 import xmltodict
 from fuzzywuzzy import fuzz
 from .faiss_search import SemanticSearch
-from .lexical_search import LexicalSearch
+from ..dossier_search.settings import M1_CHIP
+
+if M1_CHIP:
+    class LexicalSearch:
+        """Mockup for LexicalSearch on laptops with M1 chip. """
+        def __init__(self, data, tax_name):
+            pass
+
+        def lexical_search(self, query):
+            raise IndexError
+else:
+    from .lexical_search import LexicalSearch
 
 from .concept import Concept
 
