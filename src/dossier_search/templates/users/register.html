@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="register">
+        <h1 class="title is-1">Create an account</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <div>
+                <button type="submit" class="button is-link">Sign Up!</button>
+            </div>
+        </form>
+
+        <p>
+            If you already have an account <a href="/login"><strong>sign in</strong></a> instead.
+        </p>
+    </div>
+
+    {% include "_footer.html" %}
+
+{% endblock %}
