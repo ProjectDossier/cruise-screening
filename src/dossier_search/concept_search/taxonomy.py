@@ -36,7 +36,6 @@ class Taxonomy(ABC):
                 except IndexError:
                     query, _ = self.semantic_search(query)
                     id = taxonomy[taxonomy.text == query].id.values[0]
-
         return id, query
 
     def get_1st_level_parents(self, id):
@@ -270,7 +269,7 @@ class TaxonomyRDF(Taxonomy):
 
 
 class TaxonomyRDFCSO(TaxonomyRDF):
-    def __init__(self, path):
+    def __init__(self, path=None):
         super().__init__()
         if path is not None:
             self.path = path
