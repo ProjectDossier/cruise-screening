@@ -10,6 +10,8 @@ from .engine_logger import EngineLogger, get_query_type
 
 engine_logger = EngineLogger()
 
+# Create your views here.
+
 # Taxonomy instantiation
 taxonomies = {
     "CSO": TaxonomyRDFCSO("../../data/external/"),
