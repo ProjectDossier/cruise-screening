@@ -111,6 +111,17 @@
   display: none;
 }
 
+.concept-map-page {
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.concept-map-page__taxonomies {
+  padding: 1em 1em 1em 2em;
+}
+
 .concept-map {
   overflow-x: hidden;
 }
@@ -119,7 +130,7 @@
   .concept-map {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 75%;
     align-items: center;
     justify-content: center;
   }
