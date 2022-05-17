@@ -1,0 +1,139 @@
+[
+  {
+    "model": "users.Language",
+    "pk": 1,
+    "fields": {
+      "name": "English",
+      "name_native": "English",
+      "iso_639_1": "en"
+    }
+  },
+  {
+    "model": "users.Language",
+    "pk": 2,
+    "fields": {
+      "name": "German",
+      "name_native": "Deutsch",
+      "iso_639_1": "de"
+    }
+  },
+  {
+    "model": "users.Language",
+    "pk": 3,
+    "fields": {
+      "name": "French",
+      "name_native": "fran\u00e7ais",
+      "iso_639_1": "fr"
+    }
+  },
+  {
+    "model": "users.Language",
+    "pk": 4,
+    "fields": {
+      "name": "Spanish",
+      "name_native": "espa\u00f1ol",
+      "iso_639_1": "es"
+    }
+  },
+  {
+    "model": "users.Language",
+    "pk": 5,
+    "fields": {
+      "name": "Portuguese",
+      "name_native": "Portugu\u00eas",
+      "iso_639_1": "pt"
+    }
+  },
+  {
+    "model": "users.KnowledgeGroup",
+    "pk": 1,
+    "fields": {
+      "name": "Physical Sciences"
+    }
+  },
+  {
+    "model": "users.KnowledgeGroup",
+    "pk": 2,
+    "fields": {
+      "name": "Social Sciences"
+    }
+  },
+  {
+    "model": "users.KnowledgeGroup",
+    "pk": 3,
+    "fields": {
+      "name": "Health Sciences"
+    }
+  },
+  {
+    "model": "users.KnowledgeGroup",
+    "pk": 4,
+    "fields": {
+      "name": "Life Sciences"
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 1,
+    "fields": {
+      "name": "Computer Science",
+      "group": 1
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 2,
+    "fields": {
+      "name": "Engineering",
+      "group": 1
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 3,
+    "fields": {
+      "name": "Environmental Science",
+      "group": 1
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 4,
+    "fields": {
+      "name": "Materials Science",
+      "group": 1
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 5,
+    "fields": {
+      "name": "Arts and Humanities",
+      "group": 2
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 6,
+    "fields": {
+      "name": "Dentistry",
+      "group": 3
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 7,
+    "fields": {
+      "name": "Medicine",
+      "group": 3
+    }
+  },
+  {
+    "model": "users.KnowledgeArea",
+    "pk": 8,
+    "fields": {
+      "name": "Neuroscience",
+      "group": 4
+    }
+  }
+]

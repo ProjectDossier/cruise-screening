@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="signin">
+        <h1 class="title is-1">Sign in</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div>
+                <button type="submit" class="button is-link">Sign in</button>
+            </div>
+        </form>
+        Don't have an account? <a href="/register"><strong>register here</strong></a>!
+    </div>
+
+    {% include "_footer.html" %}
+
+{% endblock %}

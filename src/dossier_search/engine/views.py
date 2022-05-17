@@ -1,24 +1,15 @@
-import logging
 import time
 
+from concept_search.taxonomy import TaxonomyCCS as Taxonomy
+from django.shortcuts import render
 from concept_search.taxonomy import TaxonomyCSO, TaxonomyCCS
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect
 from django.template.defaulttags import register
 
-from .forms import NewUserForm
 from .search_documents import search
 from .search_wikipedia import search_wikipedia
+from .engine_logger import EngineLogger, get_query_type
 
-logger = logging.getLogger("user_queries")
-hdlr = logging.FileHandler("../../data/user_queries.log")
-formatter = logging.Formatter("%(asctime)s %(message)s")
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.INFO)
-
+engine_logger = EngineLogger()
 
 # Taxonomy instantiation
 taxonomies = {
@@ -32,9 +23,9 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-def index(request):
+def home(request):
     """
-    starting index page
+    Home page
 
     """
     if request.method == "GET":
@@ -46,8 +37,7 @@ def index(request):
 
 def about(request):
     """
-    about page
-
+    About page
     """
     if request.method == "GET":
         return render(
@@ -57,22 +47,31 @@ def about(request):
 
 
 def search_results(request):
+    """
+    Search results page
+    """
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
+        query_type = get_query_type(
+            search_button=request.GET.get("search_button", None)
+        )
 
         if not search_query:
             return render(
                 request,
                 "interfaces/home.html",
             )
-
-        logger.info(search_query)
         s_time = time.time()
 
         index_name = "papers"
-        top_k = 15
+        top_k = 4
         search_result = search(query=search_query, index=index_name, top_k=top_k)
         matched_wiki_page = search_wikipedia(query=search_query)
+        search_time = time.time() - s_time
+
+        engine_logger.log_query(
+            search_query=search_query, query_type=query_type, search_time=search_time
+        )
 
         tax_query = taxonomies["cso"].search(query=search_query)
         tax_result = {
@@ -102,6 +101,8 @@ def search_results(request):
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
+            "concept_map": tax_query,
+            "search_time": f"{search_time:.2f}",
             "tax_result": tax_result,
             "tax_results": tax_results,
             "search_time": f"{(time.time() - s_time):.2f}",
@@ -113,60 +114,3 @@ def search_results(request):
             template_name="interfaces/search_result.html",
             context=context,
         )
-
-
-def print_results(request, search_query):
-    print(search_query)
-    return render(request, "interfaces/home.html")
-
-
-def register(request):
-    if request.method == "POST":
-        form = NewUserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get("username")
-            messages.success(request, f"New account created: {username}")
-            login(request, user)
-            return redirect("home")
-        else:
-            for msg in form.error_messages:
-                messages.error(request, f"{msg}: {form.error_messages[msg]}")
-
-            return render(
-                request=request,
-                template_name="users/register.html",
-                context={"form": form},
-            )
-
-    form = NewUserForm
-    return render(
-        request=request, template_name="users/register.html", context={"form": form}
-    )
-
-
-def logout_request(request):
-    logout(request)
-    messages.info(request, "Logged out successfully!")
-    return redirect("home")
-
-
-def login_request(request):
-    if request.method == "POST":
-        form = AuthenticationForm(request=request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.info(request, f"You are now logged in as {username}")
-                return redirect("home")
-            else:
-                messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Invalid username or password.")
-    form = AuthenticationForm()
-    return render(
-        request=request, template_name="users/login.html", context={"form": form}
-    )
