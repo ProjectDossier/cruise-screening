@@ -30,7 +30,7 @@ def search(query: str, index: str, top_k: int):
     headers = {"Content-type": "application/json"}
     res = requests.post(
         "http://localhost:9880" + "/search",
-        data=json.dumps({"query": query}),
+        data=json.dumps({"query": query, "es_index": index, "es_top_k": top_k}),
         headers=headers,
     )
     results = res.json()["results"]
