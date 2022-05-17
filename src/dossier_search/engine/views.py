@@ -10,8 +10,6 @@ from .engine_logger import EngineLogger, get_query_type
 
 engine_logger = EngineLogger()
 
-# Create your views here.
-
 # Taxonomy instantiation
 taxonomies = {
     "CSO": TaxonomyRDFCSO("../../data/external/"),
@@ -74,47 +72,25 @@ def search_results(request):
             search_query=search_query, query_type=query_type, search_time=search_time
         )
 
-        tax_query = taxonomies["CSO"].search(query=search_query)
-        tax_result = {
-            "concept": tax_query,
-            "parents": tax_query.parents,
-            "subparents": list(
-                set([item for sublist in tax_query.parents for item in sublist.parents])
-            ),
-            "children": tax_query.children,
-            "subchildren": list(
-                set(
-                    [
-                        item
-                        for sublist in tax_query.children
-                        for item in sublist.children
-                    ]
-                )
-            ),
-        }
-
         tax_results = {}
         for name, taxonomy in taxonomies.items():
-            result = taxonomy.search(query=search_query)
-
+            concept = taxonomy.search(query=search_query)
             tax_results[name] = {
-                "concept": result.to_json(),
-                "subparents": [item.to_json() for sublist in result.parents for item in sublist.parents],
-                "subchildren": [item.to_json() for sublist in result.children for item in sublist.children],
-                "parents": [x.to_json() for x in result.parents],
-                "children": [x.to_json() for x in result.children],
+                "concept": concept.to_dict(),
+                "subparents": [item.to_dict() for sublist in concept.parents for item in sublist.parents],
+                "subchildren": [item.to_dict() for sublist in concept.children for item in sublist.children],
+                "parents": [x.to_dict() for x in concept.parents],
+                "children": [x.to_dict() for x in concept.children],
             }
 
         context = {
             "search_result_list": search_result,
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
-            "search_query": search_query,
-            "concept_map": tax_query,
             "search_time": f"{search_time:.2f}",
-            "tax_result": tax_result,
+            "search_query": search_query,
             "tax_results": tax_results,
-            "default_taxonomy": "CCS",
+            "default_taxonomy": "CSO",
         }
 
         return render(

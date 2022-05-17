@@ -121,7 +121,7 @@ class Taxonomy(ABC):
             query = Concept(-100, query)
             if to_json:
                 return {
-                "concept": query.to_json(),
+                "concept": query.to_dict(),
                 "subparents": [],
                 "subchildren": [],
                 "parents": [],
@@ -142,11 +142,11 @@ class Taxonomy(ABC):
             subparents = list(set([item for sublist in query.parents for item in sublist.parents]))
             subchildren = list(set([item for sublist in query.children for item in sublist.children]))
             return {
-                "concept": query.to_json(),
-                "subparents": [item.to_json() for item in subparents],
-                "subchildren": [item.to_json() for item in subchildren],
-                "parents": [x.to_json() for x in query.parents],
-                "children": [x.to_json() for x in query.children],
+                "concept": query.to_dict(),
+                "subparents": [item.to_dict() for item in subparents],
+                "subchildren": [item.to_dict() for item in subchildren],
+                "parents": [x.to_dict() for x in query.parents],
+                "children": [x.to_dict() for x in query.children],
             }
         return query
 

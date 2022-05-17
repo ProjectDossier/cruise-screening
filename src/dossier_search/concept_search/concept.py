@@ -18,7 +18,8 @@ class Concept:
     def __hash__(self):
         return hash(self.id) ^ hash(self.text)
 
-    def to_json(self):
+    def to_dict(self):
+        """converts Concept object to a dict."""
         return {
             "id": str(self.id),
             "text": self.text,
