@@ -23,8 +23,8 @@ class Concept:
         return {
             "id": str(self.id),
             "text": self.text,
-            "children_ids": self.children_ids,
-            "parent_ids": self.parent_ids,
+            "children_ids": [str(child.id) for child in self.children],
+            "parent_ids": [str(parent.id) for parent in self.parents],
         }
 
     @property

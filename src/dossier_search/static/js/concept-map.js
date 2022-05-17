@@ -32,16 +32,12 @@ window.renderPage = () => {
             context.strokeStyle = '#ababab'
 
             ;[...topRow.children].forEach(node => {
-                const parentNodeId = parseInt(node.dataset.parent, 10)
                 const parentIds = isDirectionTop ? node.dataset.parentid : node.dataset.childrenid
-                // console.log(parentNodeId, parentIds, bottomRow.children)
-
-                // if (isNaN(parentIds)) return
 
                 ;[...bottomRow.children].forEach(bottomNode => {
-                    const currentId = parseInt(bottomNode.dataset.currentid, 10)
-                    // console.log(currentId, parentNodeId)
-                    if (parentIds.split('-').includes(currentId.toString())) {
+                    const currentId = bottomNode.dataset.currentid
+
+                    if (parentIds.split(',').includes(currentId.toString())) {
                         const bottomCenter = bottomNode.offsetLeft + bottomNode.clientWidth / 2
                         const topCenter = node.offsetLeft + node.clientWidth / 2
                         context.moveTo(topCenter, isDirectionTop ? CANVAS_BOTTOM_PX : CANVAS_TOP_PX)
