@@ -1,6 +1,6 @@
 import time
 
-from concept_search.taxonomy import TaxonomyCCS as Taxonomy
+from concept_search.taxonomy import TaxonomyRDFCSO as Taxonomy
 from django.shortcuts import render
 
 from .search_documents import search
@@ -12,7 +12,7 @@ engine_logger = EngineLogger()
 # Create your views here.
 
 # Taxonomy instantiation
-tax = Taxonomy("../../data/external/acm_ccs.xml")
+taxonomy = Taxonomy()
 
 
 def home(request):
@@ -58,7 +58,7 @@ def search_results(request):
         index_name = "papers"
         top_k = 4
         search_result = search(query=search_query, index=index_name, top_k=top_k)
-        tax_query = tax.search_relationships(query=search_query)
+        concept_map = taxonomy.search(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
@@ -71,7 +71,7 @@ def search_results(request):
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_query": search_query,
-            "concept_map": tax_query,
+            "concept_map": concept_map,
             "search_time": f"{search_time:.2f}",
         }
 
