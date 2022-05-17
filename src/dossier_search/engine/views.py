@@ -1,8 +1,7 @@
 import time
 
-from concept_search.taxonomy import TaxonomyCCS as Taxonomy
 from django.shortcuts import render
-from concept_search.taxonomy import TaxonomyCSO, TaxonomyCCS
+from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
 from django.template.defaulttags import register
 
 from .search_documents import search
@@ -13,8 +12,8 @@ engine_logger = EngineLogger()
 
 # Taxonomy instantiation
 taxonomies = {
-    "cso": TaxonomyCSO("../../data/external/CSO.3.3.csv"),
-    "ccs": TaxonomyCCS("../../data/external/acm_ccs.xml"),
+    "CSO": TaxonomyRDFCSO("../../data/external/"),
+    "CCS": TaxonomyRDFCCS("../../data/external/"),
 }
 
 
@@ -73,7 +72,7 @@ def search_results(request):
             search_query=search_query, query_type=query_type, search_time=search_time
         )
 
-        tax_query = taxonomies["cso"].search(query=search_query)
+        tax_query = taxonomies["CSO"].search(query=search_query)
         tax_result = {
             "concept": tax_query,
             "parents": tax_query.parents,
@@ -94,7 +93,15 @@ def search_results(request):
 
         tax_results = {}
         for name, taxonomy in taxonomies.items():
-            tax_results[name] = taxonomy.search(query=search_query, to_json=True)
+            result = taxonomy.search(query=search_query)
+
+            tax_results[name] = {
+                "concept": result.to_json(),
+                "subparents": [item.to_json() for sublist in result.parents for item in sublist.parents],
+                "subchildren": [item.to_json() for sublist in result.children for item in sublist.children],
+                "parents": [x.to_json() for x in result.parents],
+                "children": [x.to_json() for x in result.children],
+            }
 
         context = {
             "search_result_list": search_result,
@@ -105,8 +112,7 @@ def search_results(request):
             "search_time": f"{search_time:.2f}",
             "tax_result": tax_result,
             "tax_results": tax_results,
-            "search_time": f"{(time.time() - s_time):.2f}",
-            "default_taxonomy": "ccs",
+            "default_taxonomy": "CCS",
         }
 
         return render(

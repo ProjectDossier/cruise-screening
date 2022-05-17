@@ -20,7 +20,7 @@ class Concept:
 
     def to_json(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "text": self.text,
             "children_ids": self.children_ids,
             "parent_ids": self.parent_ids,
