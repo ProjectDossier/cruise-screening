@@ -444,10 +444,14 @@ class TaxonomyRDFCSO(TaxonomyRDF):
 
 
 class TaxonomyRDFCCS(TaxonomyRDF):
-    def __init__(self, path=None):
+    def __init__(self, path=None, filename=None, taxonomy_name="CCS_RDF"):
         super().__init__()
         if path is not None:
             self.path = path
+        if filename is not None:
+            self.filename = filename
+        else:
+            self.filename = "acm_ccs.xml"
         (
             self.graph,
             self.namespace,
@@ -455,10 +459,10 @@ class TaxonomyRDFCCS(TaxonomyRDF):
             self.concept_list,
         ) = self.read_taxonomy()
         self.semantic_search = SemanticSearch(
-            data=self.concept_list, tax_name="CCS_RDF"
+            data=self.concept_list, tax_name=taxonomy_name
         ).do_faiss_lookup
         self.lexical_search = LexicalSearch(
-            data=self.concept_list, tax_name="CCS_RDF"
+            data=self.concept_list, tax_name=taxonomy_name
         ).lexical_search
         self.rdf_query_children = (
             f"select * where {{ <%(node)s> skos:narrower ?x . ?x skos:prefLabel ?z}}"
@@ -466,19 +470,19 @@ class TaxonomyRDFCCS(TaxonomyRDF):
         self.rdf_query_parents = (
             f"select * where {{ <%(node)s> skos:broader ?x . ?x skos:prefLabel ?z}}"
         )
-        print("Taxonomy instantiated")
+        print(f"Taxonomy {taxonomy_name} instantiated")
 
     def read_taxonomy(self):
         # fix format
-        with open(path_join(self.path, "acm_ccs.xml"), "r") as f:
+        with open(path_join(self.path, self.filename), "r") as f:
             content = f.read()
 
         fixed = content.replace("lang=", "xml:lang=")
 
-        with open(path_join(self.path, "acm_ccs_fixed.xml"), "w") as f:
+        with open(path_join(self.path, f"fixed_{self.filename}"), "w") as f:
             f.write(fixed)
 
-        graph = Graph().parse(path_join(self.path, "acm_ccs_fixed.xml"), format="xml")
+        graph = Graph().parse(path_join(self.path, f"fixed_{self.filename}"), format="xml")
         namespace = Namespace("")
 
         query = f"select ?x ?z where {{ ?x skos:prefLabel ?z}}"
