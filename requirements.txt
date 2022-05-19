@@ -1,18 +1,19 @@
-Django==3.2.13
-simplejson==3.17.5
-elasticsearch==7.15.1
-pycld3==0.22
-tqdm~=4.63.0
+# main app
+Django~=4.0.4
 wikipedia~=1.4.0
-pandas==1.4.1
-xmltodict==0.12.0
-fuzzywuzzy==0.18.0
+fuzzywuzzy~=0.18.0
 requests~=2.27.1
 torch==1.10.2
 transformers==4.14.1
 python-terrier==0.8.1
-rdflib==6.1.1
-faiss-cpu==1.7.2
+rdflib~=6.1.1
+faiss-cpu~=1.7.2
 numpy~=1.22.3
-faiss-gpu==1.7.2
-beautifulsoup4~=4.10.0
+pandas==1.4.2
+xmltodict~=0.13.0
+
+# scripts
+pycld3~=0.22
+tqdm~=4.64.0
+beautifulsoup4~=4.11.1
+elasticsearch~=8.2.0
