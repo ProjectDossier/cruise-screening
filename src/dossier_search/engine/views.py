@@ -1,7 +1,8 @@
 import time
 
-from concept_search.taxonomy import TaxonomyRDFCSO as Taxonomy
 from django.shortcuts import render
+from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
+from django.template.defaulttags import register
 
 from .search_documents import search
 from .search_wikipedia import search_wikipedia
@@ -9,10 +10,16 @@ from .engine_logger import EngineLogger, get_query_type
 
 engine_logger = EngineLogger()
 
-# Create your views here.
-
 # Taxonomy instantiation
-taxonomy = Taxonomy()
+taxonomies = {
+    "CSO": TaxonomyRDFCSO("../../data/external/"),
+    "CCS": TaxonomyRDFCCS("../../data/external/"),
+}
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
 
 def home(request):
@@ -58,7 +65,6 @@ def search_results(request):
         index_name = "papers"
         top_k = 4
         search_result = search(query=search_query, index=index_name, top_k=top_k)
-        concept_map = taxonomy.search(query=search_query)
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
@@ -66,13 +72,25 @@ def search_results(request):
             search_query=search_query, query_type=query_type, search_time=search_time
         )
 
+        tax_results = {}
+        for name, taxonomy in taxonomies.items():
+            concept = taxonomy.search(query=search_query)
+            tax_results[name] = {
+                "concept": concept.to_dict(),
+                "subparents": [item.to_dict() for sublist in concept.parents for item in sublist.parents],
+                "subchildren": [item.to_dict() for sublist in concept.children for item in sublist.children],
+                "parents": [x.to_dict() for x in concept.parents],
+                "children": [x.to_dict() for x in concept.children],
+            }
+
         context = {
             "search_result_list": search_result,
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
-            "search_query": search_query,
-            "concept_map": concept_map,
             "search_time": f"{search_time:.2f}",
+            "search_query": search_query,
+            "tax_results": tax_results,
+            "default_taxonomy": "CSO",
         }
 
         return render(

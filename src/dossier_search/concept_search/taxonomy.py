@@ -31,6 +31,7 @@ else:
 
 class Taxonomy(ABC):
     taxonomy = None
+    MAX_DEPTH = 2
 
     def __init__(self):
         pass
@@ -70,27 +71,35 @@ class Taxonomy(ABC):
         children = children.drop_duplicates().values
         return [Concept(item[0], item[1]) for item in children]
 
-    def assign_parents(self, item):
+    def assign_parents(self, item, depth: int):
         parent = Concept(item[0], item[1])
-        parent.parents = self.get_parents(id=item[0])
+        if depth == self.MAX_DEPTH:
+            return parent
+        parent.parents = self.get_parents(id=item[0], depth=depth)
+        parent.parent_ids = "-".join([item.id for item in parent.parents])
         return parent
 
-    def get_parents(self, id):
+    def get_parents(self, id, depth: int):
+        depth += 1
         taxonomy = self.taxonomy
         parents = taxonomy[taxonomy.child == id][["id", "text"]].values
-        return [self.assign_parents(item) for item in parents]
+        return [self.assign_parents(item, depth=depth) for item in parents]
 
-    def assign_children(self, item):
+    def assign_children(self, item, depth: int):
         child = Concept(item[0], item[1])
-        child.children = self.get_children(item[0])
+        if depth == self.MAX_DEPTH:
+            return child
+        child.children = self.get_children(item[0], depth=depth)
+        child.children_ids = "-".join([child_.id for child_ in child.children])
         return child
 
-    def get_children(self, id):
+    def get_children(self, id, depth: int):
+        depth += 1
         taxonomy = self.taxonomy
         children = list(taxonomy[taxonomy.id == id].child)
         children = taxonomy[taxonomy.id.isin(children)][["id", "text"]]
         children = children.drop_duplicates().values
-        return [self.assign_children(item) for item in children]
+        return [self.assign_children(item, depth=depth) for item in children]
 
     def search_relationships(self, query):
         id, query = self.get_id(query)
@@ -100,18 +109,45 @@ class Taxonomy(ABC):
         query.parents = self.get_1st_level_parents(id)
         for item in query.parents:
             item.parents = self.get_1st_level_parents(item.id)
+            item.children_ids = "-".join([child_.id for child_ in item.children])
         query.children = self.get_1st_level_children(id)
         for item in query.children:
             item.children = self.get_1st_level_children(item.id)
         return query
 
-    def search(self, query):
+    def search(self, query, to_json=False):
         id = self.get_id(query)
         if id == -100:
-            return Concept(-100, query)
+            query = Concept(-100, query)
+            if to_json:
+                return {
+                "concept": query.to_dict(),
+                "subparents": [],
+                "subchildren": [],
+                "parents": [],
+                "children": [],
+                }
+            else:
+                return query
         query = Concept(id, query)
-        query.parents = self.get_parents(id)
-        query.children = self.get_children(id)
+
+        depth = 0
+
+        query.parents = self.get_parents(id, depth=depth)
+        query.children = self.get_children(id, depth=depth)
+        query.children_ids = "-".join([item.id for item in query.children])
+        query.parent_ids = "-".join([item.id for item in query.parents])
+
+        if to_json:
+            subparents = list(set([item for sublist in query.parents for item in sublist.parents]))
+            subchildren = list(set([item for sublist in query.children for item in sublist.children]))
+            return {
+                "concept": query.to_dict(),
+                "subparents": [item.to_dict() for item in subparents],
+                "subchildren": [item.to_dict() for item in subchildren],
+                "parents": [x.to_dict() for x in query.parents],
+                "children": [x.to_dict() for x in query.children],
+            }
         return query
 
 
