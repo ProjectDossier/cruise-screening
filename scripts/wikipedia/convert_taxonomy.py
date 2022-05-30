@@ -3,7 +3,7 @@ import xml.etree.cElementTree as ET
 
 
 def convert_wikipedia_taxonomy_to_xml(
-    infile: str = "../data/external/wikipedia_taxonomy.json",
+    infile: str = "../../data/external/wikipedia_taxonomy.json",
 ):
     with open(infile) as fp:
         content = json.load(fp)
@@ -39,7 +39,7 @@ def convert_wikipedia_taxonomy_to_xml(
             )
 
     tree = ET.ElementTree(root)
-    tree.write("wikipedia_taxonomy.xml", xml_declaration=True, encoding="UTF-8")
+    tree.write("../../data/external/wikipedia_taxonomy.xml", xml_declaration=True, encoding="UTF-8")
 
 
 if __name__ == "__main__":

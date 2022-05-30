@@ -54,7 +54,7 @@ def get_title(content: BeautifulSoup) -> str:
 
 class Crawler:
     logging.basicConfig(
-        filename=f"../data/logs-{datetime.now().date()}.txt", level="DEBUG"
+        filename=f"../../data/external/logs-{datetime.now().date()}.txt", level="DEBUG"
     )
 
     def __init__(self, max_dept):
@@ -180,5 +180,5 @@ if __name__ == "__main__":
         final_taxonomy = list({v["url"]: v for v in final_taxonomy}.values())
         print(len(result), len(final_taxonomy))
 
-    with open("../data/external/wikipedia_taxonomy.json", "w") as fp:
+    with open("../../data/external/wikipedia_taxonomy.json", "w") as fp:
         json.dump(final_taxonomy, fp, indent=2)
