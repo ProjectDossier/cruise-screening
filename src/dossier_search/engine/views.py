@@ -111,6 +111,6 @@ def search_results(request):
 
         return render(
             request=request,
-            template_name="interfaces/search_result.html",
+            template_name="interfaces/search_with_taxonomy.html",
             context=context,
         )
