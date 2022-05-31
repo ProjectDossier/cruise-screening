@@ -8,6 +8,8 @@
   <form id="search_box" method="GET" action="/search">
       <div class="search-box__input">
           <input type="search" class="input mr-2" name="search_query" value="Natural Language Processing" placeholder="Search" aria-label="Search" />
+          <input type="checkbox" name="search_type">
+{#          todo: add default true#}
           <button class="button is-primary">Search</button>
         </div>
         <input type='hidden' name='search_button' value="search_button">
