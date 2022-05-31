@@ -92,9 +92,9 @@ def search_results(request):
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
             "tax_results": tax_results,
-            "default_taxonomy": "CSO",
+            "default_taxonomy": list(taxonomies.keys())[0],
         }
-
+        # assign value of default taxonomy based on selected javascript box...
         return render(
             request=request,
             template_name="interfaces/search_result.html",
