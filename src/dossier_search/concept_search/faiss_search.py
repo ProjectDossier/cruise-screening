@@ -22,6 +22,11 @@ class SemanticSearch:
         ).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, model_max_length=16)
 
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+        self.model = self.model.to(self.device)
+
+
         self.n_dimensions = self.model.pooler.dense.out_features
         self.data = data
 
@@ -67,7 +72,7 @@ class SemanticSearch:
         tokens_tensor = torch.tensor([indexed_tokens]).squeeze(0)
 
         with torch.no_grad():
-            outputs = model(tokens_tensor)
+            outputs = model(tokens_tensor.to(self.device))
             hidden_states = outputs["hidden_states"]
 
         # combine the layers to make a single tensor.
