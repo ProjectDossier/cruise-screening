@@ -7,7 +7,7 @@ from django.template.defaulttags import register
 
 from .search_documents import search
 from .search_wikipedia import search_wikipedia
-from .engine_logger import EngineLogger, get_query_type
+from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 
 engine_logger = EngineLogger()
 
@@ -56,7 +56,7 @@ def search_results(request):
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
         query_type = get_query_type(
-            search_button=request.GET.get("search_button", None)
+            source=request.GET.get("source", None)
         )
 
         if not search_query.strip():
@@ -70,10 +70,6 @@ def search_results(request):
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
-        engine_logger.log_query(
-            search_query=search_query, query_type=query_type, search_time=search_time
-        )
-
         tax_results = {}
         for name, taxonomy in taxonomies.items():
             concept = taxonomy.search(query=search_query)
@@ -84,6 +80,11 @@ def search_results(request):
                 "parents": [x.to_dict() for x in concept.parents],
                 "children": [x.to_dict() for x in concept.children],
             }
+
+        engine_logger.log_query(
+            search_query=search_query, query_type=query_type, search_time=search_time, tax_results=tax_results,
+            matched_wiki_page=get_wiki_logger(matched_wiki_page)
+        )
 
         context = {
             "search_result_list": search_result,
