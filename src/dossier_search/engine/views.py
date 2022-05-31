@@ -1,5 +1,6 @@
 import time
 
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
 from django.template.defaulttags import register
@@ -58,11 +59,9 @@ def search_results(request):
             search_button=request.GET.get("search_button", None)
         )
 
-        if not search_query:
-            return render(
-                request,
-                "interfaces/home.html",
-            )
+        if not search_query.strip():
+            return HttpResponseRedirect('index')
+
         s_time = time.time()
 
         index_name = "papers"

@@ -2,8 +2,10 @@ import json
 import xml.etree.cElementTree as ET
 
 
-def convert_wikipedia_taxonomy_to_xml():
-    with open("/scripts/result.json") as fp:
+def convert_wikipedia_taxonomy_to_xml(
+    infile: str = "../../data/external/wikipedia_taxonomy.json",
+):
+    with open(infile) as fp:
         content = json.load(fp)
 
     root = ET.Element(
@@ -15,27 +17,29 @@ def convert_wikipedia_taxonomy_to_xml():
     )
 
     for item in content:
-        doc = ET.SubElement(root, f"skos:Concept", attrib={"rdf:about": item["url"]})
-        ET.SubElement(doc, f"skos:prefLabel", attrib={"lang": "en"}).text = item[
-            "title"
-        ][:-12]
+        doc = ET.SubElement(root, "skos:Concept", attrib={"rdf:about": item["url"]})
+        title = item["title"]
+        if title.startswith("Category:"):
+            title = title[9:]  # Remove 'Category:' from the title
+
+        ET.SubElement(doc, "skos:prefLabel", attrib={"lang": "en"}).text = title
 
         for child_url, child_name in item["children"].items():
             ET.SubElement(
                 doc,
-                f"skos:narrower",
+                "skos:narrower",
                 attrib={"rdf:resource": f"https://en.wikipedia.org{child_url}"},
             )
 
         for parent_url, parent_name in item["parents"].items():
             ET.SubElement(
                 doc,
-                f"skos:broader",
+                "skos:broader",
                 attrib={"rdf:resource": f"https://en.wikipedia.org{parent_url}"},
             )
 
     tree = ET.ElementTree(root)
-    tree.write("wikipedia_taxonomy.xml", xml_declaration=True, encoding="UTF-8")
+    tree.write("../../data/external/wikipedia_taxonomy.xml", xml_declaration=True, encoding="UTF-8")
 
 
 if __name__ == "__main__":

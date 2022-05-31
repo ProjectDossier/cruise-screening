@@ -163,7 +163,7 @@ class TaxonomyCCS(Taxonomy):
             data=self.concept_list, tax_name="CCS"
         ).lexical_search
 
-        print("Taxonomy instantiated")
+        print("Taxonomy CCS instantiated")
 
     def read_taxonomy(self):
         with open(self.path, "r") as f:
@@ -209,7 +209,7 @@ class TaxonomyCSO(Taxonomy):
         self.lexical_search = LexicalSearch(
             data=self.concept_list, tax_name="CSO"
         ).lexical_search
-        print("Taxonomy instantiated")
+        print("Taxonomy CSO instantiated")
 
     def read_taxonomy(self):
         df = pd.read_csv(
@@ -431,7 +431,7 @@ class TaxonomyRDFCSO(TaxonomyRDF):
                                 }}
                             }}
                         """
-        print("Taxonomy instantiated")
+        print("Taxonomy RDFCSO instantiated")
 
     def read_taxonomy(self):
         namespace = Namespace("")
