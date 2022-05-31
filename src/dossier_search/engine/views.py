@@ -81,6 +81,7 @@ def search_results(request):
                 "unique_searches": len(search_result),
                 "search_time": f"{search_time:.2f}",
                 "search_query": search_query,
+                "search_type": search_with_taxonomy
             }
             return render(
                 request=request,
@@ -107,6 +108,7 @@ def search_results(request):
             "search_query": search_query,
             "tax_results": tax_results,
             "default_taxonomy": "CSO",
+            "search_type": search_with_taxonomy
         }
 
         return render(
