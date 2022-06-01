@@ -141,6 +141,6 @@ STATIC_URL = "/static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # change to True if you are running this code on M1 Apple Macbook
-M1_CHIP = True
+M1_CHIP = False
 
 AUTH_USER_MODEL = 'users.User'
