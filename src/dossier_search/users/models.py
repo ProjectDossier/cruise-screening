@@ -36,6 +36,9 @@ class User(AbstractUser):
     languages = models.ManyToManyField(Language, blank=True)
     knowledge_areas = models.ManyToManyField(KnowledgeArea, blank=True)
 
+    allow_logging = models.BooleanField(default=False)
+    preferred_taxonomies = models.CharField(max_length=200, blank=True)
+
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}".strip()

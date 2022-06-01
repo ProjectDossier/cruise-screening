@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
 
-from .forms import NewUserForm
+from .forms import NewUserForm, EditUserForm
 
 
 def register(request):
@@ -75,3 +76,62 @@ def user_profile(request):
             )
 
     return HttpResponseNotFound("<h1>Page not found</h1>")
+
+
+@login_required
+def edit_profile(request):
+    """
+    Edit user profile page
+    """
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            form = EditUserForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(
+                    request, f"Your profile was updated successfully."
+                )
+                return redirect("user_profile")
+            else:
+                for msg in form.error_messages:
+                    messages.error(request, f"{msg}: {form.error_messages[msg]}")
+
+                return render(
+                    request=request,
+                    template_name="users/user_profile.html",
+                    context={"form": form},
+                )
+        else:
+            form = EditUserForm(
+                initial={
+                    "first_name": request.user.first_name,
+                    "last_name": request.user.last_name,
+                    "email": request.user.email,
+                    "location": request.user.location,
+                    "allow_logging": request.user.allow_logging,
+                    "preferred_taxonomies": request.user.preferred_taxonomies,
+                }
+            )
+            return render(
+                request=request,
+                template_name="users/edit_user_profile.html",
+                context={"form": form},
+            )
+
+
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         user_form = UpdateUserForm(request.POST, instance=request.user)
+#         profile_form = UpdateProfileForm(request.POST, request.FILES, instance=request.user.profile)
+#
+#         if user_form.is_valid() and profile_form.is_valid():
+#             user_form.save()
+#             profile_form.save()
+#             messages.success(request, 'Your profile is updated successfully')
+#             return redirect(to='users-profile')
+#     else:
+#         user_form = UpdateUserForm(instance=request.user)
+#         profile_form = UpdateProfileForm(instance=request.user.profile)
+#
+#     return render(request, 'users/profile.html', {'user_form': user_form, 'profile_form': profile_form})

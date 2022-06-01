@@ -13,7 +13,7 @@ engine_logger = EngineLogger()
 
 # Taxonomy instantiation
 taxonomies = {
-    "CSO": TaxonomyRDFCSO("../../data/external/"),
+    # "CSO": TaxonomyRDFCSO("../../data/external/"),
     "CCS": TaxonomyRDFCCS("../../data/external/"),
     "Wikipedia": TaxonomyRDFCCS("../../data/external/",
                                 filename="wikipedia_taxonomy.xml",
