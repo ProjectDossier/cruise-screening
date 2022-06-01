@@ -20,19 +20,19 @@ def get_words_similarity(
 
 
 def get_words_score(
-        qts: List[str],
+        cts: List[str],
         dts: List[str],
         similarities: torch.Tensor,
 ):
     M = similarities
-    assert tuple(M.shape) == (len(qts), len(dts))
+    assert tuple(M.shape) == (len(cts), len(dts))
 
     M = torch.max(M, dim=0)[0]
     norm = M.sum().item()
 
     res = {}
     for i, w in enumerate(dts):
-        if w in qts:
+        if w in cts:
             res[w] = res.get(w, 0) + (M[i].item() / norm)
 
     return res
@@ -45,7 +45,7 @@ class ConceptRate:
         self.model.to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    def get_vectors(self, string: list[str]):
+    def get_vectors(self, string):
         tokens = [i.lower().split(' ') for i in string]
         tokenized = self.tokenizer.batch_encode_plus(tokens, is_split_into_words=True, return_tensors='pt', padding=True)
         tokenized = tokenized.to(self.device)
@@ -69,15 +69,17 @@ class ConceptRate:
                 """
                 # vectors = encodings.last_hidden_state[0][start:end]
                 vectors = encodings.hidden_states[-2][0][start:end]
+                vectors = vectors.mean(dim=0)
                 item_result.append((token, vectors))
             result.append(item_result)
         return result
 
     def concept_score(self,
-                      concepts: list[str],
-                      documents: list[str],
-                      lengths: list[int]
+                      concepts,
+                      documents,
+                      lengths
                       ):
+
         concepts_vectors = self.get_vectors(concepts)
         doc_vectors = self.get_vectors(documents)
 
