@@ -2,17 +2,22 @@
 {% load static %}
 {% block content %}
 
-<div class="search-box">
-  <img src="{% static 'logo.png' %}" class="search-box__logo" width="300" height="300">
+    <div class="search-box">
+        <img src="{% static 'logo.png' %}" class="search-box__logo" width="300" height="300">
 
-  <form id="search_box" method="GET" action="/search">
-      <div class="search-box__input">
-          <input type="search" class="input mr-2" name="search_query" value="Natural Language Processing" placeholder="Search" aria-label="Search" />
-          <button class="button is-primary">Search</button>
-        </div>
-        <input type='hidden' name='search_button' value="search_button">
-  </form>
-</div>
+        <form id="search_box" method="GET" action="/search">
+            <div class="search-box__input">
+                <input type="search" class="input mr-2" name="search_query" value="Natural Language Processing"
+                       placeholder="Search" aria-label="Search"/>
+                <label class="checkbox">
+                    <input type="checkbox" name="search_type" checked>
+                    Use taxonomy
+                </label>
+                <button class="button is-primary">Search</button>
+            </div>
+            <input type='hidden' name='search_button' value="search_button">
+        </form>
+    </div>
 
-{% include "_footer.html" %}
+    {% include "_footer.html" %}
 {% endblock %}

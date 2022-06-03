@@ -46,6 +46,10 @@
                     <div class="search-small__input">
                         <input type="search" class="input mr-2" name="search_query" value="{{ search_query }}"
                                placeholder="Search" aria-label="Search"/>
+                        <label class="checkbox">
+                            <input type="checkbox" name="search_type" {{ search_type }}>
+                            Use taxonomy
+                        </label>
                         <button class="button is-primary">Search</button>
                     </div>
                 </form>
