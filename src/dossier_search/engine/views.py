@@ -29,7 +29,6 @@ def get_item(dictionary, key):
 def home(request):
     """
     Home page
-
     """
     if request.method == "GET":
         return render(
@@ -58,6 +57,7 @@ def search_results(request):
         query_type = get_query_type(
             source=request.GET.get("source", None)
         )
+        search_with_taxonomy = request.GET.get("search_type", False)
 
         if not search_query.strip():
             return HttpResponseRedirect('index')
@@ -69,6 +69,29 @@ def search_results(request):
         search_result = search(query=search_query, index=index_name, top_k=top_k)
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
+
+        engine_logger.log_query(
+            search_query=search_query, query_type=query_type, search_time=search_time
+        )
+
+        if not search_with_taxonomy:
+            engine_logger.log_query(
+                search_query=search_query, query_type=query_type, search_time=search_time
+            )
+
+            context = {
+                "search_result_list": search_result,
+                "matched_wiki_page": matched_wiki_page,
+                "unique_searches": len(search_result),
+                "search_time": f"{search_time:.2f}",
+                "search_query": search_query,
+                "search_type": ""
+            }
+            return render(
+                request=request,
+                template_name="interfaces/plain_search.html",
+                context=context,
+            )
 
         tax_results = {}
         for name, taxonomy in taxonomies.items():
@@ -94,10 +117,11 @@ def search_results(request):
             "search_query": search_query,
             "tax_results": tax_results,
             "default_taxonomy": "CSO",
+            "search_type": "checked"
         }
 
         return render(
             request=request,
-            template_name="interfaces/search_result.html",
+            template_name="interfaces/search_with_taxonomy.html",
             context=context,
         )
