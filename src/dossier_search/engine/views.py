@@ -70,13 +70,10 @@ def search_results(request):
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
-        engine_logger.log_query(
-            search_query=search_query, query_type=query_type, search_time=search_time
-        )
-
         if not search_with_taxonomy:
             engine_logger.log_query(
-                search_query=search_query, query_type=query_type, search_time=search_time
+                search_query=search_query, query_type=query_type, search_time=search_time,
+                tax_results={}, matched_wiki_page=get_wiki_logger(matched_wiki_page)
             )
 
             context = {

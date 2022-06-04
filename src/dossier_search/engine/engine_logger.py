@@ -50,7 +50,7 @@ class EngineLogger:
         matched_wiki_page: str,
     ):
         """Method responsible for logging user queries along with some metadata."""
-        concepts = "\t".join(
+        concepts = "|".join(
             f"{k}: {v['concept']['text']}" for k, v in tax_results.items()
         )
         self._logger.info(
