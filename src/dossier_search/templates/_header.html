@@ -39,9 +39,9 @@
             <span aria-hidden="true"></span>
         </a>
     </div>
-    <div class="navbar-menu is-active">
-        <div class="navbar-start">
-            {% if request.resolver_match.view_name == 'search_results' %}
+    {% if request.resolver_match.view_name == 'search_results' %}
+        <div class="navbar-menu is-active">
+            <div class="navbar-start">
                 <form id="search_box" class="search-small" method="GET" action="/search">
                     <div class="search-small__input">
                         <input type="search" class="input mr-2" name="search_query" value="{{ search_query }}"
@@ -50,12 +50,13 @@
                             <input type="checkbox" name="search_type" {{ search_type }}>
                             Use taxonomy
                         </label>
+                        <input type='hidden' name='source' value="reformulate_search">
                         <button class="button is-primary">Search</button>
                     </div>
                 </form>
-            {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
     <div class="navbar-menu" id="userMenu">
         <div class="navbar-end">
             {% if user.is_authenticated %}
