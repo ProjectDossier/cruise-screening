@@ -7,8 +7,7 @@ def get_words_similarity(
         cvs: List[Tuple[str, torch.Tensor]],
         dvs: List[Tuple[str, torch.Tensor]],
 ):
-    # cvs: concept vectors (shape: [N, H], N=#tokens in C)
-    # dvs: document vectors (shape: [M, H], M=#tokens in D)
+
     C = torch.stack([v[1] for v in cvs])
     C = C / C.norm(dim=-1)[:, None]
 
@@ -33,20 +32,20 @@ def get_words_score(
     res = {}
     for i, w in enumerate(dts):
         if w in cts:
-            res[w] = res.get(w, 0) + (M[i].item() / norm)
+            res[w] = res.get(w, 0) + (M[i].item() / norm * 100)
 
     return res
 
 
 class ConceptRate:
-    def __init__(self, model_name: str, mount_on_gpu: bool = True):
+    def __init__(self, model_name: str = "allenai/scibert_scivocab_cased", mount_on_gpu: bool = True):
         self.model = AutoModel.from_pretrained(model_name, output_hidden_states=True).eval()
         self.device = 'cuda' if mount_on_gpu and torch.cuda.is_available() else 'cpu'
         self.model.to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    def get_vectors(self, string):
-        tokens = [i.lower().split(' ') for i in string]
+    def get_vectors(self, strings: List[str]):
+        tokens = [i.lower().split(' ') for i in strings]
         tokenized = self.tokenizer.batch_encode_plus(tokens, is_split_into_words=True, return_tensors='pt', padding=True)
         tokenized = tokenized.to(self.device)
 
@@ -75,12 +74,12 @@ class ConceptRate:
         return result
 
     def concept_score(self,
-                      concepts,
-                      documents,
-                      lengths
+                      concepts: List[str],
+                      documents: List[str],
+                      lengths: List[int]
                       ):
 
-        concepts_vectors = self.get_vectors(concepts)
+        concepts_vectors = self.get_vectors(sum(concepts, []))
         doc_vectors = self.get_vectors(documents)
 
         split_concepts_vectors = []
@@ -104,29 +103,12 @@ class ConceptRate:
             agg_scores.append(scores_)
         return agg_scores
 
+    def request_score(self, search_result: List[object]):
+        concepts = [article.keywords_snippet + article.keywords_rest for article in search_result]
+        documents = [article.title + ' ' + article.snippet for article in search_result]
+        lengths = [len(i) for i in concepts]
+        concept_scores = self.concept_score(concepts, documents, lengths)
 
-if __name__ == '__main__':
-    model_name = "allenai/scibert_scivocab_cased"
-    rate = ConceptRate(model_name)
-    kw1 = ["xml", "extensible markup languages"]
-    kw2 = ["mOLAP", "subsumption", "broadcast"]
-    doc1 = "The eXtensible Markup Language XML is not only a language for " \
-           "communication between humans and the web, it is also a language for " \
-           "communication between programs. Rather than passing parameters, programs " \
-           "can pass documents from one to another, containing not only pure data, but " \
-           "control information as well. Even legacy programs written in ancient languages " \
-           "such as COBOL and PL/I can be adapted by means ofinterface reengineering to process " \
-           "and to generate XML documents."
-    doc2 = "Mobile online analytical processing (mOLAP) encompasses all necessary technologies f" \
-           "or information systems that enable OLAP data access to users carrying a mobile device. " \
-           "This paper presents FCLOS, a complete client–server architecture explicitly designed for " \
-           "mOLAP. FCLOS founds on intelligent scheduling and compressed transmissions in order to " \
-           "become a query efficient, self-adaptive and scalable mOLAP information system. Scheduling " \
-           "exploits derivability between data cubes in order to group related queries and eventually reduce " \
-           "the necessary transmissions (broadcasts). Compression is achieved by the m-Dwarf, a novel, compressed " \
-           "data cube physical structure, which has no loss of semantic information and is explicitly designed for " \
-           "mobile applications. The superiority of FCLOS against state of the art systems is shown both experimentally" \
-           " and analytically."
-
-    scores = rate.concept_score(kw1 + kw2, [doc1, doc2], lengths=[len(kw1), len(kw2)])
-    print()
+        for article, scores in zip(search_result, concept_scores):
+            article.keywords_snippet_score = scores[:4]
+            article.keywords_rest_score = scores[4:]

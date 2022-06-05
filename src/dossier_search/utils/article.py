@@ -15,8 +15,9 @@ class Article:
     publication_date: str = ""
     venue: str = ""
     keywords_snippet: Union[List[str], None] = None
+    keywords_snippet_score: Union[List[float]] = None
     keywords_rest: Union[List[str], None] = None
-
+    keywords_rest_score: Union[List[float]] = None
 
 @dataclass()
 class WikipediaArticle:
