@@ -90,7 +90,7 @@ class ConceptRate:
 
         agg_scores = []
         for concepts_vectors, doc_vector in zip(split_concepts_vectors, doc_vectors):
-            scores_ = []
+            scores_ = {}
             for keyword_vector in concepts_vectors:
                 sim = get_words_similarity(keyword_vector, doc_vector)
 
@@ -99,7 +99,7 @@ class ConceptRate:
                     [e[0] for e in doc_vector],
                     sim,
                 )
-                scores_.append(scores)
+                scores_.update(scores)
             agg_scores.append(scores_)
         return agg_scores
 
@@ -110,5 +110,6 @@ class ConceptRate:
         concept_scores = self.concept_score(concepts, documents, lengths)
 
         for article, scores in zip(search_result, concept_scores):
-            article.keywords_snippet_score = scores[:4]
-            article.keywords_rest_score = scores[4:]
+            article.keywords_score = scores
+
+        return search_result
