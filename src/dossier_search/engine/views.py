@@ -71,7 +71,6 @@ def search_results(request):
         search_result = search(query=search_query, index=index_name, top_k=top_k)
 
         search_result = classifier.classify_search_result(search_result=search_result)
-        print('\n'*3, search_result, '\n'*3)
 
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
