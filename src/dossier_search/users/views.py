@@ -88,9 +88,7 @@ def edit_profile(request):
             form = EditUserForm(request.POST, instance=request.user)
             if form.is_valid():
                 form.save()
-                messages.success(
-                    request, f"Your profile was updated successfully."
-                )
+                messages.success(request, f"Your profile was updated successfully.")
                 return redirect("user_profile")
             else:
                 for msg in form.error_messages:

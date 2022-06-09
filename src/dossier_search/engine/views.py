@@ -85,6 +85,10 @@ def search_results(request):
                 "children": [x.to_dict() for x in concept.children],
             }
 
+        source_taxonomy = request.GET.get("source_taxonomy", None)
+        if not source_taxonomy:
+            source_taxonomy = list(taxonomies.keys())[0]
+
         context = {
             "search_result_list": search_result,
             "matched_wiki_page": matched_wiki_page,
@@ -92,7 +96,7 @@ def search_results(request):
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
             "tax_results": tax_results,
-            "default_taxonomy": list(taxonomies.keys())[0],
+            "default_taxonomy": source_taxonomy,
         }
         # assign value of default taxonomy based on selected javascript box...
         return render(

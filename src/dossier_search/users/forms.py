@@ -40,7 +40,6 @@ class NewUserForm(UserCreationForm):
 
 
 class EditUserForm(forms.ModelForm):
-
     class Meta:
         model = User
         fields = (
@@ -49,5 +48,5 @@ class EditUserForm(forms.ModelForm):
             "last_name",
             "location",
             "allow_logging",
-            "preferred_taxonomies"
+            "preferred_taxonomies",
         )

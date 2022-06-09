@@ -1,11 +1,11 @@
 <div class="concept-map-page" x-data="renderPage"
-     x-init="taxonomy = {{ tax_results|get_item:default_taxonomy }}; renderTaxonomy(taxonomy=taxonomy)">
+     x-init="taxonomy = {{ tax_results|get_item:default_taxonomy }}; renderTaxonomy(taxonomy=taxonomy, taxonomy_name= '{{ default_taxonomy }}')">
     <div class="card concept-map-page__taxonomies" x-data="{selectedTaxonomy: '{{ default_taxonomy }}', hidden: false  }">
         <p>Select taxonomy</p>
         {% for key, value in tax_results.items %}
             <button class="button is-info is-rounded"
                     :class="'{{ key }}' == selectedTaxonomy ? '' : 'is-inverted'"
-                    @click="taxonomy = {{ value }}; renderTaxonomy(taxonomy=taxonomy); selectedTaxonomy = '{{ key }}'">
+                    @click="taxonomy = {{ value }}; selectedTaxonomy = '{{ key }}'; renderTaxonomy(taxonomy=taxonomy, taxonomy_name=selectedTaxonomy);">
                 {{ key }}</button>
         {% endfor %}
     </div>
