@@ -55,11 +55,8 @@ class Taxonomy(ABC):
                     query_ = self.lexical_search(query)
                     id = taxonomy[taxonomy.text == query_].id.values[0]
                 except IndexError:
-                    # query, _ = self.semantic_search(query)
-                    # id = taxonomy[taxonomy.text == query].id.values[0]
-                    pass
-
-        print(id)
+                    query, _ = self.semantic_search(query)
+                    id = taxonomy[taxonomy.text == query].id.values[0]
         return id, query
 
     def get_1st_level_parents(self, id):
@@ -461,9 +458,9 @@ class TaxonomyRDFCCS(TaxonomyRDF):
             self.taxonomy,
             self.concept_list,
         ) = self.read_taxonomy()
-        # self.semantic_search = SemanticSearch(
-        #     data=self.concept_list, tax_name=taxonomy_name
-        # ).do_faiss_lookup
+        self.semantic_search = SemanticSearch(
+            data=self.concept_list, tax_name=taxonomy_name
+        ).do_faiss_lookup
         self.lexical_search = LexicalSearch(
             data=self.concept_list, tax_name=taxonomy_name
         ).lexical_search
