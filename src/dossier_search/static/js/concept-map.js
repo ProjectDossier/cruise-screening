@@ -10,7 +10,7 @@ window.renderPage = () => {
         createConcepts(divRef, items, button_class, source_taxonomy) {
             divRef.innerHTML = "&nbsp;"
             ;[...items].forEach(concept => {
-                divRef.innerHTML += "<a href=\"?search_query=" + concept.text + "&source_taxonomy=" + source_taxonomy + "\" " +
+                divRef.innerHTML += "<a href=\"?search_query=" + concept.text + "&source=taxonomy&source_taxonomy=" + source_taxonomy + "\" " +
                     "class=\"" + button_class + "\" " +
                     "data-currentid=\"" + concept.id + "\" " +
                     "data-childrenid=\"" + concept.children_ids +

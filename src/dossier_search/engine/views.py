@@ -7,7 +7,7 @@ from django.template.defaulttags import register
 
 from .search_documents import search
 from .search_wikipedia import search_wikipedia
-from .engine_logger import EngineLogger, get_query_type
+from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 
 engine_logger = EngineLogger()
 
@@ -29,7 +29,6 @@ def get_item(dictionary, key):
 def home(request):
     """
     Home page
-
     """
     if request.method == "GET":
         return render(
@@ -56,8 +55,9 @@ def search_results(request):
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
         query_type = get_query_type(
-            search_button=request.GET.get("search_button", None)
+            source=request.GET.get("source", None)
         )
+        search_with_taxonomy = request.GET.get("search_type", False)
 
         if not search_query.strip():
             return HttpResponseRedirect('index')
@@ -70,9 +70,25 @@ def search_results(request):
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
-        engine_logger.log_query(
-            search_query=search_query, query_type=query_type, search_time=search_time
-        )
+        if not search_with_taxonomy:
+            engine_logger.log_query(
+                search_query=search_query, query_type=query_type, search_time=search_time,
+                tax_results={}, matched_wiki_page=get_wiki_logger(matched_wiki_page)
+            )
+
+            context = {
+                "search_result_list": search_result,
+                "matched_wiki_page": matched_wiki_page,
+                "unique_searches": len(search_result),
+                "search_time": f"{search_time:.2f}",
+                "search_query": search_query,
+                "search_type": ""
+            }
+            return render(
+                request=request,
+                template_name="interfaces/plain_search.html",
+                context=context,
+            )
 
         tax_results = {}
         for name, taxonomy in taxonomies.items():
@@ -89,6 +105,11 @@ def search_results(request):
         if not source_taxonomy:
             source_taxonomy = list(taxonomies.keys())[0]
 
+        engine_logger.log_query(
+            search_query=search_query, query_type=query_type, search_time=search_time, tax_results=tax_results,
+            matched_wiki_page=get_wiki_logger(matched_wiki_page)
+        )
+
         context = {
             "search_result_list": search_result,
             "matched_wiki_page": matched_wiki_page,
@@ -96,11 +117,12 @@ def search_results(request):
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
             "tax_results": tax_results,
+            "search_type": "checked",
             "default_taxonomy": source_taxonomy,
         }
         # assign value of default taxonomy based on selected javascript box...
         return render(
             request=request,
-            template_name="interfaces/search_result.html",
+            template_name="interfaces/search_with_taxonomy.html",
             context=context,
         )

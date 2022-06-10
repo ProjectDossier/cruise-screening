@@ -57,6 +57,25 @@
   }
 }
 
+search-results-one-column {
+    display: grid;
+    height: 100vh;
+}
+
+
+.search-results-one-column > div {
+    overflow-y: auto;
+}
+
+.search-results-one-column > div:first-child {
+    border-right: 1px solid #efefef;
+}
+
+.search-results-one-column > div:last-child {
+    border-left: 1px solid #efefef;
+    margin-left: -1px;
+}
+
 .search-results__list {
   padding: 16px;
 }

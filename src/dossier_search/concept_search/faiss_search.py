@@ -119,7 +119,7 @@ class SemanticSearch:
         """
         the semantic search of word in the indexed collection
         """
-        vector = self.embedding(text).detach().numpy().astype("float32")
+        vector = self.embedding(text).cpu().detach().numpy().astype("float32")
 
         score, index = self.taxonomy_index.search(vector, 1)
 
