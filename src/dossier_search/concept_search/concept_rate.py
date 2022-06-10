@@ -33,7 +33,6 @@ def get_words_score(
     for i, w in enumerate(dts):
         if w in cts:
             res[w] = res.get(w, 0) + (M[i].item() / norm * 100)
-
     return res
 
 
@@ -46,7 +45,13 @@ class ConceptRate:
 
     def get_vectors(self, strings: List[str]):
         tokens = [i.lower().split(' ') for i in strings]
-        tokenized = self.tokenizer.batch_encode_plus(tokens, is_split_into_words=True, return_tensors='pt', padding=True)
+        tokenized = self.tokenizer.batch_encode_plus(tokens,
+                                                     is_split_into_words=True,
+                                                     return_tensors='pt',
+                                                     padding=True,
+                                                     truncation=True,
+                                                     max_length=512
+                                                     )
         tokenized = tokenized.to(self.device)
 
         with torch.no_grad():
@@ -56,7 +61,10 @@ class ConceptRate:
         for j, item in enumerate(tokens):
             item_result = []
             for i, token in enumerate(item):
-                start, end = tuple(tokenized[j].word_to_tokens(i))
+                pos = tokenized[j].word_to_tokens(i)
+                if pos is None:
+                    continue
+                start, end = tuple(pos)
                 """
                 the second last layer (11) of BERT was shown to be the most effective single layer on NER [1] 
                 and it was shown that later layers (before the last) were the most effective word representations 
@@ -89,9 +97,9 @@ class ConceptRate:
             count += length
 
         agg_scores = []
-        for concepts_vectors, doc_vector in zip(split_concepts_vectors, doc_vectors):
+        for concepts_vectors, doc_vector, concepts_ in zip(split_concepts_vectors, doc_vectors, concepts):
             scores_ = {}
-            for keyword_vector in concepts_vectors:
+            for keyword_vector, concept in zip(concepts_vectors, concepts_):
                 sim = get_words_similarity(keyword_vector, doc_vector)
 
                 scores = get_words_score(
@@ -99,7 +107,11 @@ class ConceptRate:
                     [e[0] for e in doc_vector],
                     sim,
                 )
-                scores_.update(scores)
+                try:
+                    rate = sum([rate for _, rate in scores.items()])/len(scores.keys())
+                except ZeroDivisionError:
+                    rate = 0
+                scores_.update({concept: rate})
             agg_scores.append(scores_)
         return agg_scores
 
