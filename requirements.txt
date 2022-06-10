@@ -16,4 +16,4 @@ xmltodict~=0.13.0
 pycld3~=0.22
 tqdm~=4.64.0
 beautifulsoup4~=4.11.1
-elasticsearch~=8.2.0
+elasticsearch~=7.15.1
