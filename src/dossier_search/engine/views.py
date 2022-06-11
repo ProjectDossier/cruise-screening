@@ -5,7 +5,7 @@ from django.shortcuts import render
 from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
 from django.template.defaulttags import register
 
-from .search_documents import search
+from .search_documents import search, paginate_results
 from .search_wikipedia import search_wikipedia
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 
@@ -70,6 +70,8 @@ def search_results(request):
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
+        search_result_list, paginator = paginate_results(search_result=search_result, page = request.GET.get('page', 1))
+
         if not search_with_taxonomy:
             engine_logger.log_query(
                 search_query=search_query, query_type=query_type, search_time=search_time,
@@ -77,12 +79,13 @@ def search_results(request):
             )
 
             context = {
-                "search_result_list": search_result,
+                "search_result_list": search_result_list,
                 "matched_wiki_page": matched_wiki_page,
                 "unique_searches": len(search_result),
                 "search_time": f"{search_time:.2f}",
                 "search_query": search_query,
-                "search_type": ""
+                "search_type": "",
+                'paginator': paginator,
             }
             return render(
                 request=request,
@@ -107,14 +110,15 @@ def search_results(request):
         )
 
         context = {
-            "search_result_list": search_result,
+            "search_result_list": search_result_list,
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
             "tax_results": tax_results,
             "default_taxonomy": "CSO",
-            "search_type": "checked"
+            "search_type": "checked",
+            'paginator': paginator,
         }
 
         return render(

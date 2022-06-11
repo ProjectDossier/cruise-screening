@@ -4,6 +4,7 @@ import re
 from typing import List
 
 import requests
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils.article import Article
 
 
@@ -76,3 +77,16 @@ def search(query: str, index: str, top_k: int):
         candidate_list.append(retrieved_art)
 
     return candidate_list
+
+
+def paginate_results(search_result:list, page:int, results_per_page:int = 19):
+    paginator = Paginator(search_result, results_per_page)
+    try:
+        search_result_list = paginator.page(page)
+    except PageNotAnInteger:
+        search_result_list = paginator.page(1)
+    except EmptyPage:
+        search_result_list = paginator.page(paginator.num_pages)
+
+    return search_result_list, paginator
+
