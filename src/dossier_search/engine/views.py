@@ -21,7 +21,7 @@ taxonomies = {
                                 taxonomy_name="wikipedia"),
 }
 
-ConceptRate = ConceptRate()
+concept_rate = ConceptRate()
 
 @register.filter
 def get_item(dictionary, key):
@@ -69,7 +69,7 @@ def search_results(request):
         index_name = "papers"
         top_k = 4
         search_result = search(query=search_query, index=index_name, top_k=top_k)
-        search_result = ConceptRate.request_score(search_result=search_result)
+        search_result = concept_rate.request_score(search_result=search_result)
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
