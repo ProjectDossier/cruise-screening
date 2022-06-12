@@ -17,6 +17,7 @@ class Article:
     keywords_snippet: Union[List[str], None] = None
     keywords_rest: Union[List[str], None] = None
     keywords_score: Dict = None
+    CSO: Dict = None
 
 @dataclass()
 class WikipediaArticle:

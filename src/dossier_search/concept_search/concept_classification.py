@@ -27,8 +27,6 @@ class CSOClassification:
         """
 
         for article in search_result:
-            concepts_i = list(set(concepts[article.id]['enhanced']) -
-                              set(article.keywords_snippet + article.keywords_rest))
-            article.keywords_rest = article.keywords_rest + concepts_i
+            article.CSO = concepts[article.id]
 
         return search_result
