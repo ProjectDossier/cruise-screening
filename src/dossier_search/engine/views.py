@@ -17,7 +17,8 @@ taxonomies = {
     "CCS": TaxonomyRDFCCS("../../data/external/"),
     "Wikipedia": TaxonomyRDFCCS("../../data/external/",
                                 filename="wikipedia_taxonomy.xml",
-                                taxonomy_name="wikipedia"),
+                                taxonomy_name="wikipedia")
+}
 
 
 @register.filter
