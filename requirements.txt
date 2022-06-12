@@ -19,3 +19,4 @@ beautifulsoup4~=4.10.0
 keybert==0.5.1
 cso-classifier==3.0
 pycld3==0.22
+
