@@ -146,8 +146,8 @@ if __name__ == '__main__':
     parser.add_argument('-p',
                         dest='path',
                         type=str,
-                        help='path to the folder which contains the jsonl')
+                        help='path to the folder which contains the jsonl',
+                        default="../../data/external/")
     path = parser.parse_args().path
-    path = "../../data/external/"
     main(path)
 
