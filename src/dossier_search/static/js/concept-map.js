@@ -7,10 +7,10 @@ window.renderPage = () => {
     return {
         transform: '',
 
-        createConcepts(divRef, items, button_class) {
+        createConcepts(divRef, items, button_class, source_taxonomy) {
             divRef.innerHTML = "&nbsp;"
             ;[...items].forEach(concept => {
-                divRef.innerHTML += "<a href=\"?search_query=" + concept.text + "&source=taxonomy\" " +
+                divRef.innerHTML += "<a href=\"?search_query=" + concept.text + "&source=taxonomy&source_taxonomy=" + source_taxonomy + "\" " +
                     "class=\"" + button_class + "\" " +
                     "data-currentid=\"" + concept.id + "\" " +
                     "data-childrenid=\"" + concept.children_ids +
@@ -68,14 +68,14 @@ window.renderPage = () => {
             this.transform = `transform: scale(${zoomLevel})`
         },
 
-        renderTaxonomy(taxonomy) {
+        renderTaxonomy(taxonomy, taxonomy_name) {
             // todo: take a look at $nextTick
             this.$nextTick(() => {
-                this.createConcepts(this.$refs.subParentConcepts, taxonomy.subparents, button_class = "button is-small")
-                this.createConcepts(this.$refs.parentConcepts, taxonomy.parents, button_class = "button")
-                this.createConcepts(this.$refs.coreConcept, [taxonomy.concept], button_class = "button is-link is-medium")
-                this.createConcepts(this.$refs.childrenConcepts, taxonomy.children, button_class = "button")
-                this.createConcepts(this.$refs.subChildrenConcepts, taxonomy.subchildren, button_class = "button is-small")
+                this.createConcepts(this.$refs.subParentConcepts, taxonomy.subparents, button_class = "button is-small", source_taxonomy = taxonomy_name)
+                this.createConcepts(this.$refs.parentConcepts, taxonomy.parents, button_class = "button", source_taxonomy = taxonomy_name)
+                this.createConcepts(this.$refs.coreConcept, [taxonomy.concept], button_class = "button is-link is-medium", source_taxonomy = taxonomy_name)
+                this.createConcepts(this.$refs.childrenConcepts, taxonomy.children, button_class = "button", source_taxonomy = taxonomy_name)
+                this.createConcepts(this.$refs.subChildrenConcepts, taxonomy.subchildren, button_class = "button is-small", source_taxonomy = taxonomy_name)
 
                 this.drawGraph(this.$refs.conceptParents, 'top')
                 this.drawGraph(this.$refs.parentsSubParents, 'top')
@@ -84,6 +84,9 @@ window.renderPage = () => {
 
 
             });
+        },
+        $nextTick(param) {
+
         }
     }
 };

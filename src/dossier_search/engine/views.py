@@ -15,9 +15,11 @@ engine_logger = EngineLogger()
 taxonomies = {
     "CSO": TaxonomyRDFCSO("../../data/external/"),
     "CCS": TaxonomyRDFCCS("../../data/external/"),
-    "Wikipedia": TaxonomyRDFCCS("../../data/external/",
-                                filename="wikipedia_taxonomy.xml",
-                                taxonomy_name="wikipedia"),
+    "Wikipedia": TaxonomyRDFCCS(
+        "../../data/external/",
+        filename="wikipedia_taxonomy.xml",
+        taxonomy_name="wikipedia",
+    ),
 }
 
 
@@ -54,13 +56,11 @@ def search_results(request):
     """
     if request.method == "GET":
         search_query = request.GET.get("search_query", None)
-        query_type = get_query_type(
-            source=request.GET.get("source", None)
-        )
+        query_type = get_query_type(source=request.GET.get("source", None))
         search_with_taxonomy = request.GET.get("search_type", False)
 
         if not search_query.strip():
-            return HttpResponseRedirect('index')
+            return HttpResponseRedirect("index")
 
         s_time = time.time()
 
@@ -72,10 +72,17 @@ def search_results(request):
 
         search_result_list, paginator = paginate_results(search_result=search_result, page = request.GET.get('page', 1))
 
-        if not search_with_taxonomy:
+        if not search_with_taxonomy and query_type in [
+            "main_search",
+            "reformulate_search",
+        ]:
+            # TODO: after document keyword click it will always use taxonomy
             engine_logger.log_query(
-                search_query=search_query, query_type=query_type, search_time=search_time,
-                tax_results={}, matched_wiki_page=get_wiki_logger(matched_wiki_page)
+                search_query=search_query,
+                query_type=query_type,
+                search_time=search_time,
+                tax_results={},
+                matched_wiki_page=get_wiki_logger(matched_wiki_page),
             )
 
             context = {
@@ -98,15 +105,30 @@ def search_results(request):
             concept = taxonomy.search(query=search_query)
             tax_results[name] = {
                 "concept": concept.to_dict(),
-                "subparents": [item.to_dict() for sublist in concept.parents for item in sublist.parents],
-                "subchildren": [item.to_dict() for sublist in concept.children for item in sublist.children],
+                "subparents": [
+                    item.to_dict()
+                    for sublist in concept.parents
+                    for item in sublist.parents
+                ],
+                "subchildren": [
+                    item.to_dict()
+                    for sublist in concept.children
+                    for item in sublist.children
+                ],
                 "parents": [x.to_dict() for x in concept.parents],
                 "children": [x.to_dict() for x in concept.children],
             }
 
+        source_taxonomy = request.GET.get("source_taxonomy", None)
+        if not source_taxonomy:
+            source_taxonomy = list(taxonomies.keys())[0]
+
         engine_logger.log_query(
-            search_query=search_query, query_type=query_type, search_time=search_time, tax_results=tax_results,
-            matched_wiki_page=get_wiki_logger(matched_wiki_page)
+            search_query=search_query,
+            query_type=query_type,
+            search_time=search_time,
+            tax_results=tax_results,
+            matched_wiki_page=get_wiki_logger(matched_wiki_page),
         )
 
         context = {
@@ -116,11 +138,11 @@ def search_results(request):
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
             "tax_results": tax_results,
-            "default_taxonomy": "CSO",
             "search_type": "checked",
+            "default_taxonomy": source_taxonomy,
             'paginator': paginator,
         }
-
+        # assign value of default taxonomy based on selected javascript box...
         return render(
             request=request,
             template_name="interfaces/search_with_taxonomy.html",
