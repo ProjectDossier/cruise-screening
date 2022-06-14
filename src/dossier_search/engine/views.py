@@ -5,7 +5,7 @@ from django.shortcuts import render
 from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
 from django.template.defaulttags import register
 
-from .search_documents import search
+from .search_documents import search, paginate_results
 from .search_wikipedia import search_wikipedia
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 
@@ -70,6 +70,8 @@ def search_results(request):
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
+        search_result_list, paginator = paginate_results(search_result=search_result, page = request.GET.get('page', 1))
+
         if not search_with_taxonomy and query_type in [
             "main_search",
             "reformulate_search",
@@ -84,12 +86,13 @@ def search_results(request):
             )
 
             context = {
-                "search_result_list": search_result,
+                "search_result_list": search_result_list,
                 "matched_wiki_page": matched_wiki_page,
                 "unique_searches": len(search_result),
                 "search_time": f"{search_time:.2f}",
                 "search_query": search_query,
                 "search_type": "",
+                'paginator': paginator,
             }
             return render(
                 request=request,
@@ -129,7 +132,7 @@ def search_results(request):
         )
 
         context = {
-            "search_result_list": search_result,
+            "search_result_list": search_result_list,
             "matched_wiki_page": matched_wiki_page,
             "unique_searches": len(search_result),
             "search_time": f"{search_time:.2f}",
@@ -137,6 +140,7 @@ def search_results(request):
             "tax_results": tax_results,
             "search_type": "checked",
             "default_taxonomy": source_taxonomy,
+            'paginator': paginator,
         }
         # assign value of default taxonomy based on selected javascript box...
         return render(
