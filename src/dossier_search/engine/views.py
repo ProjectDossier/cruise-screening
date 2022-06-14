@@ -116,6 +116,10 @@ def search_results(request):
                 "children": [x.to_dict() for x in concept.children],
             }
 
+        source_taxonomy = request.GET.get("source_taxonomy", None)
+        if not source_taxonomy:
+            source_taxonomy = list(taxonomies.keys())[0]
+
         engine_logger.log_query(
             search_query=search_query,
             query_type=query_type,
@@ -131,10 +135,10 @@ def search_results(request):
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
             "tax_results": tax_results,
-            "default_taxonomy": "CSO",
             "search_type": "checked",
+            "default_taxonomy": source_taxonomy,
         }
-
+        # assign value of default taxonomy based on selected javascript box...
         return render(
             request=request,
             template_name="interfaces/search_with_taxonomy.html",
