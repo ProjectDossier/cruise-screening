@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Dict
 
 
 @dataclass
@@ -16,7 +16,8 @@ class Article:
     venue: str = ""
     keywords_snippet: Union[List[str], None] = None
     keywords_rest: Union[List[str], None] = None
-
+    keywords_score: Dict = None
+    CSO: Dict = None
 
 @dataclass()
 class WikipediaArticle:
