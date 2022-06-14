@@ -129,7 +129,7 @@ def extract_docs(dataset_path: str):
     return papers_dict
 
 
-def main(path="./"):
+def main(path: str):
     dataset_path = join_path(path, "dblpv13.jsonl")
 
     papers_dict = extract_docs(dataset_path)
@@ -141,14 +141,13 @@ def main(path="./"):
     )
 
 
-parser = argparse.ArgumentParser(description='jsonl dataset filtering')
-parser.add_argument('-p',
-                    dest='path',
-                    type=str,
-                    help='path to the folder which contains the jsonl')
-
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='jsonl dataset filtering')
+    parser.add_argument('-p',
+                        dest='path',
+                        type=str,
+                        help='path to the folder which contains the jsonl',
+                        default="../../data/external/")
     path = parser.parse_args().path
-    path = "../../data/external/"
     main(path)
 
