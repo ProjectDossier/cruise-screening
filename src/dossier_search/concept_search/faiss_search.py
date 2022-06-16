@@ -111,7 +111,7 @@ class SemanticSearch:
             pass
 
         # index data
-        embeddings = self.embedding(self.data).detach().numpy()
+        embeddings = self.embedding(self.data).cpu().detach().numpy()
         fastIndex.add(np.stack(embeddings).astype("float32"))
         return fastIndex
 
