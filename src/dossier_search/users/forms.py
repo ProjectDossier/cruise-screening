@@ -16,6 +16,7 @@ class NewUserForm(UserCreationForm):
             "location",
             "languages",
             "knowledge_areas",
+            "allow_logging",
             "password1",
             "password2",
         )
@@ -36,3 +37,16 @@ class NewUserForm(UserCreationForm):
             self.save_m2m()
 
         return user
+
+
+class EditUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "first_name",
+            "last_name",
+            "location",
+            "allow_logging",
+            "preferred_taxonomies",
+        )

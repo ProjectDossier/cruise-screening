@@ -1,0 +1,20 @@
+{% extends "_base.html" %}
+
+{% block content %}
+    <div class="user-profile">
+        <h1 class="title is-1">{{ user.get_full_name }}</h1>
+        <div class="user-profile__text">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div>
+                    <button type="submit" class="button is-link">Save changes</button>
+                    <a class="button is-warning" href="{% url 'user_profile' %}">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    {% include "_footer.html" %}
+{% endblock %}

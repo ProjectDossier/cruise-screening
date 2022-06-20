@@ -1,0 +1,13 @@
+{% extends '_base.html' %}
+{% block title %}
+    Cruise-literature: {{ search_query }}
+{% endblock %}
+
+{% block content %}
+    <div class="search-results-one-column">
+        <div>
+            {% include "_list.html" %}
+            {% include "_footer.html" %}
+        </div>
+    </div>
+{% endblock %}

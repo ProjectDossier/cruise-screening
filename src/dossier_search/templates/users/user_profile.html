@@ -12,7 +12,12 @@
             <p>Location: {{ user.location }}</p>
             <p>Languages: {{ user.user_languages }}</p>
             <p>Knowledge areas: {{ user.user_knowledge_areas }}</p>
+            <hr />
+            <p>System preferences</p>
+            <p>Allow personalised logging: {{ user.allow_logging }}</p>
+            <p>Preferred taxonomies: {{ user.preferred_taxonomies }}</p>
         </div>
+        <a class="button is-info is-small" href="{% url 'edit_user_profile' %}">Edit user</a>
     </div>
 
     {% include "_footer.html" %}

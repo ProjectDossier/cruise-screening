@@ -19,7 +19,7 @@
             </template>
             <p>
                 {% for keyword in search_result.keywords_snippet %}
-                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
                 {% endfor %}
                 {% if search_result.keywords_rest|length > 0 %}
                     <template x-if="!openKeywords">
@@ -28,7 +28,7 @@
                     <template x-if="openKeywords">
                         <span>
                             {% for keyword in search_result.keywords_rest %}
-                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}" class="button is-light is-small mb-2">{{ keyword }}</a>
+                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
                             {% endfor %}
                         </span>
                     </template>
