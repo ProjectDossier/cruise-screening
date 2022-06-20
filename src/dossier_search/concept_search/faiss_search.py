@@ -26,7 +26,6 @@ class SemanticSearch:
 
         self.model = self.model.to(self.device)
 
-
         self.n_dimensions = self.model.pooler.dense.out_features
         self.data = data
 

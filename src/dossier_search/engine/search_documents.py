@@ -9,7 +9,7 @@ from utils.article import Article
 
 
 def highlighter(query: str, doc: str, es_highlighted_texts: List[str]):
-    pattern = re.compile(r'<em>(.*?)</em>')
+    pattern = re.compile(r"<em>(.*?)</em>")
     highlight_terms = []
     for line in es_highlighted_texts:
         highlight_terms += re.findall(pattern, line)
@@ -17,8 +17,8 @@ def highlighter(query: str, doc: str, es_highlighted_texts: List[str]):
     highlighted_abstract = ""
     highlighted_snippet = ""
     for term in doc.split():
-        if re.sub(r'[^\w]', '', term) in highlight_terms:
-            term = '<em>' + term + '</em>'
+        if re.sub(r"[^\w]", "", term) in highlight_terms:
+            term = "<em>" + term + "</em>"
         term += " "
         highlighted_abstract += term
         if len(highlighted_snippet) < 160:
@@ -39,7 +39,9 @@ def search(query: str, index: str, top_k: int):
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("document")
         if doc_text:
-            abstract, snippet = highlighter(query, doc_text, candidate["highlight"]["document"])
+            abstract, snippet = highlighter(
+                query, doc_text, candidate["highlight"]["document"]
+            )
         else:
             abstract = ""
             snippet = ""
@@ -79,7 +81,7 @@ def search(query: str, index: str, top_k: int):
     return candidate_list
 
 
-def paginate_results(search_result:list, page:int, results_per_page:int = 19):
+def paginate_results(search_result: list, page: int, results_per_page: int = 19):
     paginator = Paginator(search_result, results_per_page)
     try:
         search_result_list = paginator.page(page)
@@ -89,4 +91,3 @@ def paginate_results(search_result:list, page:int, results_per_page:int = 19):
         search_result_list = paginator.page(paginator.num_pages)
 
     return search_result_list, paginator
-
