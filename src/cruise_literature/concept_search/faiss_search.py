@@ -3,7 +3,7 @@ from os.path import exists
 import faiss
 import numpy as np
 import torch
-from dossier_search.settings import M1_CHIP
+from cruise_literature.settings import M1_CHIP
 from transformers import AutoTokenizer, AutoModel
 
 if M1_CHIP:

@@ -36,16 +36,16 @@ Checkout [the backend](src/backend/README.md)
 
 ### 2.1 On a local host
 
-Go into `src/dossier_search/` directory: 
+Go into `src/cruise_literature/` directory: 
 
 ```bash
-(cruise-literature)$ cd src/dossier_search/
+(cruise-literature)$ cd src/cruise_literature/
 ```
 
 Make migrations and migrate the database
 
 ```bash
-(cruise-literature)$ python manage.py makemigrations engine users
+(cruise-literature)$ python manage.py makemigrations document_search users
 (cruise-literature)$ python manage.py migrate
 ```
 
@@ -81,7 +81,7 @@ Server should be available at http://127.0.0.1:8000/
 
 ### 3.1 M1 Macbook
 
-If you are using a laptop with the M1 chip please change the following line in the [settings.py](src/dossier_search/dossier_search/settings.py) file:
+If you are using a laptop with the M1 chip please change the following line in the [settings.py](src/cruise_literature/cruise_literature/settings.py) file:
 
 ```python
 M1_CHIP = True

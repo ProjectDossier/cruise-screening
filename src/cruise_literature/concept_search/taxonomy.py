@@ -4,7 +4,7 @@ from typing import Tuple
 
 import pandas as pd
 import xmltodict
-from dossier_search.settings import M1_CHIP
+from cruise_literature.settings import M1_CHIP
 from fuzzywuzzy import fuzz
 from rdflib import Graph, Namespace
 
