@@ -3,6 +3,8 @@ import time
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
+from concept_search.concept_rate import ConceptRate
+from concept_search.concept_classification import CSOClassification
 from django.template.defaulttags import register
 
 from .search_documents import search, paginate_results
@@ -22,6 +24,8 @@ taxonomies = {
     ),
 }
 
+concept_rate = ConceptRate().request_score
+concept_clasifier = CSOClassification().classify_search_result
 
 @register.filter
 def get_item(dictionary, key):
@@ -67,6 +71,13 @@ def search_results(request):
         index_name = "papers"
         top_k = 4
         search_result = search(query=search_query, index=index_name, top_k=top_k)
+
+        search_result = concept_rate(search_result=search_result)
+        search_result = concept_clasifier(search_result=search_result)
+        for article in search_result:
+            article.keywords_rest = article.keywords_rest + \
+                                    list(set(article.CSO) - set(article.keywords_snippet + article.keywords_rest))
+
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
