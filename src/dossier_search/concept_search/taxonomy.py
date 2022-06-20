@@ -4,29 +4,12 @@ from typing import Tuple
 
 import pandas as pd
 import xmltodict
-from dossier_search.settings import M1_CHIP
 from fuzzywuzzy import fuzz
 from rdflib import Graph, Namespace
 
 from .concept import Concept
 from .faiss_search import SemanticSearch
-
-if M1_CHIP:
-
-    class LexicalSearch:
-        """Mockup for LexicalSearch on laptops with M1 chip.
-        FIXME: this should be replaced at some point by a different implementation
-        of lexical search.
-        """
-
-        def __init__(self, data, tax_name):
-            pass
-
-        def lexical_search(self, query):
-            raise IndexError
-
-else:
-    from .lexical_search import LexicalSearch
+from .lexical_search import LexicalSearch
 
 
 class Taxonomy(ABC):
@@ -52,8 +35,8 @@ class Taxonomy(ABC):
             id = taxonomy.iloc[idx].id if max_value > 90 else -100
             if id == -100:
                 try:
-                    query_ = self.lexical_search(query)
-                    id = taxonomy[taxonomy.text == query_].id.values[0]
+                    query = self.lexical_search(query)
+                    id = taxonomy[taxonomy.text == query].id.values[0]
                 except IndexError:
                     query, _ = self.semantic_search(query)
                     id = taxonomy[taxonomy.text == query].id.values[0]
