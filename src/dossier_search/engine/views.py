@@ -32,6 +32,16 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
+@register.filter
+def keywords_threshold(keyword_score):
+    if keyword_score > 0.95:
+        return 'is-success'
+    elif 0.7 < keyword_score < 0.95:
+        return 'is-warning'
+    else:
+        return 'is-danger'
+
+
 def home(request):
     """
     Home page

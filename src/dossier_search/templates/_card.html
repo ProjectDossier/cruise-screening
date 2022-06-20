@@ -21,6 +21,10 @@
                 {% for keyword in search_result.keywords_snippet %}
                     <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
                 {% endfor %}
+                {% for keyword, score in search_result.keywords_score.items %}
+                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
+                {% endfor %}
+
                 {% if search_result.keywords_rest|length > 0 %}
                     <template x-if="!openKeywords">
                         <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
