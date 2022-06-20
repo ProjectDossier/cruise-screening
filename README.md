@@ -5,7 +5,7 @@
 Create [conda](https://docs.conda.io/en/latest/miniconda.html) environment:
 
 ```bash
-$ conda create --name cruise-literature python==3.8.12
+$ conda create --name cruise-literature python==3.9.12
 ```
 
 Activate the environment:
@@ -19,6 +19,13 @@ Use pip to install requirements:
 ```bash
 (cruise-literature)$ pip install -r requirements.txt
 ```
+
+If you have a GPU-enabled device:
+
+```bash
+(cruise-literature)$ pip install -r requirements-gpu.txt
+```
+
 
 ### 1.2 ElasticSearch and Search API
 
