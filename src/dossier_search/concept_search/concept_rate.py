@@ -37,7 +37,7 @@ def get_words_score(
 
 
 class ConceptRate:
-    def __init__(self, model_name: str = "allenai/scibert_scivocab_cased", mount_on_gpu: bool = True):
+    def __init__(self, model_name: str = "allenai/scibert_scivocab_cased", mount_on_gpu: bool = False):
         self.model = AutoModel.from_pretrained(model_name, output_hidden_states=True).eval()
         self.device = 'cuda' if mount_on_gpu and torch.cuda.is_available() else 'cpu'
         self.model.to(self.device)
