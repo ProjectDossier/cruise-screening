@@ -76,3 +76,13 @@ Server should be available at http://127.0.0.1:8000/
 ```bash
 (cruise-literature)$ python manage.py runserver YOUR_IP:YOUR_PORT
 ```
+
+## 3. Troubleshooting
+
+### 3.1 M1 Macbook
+
+If you are using a laptop with the M1 chip please change the following line in the [settings.py](src/dossier_search/dossier_search/settings.py) file:
+
+```python
+M1_CHIP = True
+```
