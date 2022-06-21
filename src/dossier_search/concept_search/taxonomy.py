@@ -25,6 +25,7 @@ class Taxonomy(ABC):
 
     def get_id(self, query: str) -> Tuple[int, str]:
         query = query.lower().lstrip()
+        query_ = query
         taxonomy = self.taxonomy
         try:
             id = taxonomy[taxonomy.text == query].id.values[0]
@@ -35,12 +36,12 @@ class Taxonomy(ABC):
             id = taxonomy.iloc[idx].id if max_value > 90 else -100
             if id == -100:
                 try:
-                    query = self.lexical_search(query)
-                    id = taxonomy[taxonomy.text == query].id.values[0]
+                    query_ = self.lexical_search(query)
+                    id = taxonomy[taxonomy.text == query_].id.values[0]
                 except IndexError:
-                    query, _ = self.semantic_search(query)
-                    id = taxonomy[taxonomy.text == query].id.values[0]
-        return id, query
+                    query_, _ = self.semantic_search(query)
+                    id = taxonomy[taxonomy.text == query_].id.values[0]
+        return id, query_
 
     def get_1st_level_parents(self, id):
         taxonomy = self.taxonomy
