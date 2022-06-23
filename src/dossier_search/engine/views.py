@@ -24,8 +24,9 @@ taxonomies = {
     ),
 }
 
-concept_rate = ConceptRate().request_score
-concept_clasifier = CSOClassification().classify_search_result
+concept_rate = ConceptRate()
+cso_concept_clasifier = CSOClassification()
+
 
 @register.filter
 def get_item(dictionary, key):
@@ -36,10 +37,12 @@ def get_item(dictionary, key):
 def keywords_threshold(keyword_score):
     if keyword_score > 0.95:
         return 'is-success'
-    elif 0.7 < keyword_score < 0.95:
+    elif 0.7 < keyword_score <= 0.95:
         return 'is-warning'
-    else:
+    elif 0 < keyword_score <= 0.7:
         return 'is-danger'
+    else:
+        return ''
 
 
 def home(request):
@@ -79,14 +82,11 @@ def search_results(request):
         s_time = time.time()
 
         index_name = "papers"
-        top_k = 4
+        top_k = 10
         search_result = search(query=search_query, index=index_name, top_k=top_k)
 
-        search_result = concept_rate(search_result=search_result)
-        search_result = concept_clasifier(search_result=search_result)
-        for article in search_result:
-            article.keywords_rest = article.keywords_rest + \
-                                    list(set(article.CSO) - set(article.keywords_snippet + article.keywords_rest))
+        search_result = concept_rate.request_score(search_result=search_result)
+        search_result = cso_concept_clasifier.classify_search_result(search_result=search_result)
 
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time

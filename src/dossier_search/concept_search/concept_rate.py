@@ -116,12 +116,20 @@ class ConceptRate:
         return agg_scores
 
     def request_score(self, search_result: List[object]):
-        concepts = [article.keywords_snippet + article.keywords_rest for article in search_result]
-        documents = [article.title + ' ' + article.snippet for article in search_result]
+        concepts = [article.keywords for article in search_result]
+        documents = [article.title + ' ' + article.abstract for article in search_result]
         lengths = [len(i) for i in concepts]
         concept_scores = self.concept_score(concepts, documents, lengths)
 
         for article, scores in zip(search_result, concept_scores):
             article.keywords_score = scores
-
+            article.keywords_snippet = {}
+            article.keywords_rest = {}
+            index_i = 0
+            for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True):
+                index_i += 1
+                if index_i < 5:
+                    article.keywords_snippet[k] = v
+                else:
+                    article.keywords_rest[k] = v
         return search_result

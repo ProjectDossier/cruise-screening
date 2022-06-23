@@ -14,8 +14,8 @@ class CSOClassification:
         papers = {}
         for article in search_result:
             papers[article.id] = {'title': article.title,
-                                  'abstract': article.snippet + ' ' + article.abstract,
-                                  'keywords': article.keywords_snippet + article.keywords_rest
+                                  'abstract': article.abstract,
+                                  'keywords': article.keywords
                                   }
 
         concepts = self.classifier.batch_run(papers)
@@ -27,6 +27,6 @@ class CSOClassification:
         """
 
         for article in search_result:
-            article.CSO = concepts[article.id]
+            article.CSO_keywords = concepts[article.id]['union']
 
         return search_result
