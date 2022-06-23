@@ -45,6 +45,6 @@ if __name__ == "__main__":
 
     es = Elasticsearch([{"host": args.host, "port": args.port}])
 
-    for index_i, json_str in tqdm(enumerate(docs_list)):
+    for index_i, json_str in tqdm(enumerate(docs_list), total=args.first_n_docs):
         item = json.loads(json_str)
         res = es.index(index=args.index, doc_type=args.doc_type, document=item)
