@@ -12,7 +12,7 @@
     <div class="card-content">
         <div class="content">
             <template x-if="openAbstract">
-                <p class="card__text">{{ search_result.abstract | safe }}</p>
+                <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
             </template>
             <template x-if="!openAbstract" x-cloak>
                 <p class="card__text">{{ search_result.snippet | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
@@ -30,6 +30,7 @@
                             {% for keyword in search_result.keywords_rest %}
                                 <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
                             {% endfor %}
+                            <button type="button" class="card__show-more" x-on:click="openKeywords = false">Show less</button>
                         </span>
                     </template>
                 {% endif %}
