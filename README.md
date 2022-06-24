@@ -45,7 +45,7 @@ Go into `src/cruise_literature/` directory:
 Make migrations and migrate the database
 
 ```bash
-(cruise-literature)$ python manage.py makemigrations document_search users
+(cruise-literature)$ python manage.py makemigrations home document_search concept_search users
 (cruise-literature)$ python manage.py migrate
 ```
 
