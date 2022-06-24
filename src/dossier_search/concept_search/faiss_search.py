@@ -15,14 +15,14 @@ if M1_CHIP:
 
 
 class SemanticSearch:
-    def __init__(self, data: list, tax_name: str):
+    def __init__(self, data: list, tax_name: str, mount_gpu: bool = False):
         model_name = "allenai/scibert_scivocab_cased"
         self.model = AutoModel.from_pretrained(
             model_name, output_hidden_states=True
         ).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, model_max_length=16)
-
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.mount_gpu = mount_gpu
+        self.device = "cuda:0" if torch.cuda.is_available() and mount_gpu else "cpu"
 
         self.model = self.model.to(self.device)
 
@@ -42,11 +42,12 @@ class SemanticSearch:
             except AttributeError:
                 faiss.write_index(self.taxonomy_index, index_path)
 
-        try:
-            res = faiss.StandardGpuResources()
-            self.taxonomy_index = faiss.index_cpu_to_gpu(res, 0, self.taxonomy_index)
-        except AttributeError:
-            pass
+        if mount_gpu:
+            try:
+                res = faiss.StandardGpuResources()
+                self.taxonomy_index = faiss.index_cpu_to_gpu(res, 0, self.taxonomy_index)
+            except AttributeError:
+                pass
 
     def embedding(self, word: str):
         """
@@ -102,12 +103,13 @@ class SemanticSearch:
 
         fastIndex = faiss.IndexFlatL2(self.n_dimensions)
 
-        try:
-            # copy the index to GPU
-            res = faiss.StandardGpuResources()
-            fastIndex = faiss.index_cpu_to_gpu(res, 0, fastIndex)
-        except AttributeError:
-            pass
+        if self.mount_gpu:
+            try:
+                # copy the index to GPU
+                res = faiss.StandardGpuResources()
+                fastIndex = faiss.index_cpu_to_gpu(res, 0, fastIndex)
+            except AttributeError:
+                pass
 
         # index data
         embeddings = self.embedding(self.data).cpu().detach().numpy()

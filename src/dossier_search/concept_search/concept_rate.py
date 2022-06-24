@@ -40,7 +40,7 @@ class ConceptRate:
     def __init__(
         self,
         model_name: str = "allenai/scibert_scivocab_cased",
-        mount_on_gpu: bool = True,
+        mount_on_gpu: bool = False,
     ):
         self.model = AutoModel.from_pretrained(
             model_name, output_hidden_states=True
