@@ -86,4 +86,4 @@ If you are using a laptop with the M1 chip please change the following line in t
 ```python
 M1_CHIP = True
 ```
-see issues-130 for more details
+see [#130](https://github.com/ProjectDossier/cruise-literature/issues/130) for more details
