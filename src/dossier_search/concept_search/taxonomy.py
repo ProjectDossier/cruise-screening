@@ -105,11 +105,11 @@ class Taxonomy(ABC):
             query = Concept(-100, query)
             if to_json:
                 return {
-                "concept": query.to_dict(),
-                "subparents": [],
-                "subchildren": [],
-                "parents": [],
-                "children": [],
+                    "concept": query.to_dict(),
+                    "subparents": [],
+                    "subchildren": [],
+                    "parents": [],
+                    "children": [],
                 }
             else:
                 return query
@@ -123,8 +123,12 @@ class Taxonomy(ABC):
         query.parent_ids = "-".join([item.id for item in query.parents])
 
         if to_json:
-            subparents = list(set([item for sublist in query.parents for item in sublist.parents]))
-            subchildren = list(set([item for sublist in query.children for item in sublist.children]))
+            subparents = list(
+                set([item for sublist in query.parents for item in sublist.parents])
+            )
+            subchildren = list(
+                set([item for sublist in query.children for item in sublist.children])
+            )
             return {
                 "concept": query.to_dict(),
                 "subparents": [item.to_dict() for item in subparents],
@@ -466,7 +470,9 @@ class TaxonomyRDFCCS(TaxonomyRDF):
         with open(path_join(self.path, f"fixed_{self.filename}"), "w") as f:
             f.write(fixed)
 
-        graph = Graph().parse(path_join(self.path, f"fixed_{self.filename}"), format="xml")
+        graph = Graph().parse(
+            path_join(self.path, f"fixed_{self.filename}"), format="xml"
+        )
         namespace = Namespace("")
 
         query = f"select ?x ?z where {{ ?x skos:prefLabel ?z}}"
