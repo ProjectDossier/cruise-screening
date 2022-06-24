@@ -14,7 +14,6 @@ class Article:
     authors: str
     publication_date: str = ""
     venue: str = ""
-    keywords: list[str] = None
     keywords_snippet: Union[dict[str, Union[int, float]], None] = None
     keywords_rest: Union[dict[str, Union[int, float]], None] = None
     CSO_keywords: Union[dict[str, Union[int, float]], None] = None
