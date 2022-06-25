@@ -19,6 +19,7 @@ class Article:
     keywords_score: Dict = None
     CSO: Dict = None
 
+
 @dataclass()
 class WikipediaArticle:
     """Class for representing Wikipedia article."""
