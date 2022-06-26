@@ -1,4 +1,4 @@
-"""dossier_search URL Configuration
+"""cruise_literature URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -18,6 +18,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("engine.urls")),
+    path("", include("home.urls")),
+    path("", include("document_search.urls")),
+    path("", include("concept_search.urls")),
     path("", include("users.urls")),
 ]

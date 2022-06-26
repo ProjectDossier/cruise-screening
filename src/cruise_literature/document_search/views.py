@@ -28,28 +28,6 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-def home(request):
-    """
-    Home page
-    """
-    if request.method == "GET":
-        return render(
-            request,
-            "interfaces/home.html",
-        )
-
-
-def about(request):
-    """
-    About page
-    """
-    if request.method == "GET":
-        return render(
-            request,
-            "interfaces/about.html",
-        )
-
-
 def search_results(request):
     """
     Search results page

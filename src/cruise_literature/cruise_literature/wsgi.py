@@ -1,5 +1,5 @@
 """
-WSGI config for dossier_search project.
+WSGI config for cruise_literature project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dossier_search.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cruise_literature.settings")
 
 application = get_wsgi_application()
