@@ -2,6 +2,8 @@
 
 ### 1.1 Python Django Backend
 
+Project was tested on Python 3.9+. 
+
 Create [conda](https://docs.conda.io/en/latest/miniconda.html) environment:
 
 ```bash

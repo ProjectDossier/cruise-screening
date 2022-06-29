@@ -36,11 +36,12 @@ def search(query: str, index: str, top_k: int):
     candidate_list = []
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("abstract")
-        if doc_text:
+        if doc_text and "abstract" in candidate["highlight"]:
             abstract, snippet = highlighter(doc_text, candidate["highlight"]["abstract"])
         else:
-            abstract = ""
-            snippet = ""
+            abstract = candidate["_source"].get("abstract")
+            snippet = candidate["_source"].get("abstract")[:300]
+
         authors_raw = candidate["_source"].get("authors")
         if authors_raw:
             author_details = [
