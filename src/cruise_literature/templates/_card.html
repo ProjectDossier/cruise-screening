@@ -1,4 +1,4 @@
-<article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false }">
+<article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false, showCSOKeywords: false}">
     <div class="card-content">
         <p class="title">
             {% if search_result.url %}
@@ -18,23 +18,40 @@
                 <p class="card__text">{{ search_result.snippet | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
             </template>
             <p>
-                {% for keyword in search_result.keywords_snippet %}
-                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
+                {% for keyword, score in search_result.keywords_snippet.items %}
+                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
                 {% endfor %}
+
                 {% if search_result.keywords_rest|length > 0 %}
                     <template x-if="!openKeywords">
                         <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
                     </template>
                     <template x-if="openKeywords">
                         <span>
-                            {% for keyword in search_result.keywords_rest %}
-                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
+                            {% for keyword, score in search_result.keywords_rest.items %}
+                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
                             {% endfor %}
                             <button type="button" class="card__show-more" x-on:click="openKeywords = false">Show less</button>
                         </span>
                     </template>
                 {% endif %}
             </p>
+            <h6>
+                <template x-if="!showCSOKeywords">
+                    <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
+                </template>
+                <template x-if="showCSOKeywords">
+                    <button type="button" class="card__show-more" x-on:click="showCSOKeywords = false">CSO keywords ▴</button>
+                </template>
+            </h6>
+            <template x-if="showCSOKeywords" x-cloak>
+                <p>
+                    {% for keyword in search_result.CSO_keywords %}
+                        <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
+                    {% endfor %}
+                </p>
+            </template>
+
         </div>
       </div>
 </article>

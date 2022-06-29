@@ -26,7 +26,7 @@ def build_query(query_text:str, top_k:int):
                 "should": [
                     {
                         "match": {
-                            "document": query_text
+                            "abstract": query_text
                         }
                     }
                 ],  # this is not document this is abstract
@@ -34,7 +34,7 @@ def build_query(query_text:str, top_k:int):
                 "boost": 1.0,
             },
         },
-        "highlight": {"fields": {"document": {}}},
+        "highlight": {"fields": {"abstract": {}}},
     }
     data_json = {
         "size": top_k,
@@ -50,7 +50,7 @@ def build_query(query_text:str, top_k:int):
                 ]
             }
         },
-        "highlight": {"fields": {"document": {}}},
+        "highlight": {"fields": {"abstract": {}}},
     }
     return data_json
 

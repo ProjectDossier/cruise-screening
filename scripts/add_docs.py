@@ -45,6 +45,20 @@ if __name__ == "__main__":
 
     es = Elasticsearch([{"host": args.host, "port": args.port}])
 
+    if not es.indices.exists(index=args.index):
+        mapping = {
+            "mappings": {
+                "properties": {
+                    "keywords": {"type": "object",  "enabled": "false"},
+                    "CSO_keywords": {"type": "object", "enabled": "false"},
+                }
+            }
+        }
+        response = es.indices.create(
+            index=args.index, body=mapping
+        )
+
     for index_i, json_str in tqdm(enumerate(docs_list), total=args.first_n_docs):
         item = json.loads(json_str)
-        res = es.index(index=args.index, doc_type=args.doc_type, document=item)
+        res = es.index(index=args.index,
+                       document=item)

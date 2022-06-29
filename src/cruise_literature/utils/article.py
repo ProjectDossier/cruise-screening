@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Union, Dict, Optional
+from typing import Union, Optional
 
 
 @dataclass
@@ -15,11 +15,10 @@ class Article:
     authors: str
     publication_date: str = ""
     venue: str = ""
-    keywords_snippet: Union[List[str], None] = None
-    keywords_rest: Union[List[str], None] = None
-    keywords_score: Dict = None
-    CSO: Optional[list[str]] = None
     fields_of_science: Optional[list[str]] = None
+    keywords_snippet: Optional[dict[str, Union[int, float]]] = None
+    keywords_rest: Optional[dict[str, Union[int, float]]] = None
+    CSO_keywords: Optional[dict[str, Union[int, float]]] = None
 
 
 
