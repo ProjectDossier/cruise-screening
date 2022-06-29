@@ -14,10 +14,10 @@ class Article:
     authors: str
     publication_date: str = ""
     venue: str = ""
-    keywords_snippet: Union[List[str], None] = None
-    keywords_rest: Union[List[str], None] = None
-    keywords_score: Dict = None
-    CSO: Dict = None
+    keywords_snippet: Union[dict[str, Union[int, float]], None] = None
+    keywords_rest: Union[dict[str, Union[int, float]], None] = None
+    CSO_keywords: Union[dict[str, Union[int, float]], None] = None
+
 
 
 @dataclass()

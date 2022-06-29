@@ -37,10 +37,10 @@ def search(query: str, index: str, top_k: int):
     results = res.json()["results"]
     candidate_list = []
     for candidate in results["hits"]["hits"]:
-        doc_text = candidate["_source"].get("document")
+        doc_text = candidate["_source"].get("abstract")
         if doc_text:
             abstract, snippet = highlighter(
-                query, doc_text, candidate["highlight"]["document"]
+                query, doc_text, candidate["highlight"]["abstract"]
             )
         else:
             abstract = ""
@@ -64,6 +64,16 @@ def search(query: str, index: str, top_k: int):
         if url_candidates:
             url = url_candidates[0]
 
+        keywords_snippet = {}
+        keywords_rest = {}
+        index_i = 0
+        for k, v in sorted(candidate["_source"].get("keywords").items(), key=lambda item: item[1], reverse=True):
+            index_i += 1
+            if index_i < 5:
+                keywords_snippet[k] = v
+            else:
+                keywords_rest[k] = v
+
         retrieved_art = Article(
             id=candidate["_id"],
             title=candidate["_source"].get("title"),
@@ -73,8 +83,9 @@ def search(query: str, index: str, top_k: int):
             authors=", ".join(author_details),
             publication_date="publication_date",
             venue=venue,
-            keywords_snippet=candidate["_source"].get("keywords")[:4],
-            keywords_rest=candidate["_source"].get("keywords")[4:],
+            keywords_snippet=keywords_snippet,
+            keywords_rest=keywords_rest,
+            CSO_keywords=candidate["_source"].get("CSO_keywords")['union'],
         )
         candidate_list.append(retrieved_art)
 

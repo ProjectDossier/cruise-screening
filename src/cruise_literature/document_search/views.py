@@ -3,6 +3,8 @@ import time
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
+from concept_search.concept_rate import ConceptRate
+from concept_search.concept_classification import CSOClassification
 from django.template.defaulttags import register
 
 from .search_documents import search, paginate_results
@@ -22,10 +24,25 @@ taxonomies = {
     ),
 }
 
+concept_rate = ConceptRate()
+cso_concept_clasifier = CSOClassification()
+
 
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+@register.filter
+def keywords_threshold(keyword_score):
+    if keyword_score > 0.95:
+        return 'is-success'
+    elif 0.7 < keyword_score <= 0.95:
+        return 'is-warning'
+    elif 0 < keyword_score <= 0.7:
+        return 'is-danger'
+    else:
+        return ''
 
 
 def search_results(request):
@@ -43,8 +60,9 @@ def search_results(request):
         s_time = time.time()
 
         index_name = "papers"
-        top_k = 4
+        top_k = 10
         search_result = search(query=search_query, index=index_name, top_k=top_k)
+
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
