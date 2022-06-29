@@ -22,12 +22,12 @@ def build_query(query_text, es_top_k):
         "size": es_top_k,
         "query": {
             "bool": {
-                "should": [{"match": {"document": query_text}}],
+                "should": [{"match": {"abstract": query_text}}],
                 "minimum_should_match": 0,
                 "boost": 1.0,
             },
         },
-        "highlight": {"fields": {"document": {}}},
+        "highlight": {"fields": {"abstract": {}}},
     }
     return data_json
 

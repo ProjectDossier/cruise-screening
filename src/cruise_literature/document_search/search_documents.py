@@ -37,10 +37,10 @@ def search(query: str, index: str, top_k: int):
     results = res.json()["results"]
     candidate_list = []
     for candidate in results["hits"]["hits"]:
-        doc_text = candidate["_source"].get("document")
+        doc_text = candidate["_source"].get("abstract")
         if doc_text:
             abstract, snippet = highlighter(
-                query, doc_text, candidate["highlight"]["document"]
+                query, doc_text, candidate["highlight"]["abstract"]
             )
         else:
             abstract = ""
