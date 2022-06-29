@@ -6,139 +6,157 @@ from time import mktime
 from src.cruise_literature.concept_search.concept_rate import ConceptRate
 from cso_classifier import CSOClassifier
 from keybert import KeyBERT
+from tqdm import tqdm
 
 import cld3
 
-
 MANDATORY_FIELDS = ["abstract", "title", "year", "id"]
-OPTIONAL_FIELDS = ["keywords", "fos", "url", "pdf", "doi", "authors", "venue", "volume", "issue",
-                   "issn", "isbn", "n_citations", "page_start", "page_end"]
+OPTIONAL_FIELDS = [
+    "keywords", "fos", "url", "pdf", "doi",
+    "authors", "venue", "volume", "issue",
+    "issn", "isbn", "n_citations", "page_start", "page_end"
+]
 
 
-def extract_docs(dataset_path: str):
-    concept_rate = ConceptRate()
-    classifier = CSOClassifier(workers=1, modules="both", enhancement="first", explanation=True)
-    kw_model = KeyBERT()
-    papers_dict = {}
+def extract_docs(in_path: str, out_path: str):
     titles = []
-    with open(dataset_path, "r") as f_in:
-        for line in f_in:
-            paper = json.loads(line)
+    with open(in_path, "r") as f_in:
+        with open(out_path, "w") as f_out:
+            for line in tqdm(f_in):
+                paper = json.loads(line)
 
-            """Skip paper if the required FIELDS are not available"""
-            if sum([paper.get(key, False) != False for key in MANDATORY_FIELDS]) != len(MANDATORY_FIELDS):
-                continue
-            # todo check all the fields and add new ones
-            # if the title is repeated, it skips the data
-            if paper["title"] in titles:
-                continue
-            else:
-                titles.append(paper["title"])
-
-            # Abstract
-            abstract = paper["abstract"]
-
-            """Skip papers with empty abstract"""
-            if abstract:
-                if len(abstract) == 0 or abstract.__class__ != str or abstract == "N/A":
-                    continue
-            else:
-                continue
-
-            abstract = abstract.strip()
-            # References
-            references = paper.get("references", [])
-            if len(references) == 0:
-                continue
-
-            references = [str(x) for x in references]
-            """Remove duplicates from references"""
-            references = list(set(references))
-
-            """
-            Check abstract language and skip non-english.
-            For those papers with lang field not available
-            check language trough cld3
-            pycld3 is a neural network model for language identification. 
-            This package contains the inference code and a trained model.
-            """
-            if not paper.get("lang", False):
-                lang = cld3.get_language(abstract).language
-            else:
-                lang = paper["lang"]
-            if lang.lower() != "en":
-                continue
-
-            # year
-            year = paper["year"]
-            """Skip papers when year is not available"""
-            if year == 0 or year is None:
-                continue
-            else:
-                try:
-                    """
-                    Year will be transformed to a timestamp.
-                    This will skip papers with years not provided as 
-                    a 4-digits number
-                    """
-                    int(mktime(datetime.strptime(str(year), "%Y").timetuple()))
-                except:
+                # Skip paper if the required FIELDS are not available
+                if sum([paper.get(key, False) != False for key in MANDATORY_FIELDS]) != len(MANDATORY_FIELDS):
                     continue
 
-            if not paper.get("authors", False):
-                paper["authors"] = []
+                # if the title is repeated, it skips the data
+                if paper["title"] in titles:
+                    continue
+                else:
+                    titles.append(paper["title"])
 
-            for field in OPTIONAL_FIELDS:
-                if not paper.get(field, False):
-                    paper[field] = []
+                abstract = paper["abstract"]
 
-            # id
-            id = str(paper["id"])
+                # Skip papers with empty abstract
+                if abstract:
+                    if len(abstract) == 0 or abstract.__class__ != str or abstract == "N/A":
+                        continue
+                else:
+                    continue
 
-            # Paper
-            papers_dict[id] = {
-                "title": paper["title"],
-                "abstract": abstract,
-                "year": year,
-                "references": references,
-            }
+                abstract = abstract.strip()
 
-            for field in OPTIONAL_FIELDS:
-                papers_dict[id][field] = paper[field]
+                references = paper.get("references", [])
+                if len(references) == 0:
+                    continue
 
-            keywords = papers_dict[id]["keywords"]
-            if len(keywords) > 0:
-                try:
-                    papers_dict[id]["keywords_score"] = concept_rate.concept_score(concepts=[keywords],
-                                                                                   documents=[abstract],
-                                                                                   lengths=[len(keywords)])
-                except RuntimeError:
-                    pass
-            papers_dict[id]["CSO"] = classifier.run(papers_dict[id])
+                references = [str(x) for x in references]
+                references = list(set(references))
 
-            doc = paper["title"] + ' ' + abstract
+                """
+                Check abstract language and skip non-english.
+                For those papers with lang field not available
+                check language trough cld3
+                pycld3 is a neural network model for language identification. 
+                This package contains the inference code and a trained model.
+                """
+                if not paper.get("lang", False):
+                    lang = cld3.get_language(abstract).language
+                else:
+                    lang = paper["lang"]
+                if lang.lower() != "en":
+                    continue
 
-            candidates = list(set(papers_dict[id]["keywords"] +
-                                  papers_dict[id]["fos"] +
-                                  sum([item for _, item in papers_dict[id]["CSO"].items()][:-1], [])))
-            keyBert_scores = kw_model.extract_keywords(docs=doc,
-                                                       candidates=candidates,
-                                                       nr_candidates=len(candidates))
-            papers_dict[id]["keyBert_scores"] = keyBert_scores
+                year = paper["year"]
+                # Skip papers when year is not available
+                if year == 0 or year is None:
+                    continue
+                else:
+                    try:
+                        """
+                        This will skip papers with years not provided as 
+                        a 4-digits number
+                        """
+                        int(mktime(datetime.strptime(str(year), "%Y").timetuple()))
+                    except:
+                        continue
 
-    return papers_dict
+                if not paper.get("authors", False):
+                    paper["authors"] = []
+
+                for field in OPTIONAL_FIELDS:
+                    if not paper.get(field, False):
+                        paper[field] = []
+
+                id = str(paper["id"])
+
+                paper_dict = {
+                    "id": id,
+                    "title": paper["title"],
+                    "abstract": abstract,
+                    "year": year,
+                    "references": references,
+                }
+
+                for field in OPTIONAL_FIELDS:
+                    paper_dict[field] = paper[field]
+
+                f_out.write(json.dumps(paper_dict))
+                f_out.write("\n")
 
 
-def main(path: str):
-    dataset_path = join_path(path, "dblpv13.jsonl")
-
-    papers_dict = extract_docs(dataset_path)
-
-    docs = [{**{"docno": q_id}, **q_dict} for q_id, q_dict in papers_dict.items()]
-
-    open(join_path(path, "AMiner.jsonl"), "w").write(
-        "\n".join(json.dumps(i) for i in docs)
+def add_fields(in_path, out_path):
+    concept_rate = ConceptRate(mount_on_gpu=True)
+    classifier = CSOClassifier(
+        workers=1,
+        modules="both",
+        enhancement="first",
+        explanation=True
     )
+
+    with open(in_path, "r") as f:
+        papers = {}
+        keywords = []
+        abstracts = []
+        lengths = []
+        for i, line in enumerate(f):
+            paper = json.loads(line)
+            papers[paper["id"]] = paper
+            keywords.append(paper["keywords"])
+            lengths.append(len(paper["keywords"]))
+            abstracts.append(paper["title"] + ' ' + paper["abstract"])
+            if i == 100000:
+                break
+
+        CSO_keywords = classifier.batch_run(papers, workers=cpu_count() - 8)
+        for i in CSO_keywords.keys():
+            papers[i]["CSO_keywords"] = CSO_keywords[i]
+
+        keywords = [keywords[i:i + 100] for i in range(0, len(keywords), 100)]
+        abstracts = [abstracts[i:i + 100] for i in range(0, len(abstracts), 100)]
+        lengths = [lengths[i:i + 100] for i in range(0, len(lengths), 100)]
+
+        keywords_scored = []
+        for kw, abs, lens in zip(keywords, abstracts, lengths):
+            keywords_scored.extend(concept_rate.concept_score(concepts=kw,
+                                                              documents=abs,
+                                                              lengths=lens))
+
+        for i, j in zip(papers.keys(), keywords_scored):
+            papers[i]["keywords"] = j
+
+    open(out_path, "w").write("\n".join(json.dumps(papers[i]) for i in papers.keys()))
+
+
+def main(path: str, concep_processing: bool):
+    in_path = join_path(path, "dblpv13.jsonl")
+    out_path = join_path(path, "AMiner.jsonl")
+    extract_docs(in_path, out_path)
+
+    if concep_processing:
+        in_path = out_path
+        out_path = join_path(path, "AMiner_processed.jsonl")
+        add_fields(in_path, out_path)
 
 
 if __name__ == '__main__':
@@ -148,6 +166,13 @@ if __name__ == '__main__':
                         type=str,
                         help='path to the folder which contains the jsonl',
                         default="../../data/external/")
+    parser.add_argument('-cp',
+                        dest='concep_processing',
+                        type=bool,
+                        help='flag to process concepts',
+                        default=False)
+
     path = parser.parse_args().path
-    main(path)
+    concep_processing = parser.parse_args().concep_processing
+    main(path, concep_processing)
 
