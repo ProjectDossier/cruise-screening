@@ -58,7 +58,7 @@ if __name__ == "__main__":
             index=args.index, body=mapping
         )
 
-    for index_i, json_str in tqdm(enumerate(docs_list)):
+    for index_i, json_str in tqdm(enumerate(docs_list), total=args.first_n_docs):
         item = json.loads(json_str)
         res = es.index(index=args.index,
                        document=item)
