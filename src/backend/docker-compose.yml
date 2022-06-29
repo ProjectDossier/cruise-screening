@@ -19,7 +19,13 @@ services:
     environment:
       - discovery.type=single-node
       - xpack_security_enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     volumes:
-      - "${HOME}/pyprojects/data-literature:/usr/share/elasticsearch/data"
+      - "${HOME}/cruise-literature/data/external:/usr/share/elasticsearch/data"
     ports:
       - "9200:9200"

@@ -28,28 +28,6 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-def home(request):
-    """
-    Home page
-    """
-    if request.method == "GET":
-        return render(
-            request,
-            "interfaces/home.html",
-        )
-
-
-def about(request):
-    """
-    About page
-    """
-    if request.method == "GET":
-        return render(
-            request,
-            "interfaces/about.html",
-        )
-
-
 def search_results(request):
     """
     Search results page
@@ -70,7 +48,9 @@ def search_results(request):
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
-        search_result_list, paginator = paginate_results(search_result=search_result, page = request.GET.get('page', 1))
+        search_result_list, paginator = paginate_results(
+            search_result=search_result, page=request.GET.get("page", 1)
+        )
 
         if not search_with_taxonomy and query_type in [
             "main_search",
@@ -92,7 +72,7 @@ def search_results(request):
                 "search_time": f"{search_time:.2f}",
                 "search_query": search_query,
                 "search_type": "",
-                'paginator': paginator,
+                "paginator": paginator,
             }
             return render(
                 request=request,
@@ -140,7 +120,7 @@ def search_results(request):
             "tax_results": tax_results,
             "search_type": "checked",
             "default_taxonomy": source_taxonomy,
-            'paginator': paginator,
+            "paginator": paginator,
         }
         # assign value of default taxonomy based on selected javascript box...
         return render(

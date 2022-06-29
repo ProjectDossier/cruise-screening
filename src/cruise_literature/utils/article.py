@@ -22,6 +22,7 @@ class Article:
     fields_of_science: Optional[list[str]] = None
 
 
+
 @dataclass()
 class WikipediaArticle:
     """Class for representing Wikipedia article."""

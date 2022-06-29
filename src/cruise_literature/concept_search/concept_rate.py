@@ -4,8 +4,8 @@ from transformers import AutoModel, AutoTokenizer
 
 
 def get_words_similarity(
-        cvs: List[Tuple[str, torch.Tensor]],
-        dvs: List[Tuple[str, torch.Tensor]],
+    cvs: List[Tuple[str, torch.Tensor]],
+    dvs: List[Tuple[str, torch.Tensor]],
 ):
 
     C = torch.stack([v[1] for v in cvs])
@@ -19,9 +19,9 @@ def get_words_similarity(
 
 
 def get_words_score(
-        cts: List[str],
-        dts: List[str],
-        similarities: torch.Tensor,
+    cts: List[str],
+    dts: List[str],
+    similarities: torch.Tensor,
 ):
     M = similarities
     assert tuple(M.shape) == (len(cts), len(dts))
@@ -37,21 +37,28 @@ def get_words_score(
 
 
 class ConceptRate:
-    def __init__(self, model_name: str = "allenai/scibert_scivocab_cased", mount_on_gpu: bool = False):
-        self.model = AutoModel.from_pretrained(model_name, output_hidden_states=True).eval()
-        self.device = 'cuda' if mount_on_gpu and torch.cuda.is_available() else 'cpu'
+    def __init__(
+        self,
+        model_name: str = "allenai/scibert_scivocab_cased",
+        mount_on_gpu: bool = False,
+    ):
+        self.model = AutoModel.from_pretrained(
+            model_name, output_hidden_states=True
+        ).eval()
+        self.device = "cuda" if mount_on_gpu and torch.cuda.is_available() else "cpu"
         self.model.to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     def get_vectors(self, strings: List[str]):
-        tokens = [i.lower().split(' ') for i in strings]
-        tokenized = self.tokenizer.batch_encode_plus(tokens,
-                                                     is_split_into_words=True,
-                                                     return_tensors='pt',
-                                                     padding=True,
-                                                     truncation=True,
-                                                     max_length=512
-                                                     )
+        tokens = [i.lower().split(" ") for i in strings]
+        tokenized = self.tokenizer.batch_encode_plus(
+            tokens,
+            is_split_into_words=True,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=512,
+        )
         tokenized = tokenized.to(self.device)
 
         with torch.no_grad():
@@ -81,11 +88,9 @@ class ConceptRate:
             result.append(item_result)
         return result
 
-    def concept_score(self,
-                      concepts: List[str],
-                      documents: List[str],
-                      lengths: List[int]
-                      ):
+    def concept_score(
+        self, concepts: List[str], documents: List[str], lengths: List[int]
+    ):
 
         concepts_vectors = self.get_vectors(sum(concepts, []))
         doc_vectors = self.get_vectors(documents)
@@ -93,11 +98,13 @@ class ConceptRate:
         split_concepts_vectors = []
         count = 0
         for length in lengths:
-            split_concepts_vectors.append(concepts_vectors[count:count+length])
+            split_concepts_vectors.append(concepts_vectors[count : count + length])
             count += length
 
         agg_scores = []
-        for concepts_vectors, doc_vector, concepts_ in zip(split_concepts_vectors, doc_vectors, concepts):
+        for concepts_vectors, doc_vector, concepts_ in zip(
+            split_concepts_vectors, doc_vectors, concepts
+        ):
             scores_ = {}
             for keyword_vector, concept in zip(concepts_vectors, concepts_):
                 sim = get_words_similarity(keyword_vector, doc_vector)
@@ -108,7 +115,9 @@ class ConceptRate:
                     sim,
                 )
                 try:
-                    rate = sum([rate for _, rate in scores.items()])/len(scores.keys())
+                    rate = sum([rate for _, rate in scores.items()]) / len(
+                        scores.keys()
+                    )
                 except ZeroDivisionError:
                     rate = 0
                 scores_.update({concept: rate})
@@ -116,8 +125,11 @@ class ConceptRate:
         return agg_scores
 
     def request_score(self, search_result: List[object]):
-        concepts = [article.keywords_snippet + article.keywords_rest for article in search_result]
-        documents = [article.title + ' ' + article.snippet for article in search_result]
+        concepts = [
+            article.keywords_snippet + article.keywords_rest
+            for article in search_result
+        ]
+        documents = [article.title + " " + article.snippet for article in search_result]
         lengths = [len(i) for i in concepts]
         concept_scores = self.concept_score(concepts, documents, lengths)
 
