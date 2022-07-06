@@ -77,9 +77,18 @@ Server should be available at http://127.0.0.1:8000/
 (cruise-literature)$ python manage.py runserver YOUR_IP:YOUR_PORT
 ```
 
-## 3. Troubleshooting
+## 3. Get Latest Version
 
-### 3.1 M1 Macbook
+### 3.1 Update Your Local Code Version
+
+Before you start work, make sure you have the latest changes.
+Go into `src/cruise_literature/` directory: 
+
+	> git pull
+
+## 4. Troubleshooting
+
+### 4.1 M1 Macbook
 
 If you are using a laptop with the M1 chip please change the following line in the [settings.py](src/cruise_literature/cruise_literature/settings.py) file:
 
