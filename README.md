@@ -61,6 +61,7 @@ Fill in sample data into the database
 (cruise-literature)$ python manage.py loaddata users_data.json
 ```
 
+Make sure that Django Desktop application is running. 
 
 Finally, run Django server
 
