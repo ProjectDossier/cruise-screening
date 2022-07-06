@@ -84,7 +84,7 @@ Server should be available at http://127.0.0.1:8000/
 Before you start work, make sure you have the latest changes.
 Go into `src/cruise_literature/` directory: 
 
-	> git pull
+	> git pull origin main
 
 ## 4. Troubleshooting
 
