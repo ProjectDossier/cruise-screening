@@ -39,7 +39,7 @@ ElasticSearch will be accessible on your local machine at `127.0.0.1:PORT_ES`.
 
 ### Add docs to the index
 
-Create a `data` folder in the root directory. Add `AMiner_sample.jsonl` file to the `data/` folder.
+Create a `data` folder in the root directory. Add `AMiner_sample.jsonl`,`wikipedia_taxonomy.json`,`wikipedia_taxonomy.xml`, `acm_ccs.xml` files to the `data/` folder. You can find these files on gdrive (link inside Trello)
 
 ```bash
 python scripts/add_docs.py
