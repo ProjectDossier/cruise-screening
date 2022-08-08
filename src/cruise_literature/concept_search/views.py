@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 
-from src.cruise_literature.concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
+from .taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
 
 taxonomies = {
     "CSO": TaxonomyRDFCSO("../../data/external/"),
