@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Union, Dict
+from typing import Union, Optional
 
 
 @dataclass
@@ -9,14 +9,16 @@ class Article:
     id: str
     title: str
     url: str
+    pdf: str
     snippet: str
     abstract: str
     authors: str
     publication_date: str = ""
     venue: str = ""
-    keywords_snippet: Union[dict[str, Union[int, float]], None] = None
-    keywords_rest: Union[dict[str, Union[int, float]], None] = None
-    CSO_keywords: Union[dict[str, Union[int, float]], None] = None
+    fields_of_science: Optional[list[str]] = None
+    keywords_snippet: Optional[dict[str, Union[int, float]]] = None
+    keywords_rest: Optional[dict[str, Union[int, float]]] = None
+    CSO_keywords: Optional[dict[str, Union[int, float]]] = None
 
 
 
@@ -30,4 +32,12 @@ class WikipediaArticle:
     snippet: str
     content: str
     ambiguous: bool = True
-    keywords: Union[List[str], None] = None
+    keywords: Optional[list[str]] = None
+
+
+@dataclass()
+class Author:
+    """Class representing author."""
+
+    id: str
+    name: str
