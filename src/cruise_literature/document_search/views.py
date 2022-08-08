@@ -1,31 +1,15 @@
 import time
 
+from concept_search.views import taxonomies
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from concept_search.taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
-from concept_search.concept_rate import ConceptRate
-from concept_search.concept_classification import CSOClassification
 from django.template.defaulttags import register
 
+from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 from .search_documents import search, paginate_results
 from .search_wikipedia import search_wikipedia
-from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 
 engine_logger = EngineLogger()
-
-# Taxonomy instantiation
-taxonomies = {
-    "CSO": TaxonomyRDFCSO("../../data/external/"),
-    "CCS": TaxonomyRDFCCS("../../data/external/"),
-    "Wikipedia": TaxonomyRDFCCS(
-        "../../data/external/",
-        filename="wikipedia_taxonomy.xml",
-        taxonomy_name="wikipedia",
-    ),
-}
-
-concept_rate = ConceptRate()
-cso_concept_clasifier = CSOClassification()
 
 
 @register.filter
@@ -36,13 +20,13 @@ def get_item(dictionary, key):
 @register.filter
 def keywords_threshold(keyword_score):
     if keyword_score > 0.95:
-        return 'is-success'
+        return "is-success"
     elif 0.7 < keyword_score <= 0.95:
-        return 'is-warning'
+        return "is-warning"
     elif 0 < keyword_score <= 0.7:
-        return 'is-danger'
+        return "is-danger"
     else:
-        return ''
+        return ""
 
 
 def search_results(request):
@@ -98,25 +82,6 @@ def search_results(request):
                 context=context,
             )
 
-        tax_results = {}
-        for name, taxonomy in taxonomies.items():
-            concept = taxonomy.search(query=search_query)
-            tax_results[name] = {
-                "concept": concept.to_dict(),
-                "subparents": [
-                    item.to_dict()
-                    for sublist in concept.parents
-                    for item in sublist.parents
-                ],
-                "subchildren": [
-                    item.to_dict()
-                    for sublist in concept.children
-                    for item in sublist.children
-                ],
-                "parents": [x.to_dict() for x in concept.parents],
-                "children": [x.to_dict() for x in concept.children],
-            }
-
         source_taxonomy = request.GET.get("source_taxonomy", None)
         if not source_taxonomy:
             source_taxonomy = list(taxonomies.keys())[0]
@@ -125,7 +90,7 @@ def search_results(request):
             search_query=search_query,
             query_type=query_type,
             search_time=search_time,
-            tax_results=tax_results,
+            tax_results={},
             matched_wiki_page=get_wiki_logger(matched_wiki_page),
         )
 
@@ -135,7 +100,6 @@ def search_results(request):
             "unique_searches": len(search_result),
             "search_time": f"{search_time:.2f}",
             "search_query": search_query,
-            "tax_results": tax_results,
             "search_type": "checked",
             "default_taxonomy": source_taxonomy,
             "paginator": paginator,
