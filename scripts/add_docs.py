@@ -20,9 +20,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--index", type=str, default="papers", help="Name of the ES index."
     )
-    parser.add_argument(
-        "--doc_type", type=str, default="aminer", help="Name of the ES doc type."
-    )
 
     parser.add_argument(
         "--first_n_docs",
@@ -42,6 +39,9 @@ if __name__ == "__main__":
 
     if isinstance(args.first_n_docs, int) and args.first_n_docs > 0:
         docs_list = docs_list[: args.first_n_docs]
+        total_docs = args.first_n_docs
+    else:
+        total_docs = len(docs_list)
 
     es = Elasticsearch([{"host": args.host, "port": args.port}])
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             index=args.index, body=mapping
         )
 
-    for index_i, json_str in tqdm(enumerate(docs_list), total=args.first_n_docs):
+    for index_i, json_str in tqdm(enumerate(docs_list), total=total_docs):
         item = json.loads(json_str)
         res = es.index(index=args.index,
                        document=item)

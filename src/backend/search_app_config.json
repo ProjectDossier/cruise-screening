@@ -1,5 +1,3 @@
 {
-    "host": "http://es-cruise-literature:9200",
-    "indices": ["papers"],
-    "top_k": 100
+    "host": "http://es-cruise-literature:9200"
 }
