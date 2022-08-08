@@ -1,12 +1,13 @@
 import requests
 import json
 import re
+from typing import List
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils.article import Article
 
 
-def highlighter(doc: str, es_highlighted_texts: list[str]):
+def highlighter(doc: str, es_highlighted_texts: List[str]):
     pattern = re.compile(r"<em>(.*?)</em>")
     highlight_terms = []
     for line in es_highlighted_texts:

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Union, Optional, Dict, List
 
 
 @dataclass
@@ -30,7 +30,7 @@ class WikipediaArticle:
     snippet: str
     content: str
     ambiguous: bool = True
-    keywords: Optional[list[str]] = None
+    keywords: Optional[List[str]] = None
 
 
 @dataclass()
