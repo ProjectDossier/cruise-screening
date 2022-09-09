@@ -1,5 +1,7 @@
 from cso_classifier import CSOClassifier
 
+from src.cruise_literature.utils.article import Article
+
 
 class CSOClassification:
     def __init__(self):
@@ -33,3 +35,15 @@ class CSOClassification:
             article.CSO_keywords = concepts[article.id]["union"]
 
         return search_result
+
+    def classify_single_paper(self, paper: Article):
+        """Runs CSO classifier on a single article."""
+        paper.CSO_keywords = self.classifier.run(
+            {
+                "title": paper.title,
+                "abstract": paper.abstract,
+                "keywords": paper.keywords_snippet,
+            }
+        )["union"]
+
+        return paper
