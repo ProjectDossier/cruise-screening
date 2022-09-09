@@ -1,15 +1,21 @@
+{% load static %}
+
 <article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false, showCSOKeywords: false}">
-    <div class="card-content">
+    <div class="card-content pb-1">
         <p class="title">
             {% if search_result.url %}
                 <a href="{{ search_result.url }}">{{ search_result.title }}</a>
             {% else %}
                 {{ search_result.title }}
             {% endif %}
+            {% if search_result.pdf %}
+                <a href="{{ search_result.pdf }}"><img src="{% static 'pdf_icon.svg' %}" width="25" height="25"></a>
+            {% endif %}
         </p>
-        <p class="subtitle">{{ search_result.authors }}</p>
+        <p class="subtitle mb-2">{{ search_result.authors }}</p>
+        <p class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</p>
     </div>
-    <div class="card-content">
+    <div class="card-content pt-1">
         <div class="content">
             <template x-if="openAbstract">
                 <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
@@ -35,6 +41,9 @@
                         </span>
                     </template>
                 {% endif %}
+            </p>
+            <p class="has-text-info">
+                Cited by {{ search_result.citations }}&nbsp;&nbsp; - &nbsp;&nbsp;{{ search_result.references }} references
             </p>
             <h6>
                 <template x-if="!showCSOKeywords">
