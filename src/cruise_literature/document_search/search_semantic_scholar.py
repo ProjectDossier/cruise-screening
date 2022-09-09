@@ -2,8 +2,6 @@ from typing import List, Dict
 import requests
 from utils.article import Article, Author
 
-from concept_search.views import cso_cls
-
 API_ENDPOINT = "https://api.semanticscholar.org/graph/v1/paper/search?query="
 
 FIELDS = "externalIds,url,title,abstract,venue,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,\
@@ -69,8 +67,6 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
                 citations=candidate.get("citationCount"),
                 references=candidate.get("referenceCount"),
             )
-            if index_i < 4:
-                retrieved_art = cso_cls.classify_single_paper(retrieved_art)
             candidate_list.append(retrieved_art)
 
     return candidate_list

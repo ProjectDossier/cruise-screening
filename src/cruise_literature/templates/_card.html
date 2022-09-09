@@ -64,8 +64,7 @@
                 </template>
                 </div>
             {% else %}
-                <div x-data="{cso_keywords: []}"
-                     x-init="cso_keywords = await (await fetch('classify_concepts/{{ search_result.title | safe }}')).json();">
+                <div x-data="{cso_keywords: []}">
                     <h6>
                         <template x-if="!showCSOKeywords">
                             <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
@@ -75,7 +74,7 @@
                         </template>
                     </h6>
                     <template x-if="showCSOKeywords" x-cloak>
-                        <p>
+                        <p x-init="cso_keywords = await (await fetch('classify_concepts/{{ search_result.title | safe }}')).json();">
                             <template x-for="_cso_keyword in cso_keywords">
                                 <a x-bind:href="'{% url 'search_results' %}?search_query=' + _cso_keyword + '&source=keywords'" x-text="_cso_keyword" class="button is-light is-small mb-2 mr-1"></a>
                             </template>
