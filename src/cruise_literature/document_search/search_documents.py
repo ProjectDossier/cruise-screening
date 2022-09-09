@@ -1,8 +1,8 @@
-import requests
 import json
 import re
 from typing import List
 
+import requests
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils.article import Article
 
@@ -27,6 +27,7 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
 
 
 def search(query: str, index: str, top_k: int) -> List[Article]:
+    """Search internal elasticsearch database."""
     headers = {"Content-type": "application/json"}
     res = requests.post(
         "http://localhost:9880" + "/search",

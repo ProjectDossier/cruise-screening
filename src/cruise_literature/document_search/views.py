@@ -1,3 +1,4 @@
+import concurrent.futures
 import time
 
 from concept_search.views import taxonomies
@@ -47,17 +48,16 @@ def search_results(request):
 
         index_name = "papers"
         top_k = 50
-        ss_result = search_semantic_scholar(
-            query=search_query, index=index_name, top_k=top_k
-        )
-        core_result = search_core(query=search_query, index=index_name, top_k=top_k)
-        internal_result = search(query=search_query, index=index_name, top_k=top_k)
-        search_result = merge_results(
-            internal_search_results=internal_result,
-            core_search_results=core_result,
-            semantic_scholar_results=ss_result,
-        )
 
+        search_functions = [search_semantic_scholar, search_core, search]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            results = [executor.submit(search_function, search_query, index_name, top_k) for search_function in search_functions]
+            results = [future.result() for future in concurrent.futures.as_completed(results)]
+            search_result = merge_results(
+                internal_search_results=results[0],
+                core_search_results=results[1],
+                semantic_scholar_results=results[2],
+            )
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 
