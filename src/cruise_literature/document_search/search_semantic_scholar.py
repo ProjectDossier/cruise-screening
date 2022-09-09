@@ -55,8 +55,8 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
 
             retrieved_art = Article(
                 id=candidate["paperId"],
-                # semantic_scholar_id=None,
-                # core_id=None,
+                semantic_scholar_id=candidate["paperId"],
+                core_id=None,
                 title=candidate.get("title"),
                 url=candidate["url"],
                 pdf=pdf,
@@ -65,13 +65,13 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
                 authors=authors,
                 publication_date=year,
                 venue=candidate["venue"],
-                keywords_snippet=None,  # keywords_snippet,
-                keywords_rest=None,  # keywords_rest,
-                CSO_keywords=None,  # candidate["_source"].get("CSO_keywords")['union'],
+                keywords_snippet=None,
+                keywords_rest=None,
+                CSO_keywords=None,
                 citations=candidate.get("citationCount"),
                 references=candidate.get("referenceCount"),
             )
-            if index_i < 10:
+            if index_i < 4:
                 retrieved_art = cso_cls.classify_single_paper(retrieved_art)
             candidate_list.append(retrieved_art)
 

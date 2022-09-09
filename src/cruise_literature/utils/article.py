@@ -21,6 +21,9 @@ class Article:
     references: Optional[int] = None  # references count
     citations: Optional[int] = None  # citations count
 
+    semantic_scholar_id: Optional[str] = None
+    core_id: Optional[str] = None
+
 
 @dataclass()
 class WikipediaArticle:

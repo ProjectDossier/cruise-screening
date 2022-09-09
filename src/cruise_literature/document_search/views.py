@@ -6,7 +6,9 @@ from django.shortcuts import render
 from django.template.defaulttags import register
 
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
-from .search_documents import search, paginate_results
+from .search_core import search_core
+from .search_documents import search, paginate_results, merge_results
+from .search_semantic_scholar import search_semantic_scholar
 from .search_wikipedia import search_wikipedia
 
 engine_logger = EngineLogger()
@@ -44,8 +46,17 @@ def search_results(request):
         s_time = time.time()
 
         index_name = "papers"
-        top_k = 10
-        search_result = search(query=search_query, index=index_name, top_k=top_k)
+        top_k = 50
+        ss_result = search_semantic_scholar(
+            query=search_query, index=index_name, top_k=top_k
+        )
+        core_result = search_core(query=search_query, index=index_name, top_k=top_k)
+        internal_result = search(query=search_query, index=index_name, top_k=top_k)
+        search_result = merge_results(
+            internal_search_results=internal_result,
+            core_search_results=core_result,
+            semantic_scholar_results=ss_result,
+        )
 
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
