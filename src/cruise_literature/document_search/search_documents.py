@@ -26,7 +26,7 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
-def search(query: str, index: str, top_k: int):
+def search(query: str, index: str, top_k: int) -> List[Article]:
     headers = {"Content-type": "application/json"}
     res = requests.post(
         "http://localhost:9880" + "/search",
@@ -51,9 +51,16 @@ def search(query: str, index: str, top_k: int):
         else:
             author_details = []
 
+        citations = len(candidate["_source"].get("n_citations"))
+        if citations == 0:  # TODO: learn why citation is equal to 0
+            citations = "?"
+        references = len(candidate["_source"].get("references"))
+
         venue_raw = candidate["_source"].get("venue")
-        if venue_raw:
+        if venue_raw and venue_raw.get("name_d"):
             venue = venue_raw.get("name_d")
+        elif venue_raw and venue_raw.get("raw"):
+            venue = venue_raw.get("raw")
         else:
             venue = ""
 
@@ -87,6 +94,8 @@ def search(query: str, index: str, top_k: int):
             keywords_snippet=keywords_snippet,
             keywords_rest=keywords_rest,
             CSO_keywords=candidate["_source"].get("CSO_keywords")['union'],
+            citations=citations,
+            references=references,
         )
         candidate_list.append(retrieved_art)
 
