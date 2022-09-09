@@ -46,7 +46,6 @@
                 Cited by {{ search_result.citations }}&nbsp;&nbsp; - &nbsp;&nbsp;{{ search_result.references }} references
             </p>
             {% if search_result.CSO_keywords|length > 0 %}
-                <div>
                 <h6>
                     <template x-if="!showCSOKeywords">
                         <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
@@ -62,7 +61,6 @@
                         {% endfor %}
                     </p>
                 </template>
-                </div>
             {% else %}
                 <div x-data="{cso_keywords: []}">
                     <h6>
