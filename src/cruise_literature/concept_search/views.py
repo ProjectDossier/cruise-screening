@@ -45,7 +45,8 @@ def search_concepts(request, query):
 
         return JsonResponse(tax_results, safe=False)
 
-def classify_concepts(request, title):
+
+def classify_concepts(request, title, abstract=''):
     """
     Search concepts relevant to the query inside taxonomies
     """
@@ -53,7 +54,7 @@ def classify_concepts(request, title):
         results = cso_cls.classifier.run(
             {
                 "title": title,
-                "abstract": title,
+                "abstract": abstract,
                 "keywords": [],
             }
         )["union"]
