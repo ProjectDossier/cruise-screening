@@ -74,7 +74,8 @@
                         </template>
                     </h6>
                     <template x-if="showCSOKeywords" x-cloak>
-                        <p x-init="cso_keywords = await (await fetch('classify_concepts/{{ search_result.title | safe }}/{{ search_result.abstract | safe }}')).json();">
+                        {#  TODO: request below fails when paper contains '/' character in title or abstract. Need to escape remove it. #}
+                        <p x-init="cso_keywords = await (await fetch('classify_concepts/{{ search_result.title | escapejs }}/{{ search_result.abstract | escapejs }}/')).json();">
                             <template x-for="_cso_keyword in cso_keywords">
                                 <a x-bind:href="'{% url 'search_results' %}?search_query=' + _cso_keyword + '&source=keywords'" x-text="_cso_keyword" class="button is-light is-small mb-2 mr-1"></a>
                             </template>

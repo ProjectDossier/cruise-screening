@@ -63,8 +63,10 @@ def search_core(query: str, index: str, top_k: int) -> List[Article]:
                 urls = candidate.get("links")
                 if urls and len(urls) >= 4:
                     url = urls[4]['url']
-                elif urls:
+                elif urls and len(urls) >= 2:
                     url = urls[1]['url']
+                elif urls:
+                    url = urls[0]['url']
                 else:
                     url = None
 
