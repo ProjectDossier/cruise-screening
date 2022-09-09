@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import requests
 from utils.article import Article, Author
 
@@ -12,7 +12,7 @@ fieldsOfStudy,s2FieldsOfStudy,publicationTypes,publicationDate,journal,authors"
 cso_cls = CSOClassification()
 
 
-def get_authors(authors_list):
+def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
     _authors = []
     for _author in authors_list:
         _authors.append(
@@ -29,7 +29,6 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
     response = requests.get(
         f"{API_ENDPOINT}{'+'.join(query.split())}&limit={top_k}&fields={FIELDS}"
     )
-    # http://api.semanticscholar.org/graph/v1/paper/search?query=literature+graph&offset=10&limit=50&fields=title,authors
 
     candidate_list = []
     if response.status_code == 200:
@@ -76,5 +75,4 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
                 retrieved_art = cso_cls.classify_single_paper(retrieved_art)
             candidate_list.append(retrieved_art)
 
-    # candidate_list = cso_cls.classify_search_result(candidate_list[:10])
     return candidate_list

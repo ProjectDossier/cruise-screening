@@ -38,6 +38,7 @@ class WikipediaArticle:
 @dataclass()
 class Author:
     """Class representing author."""
+
     display_name: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
