@@ -2,14 +2,12 @@ from typing import List, Dict
 import requests
 from utils.article import Article, Author
 
-from concept_search.concept_classification import CSOClassification
+from concept_search.views import cso_cls
 
 API_ENDPOINT = "https://api.semanticscholar.org/graph/v1/paper/search?query="
 
 FIELDS = "externalIds,url,title,abstract,venue,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,\
 fieldsOfStudy,s2FieldsOfStudy,publicationTypes,publicationDate,journal,authors"
-
-cso_cls = CSOClassification()
 
 
 def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:

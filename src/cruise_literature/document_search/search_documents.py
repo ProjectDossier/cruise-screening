@@ -38,7 +38,9 @@ def search(query: str, index: str, top_k: int) -> List[Article]:
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("abstract")
         if doc_text and "abstract" in candidate["highlight"]:
-            abstract, snippet = highlighter(doc_text, candidate["highlight"]["abstract"])
+            abstract, snippet = highlighter(
+                doc_text, candidate["highlight"]["abstract"]
+            )
         else:
             abstract = candidate["_source"].get("abstract")
             snippet = candidate["_source"].get("abstract")[:300]
@@ -74,7 +76,11 @@ def search(query: str, index: str, top_k: int) -> List[Article]:
         keywords_snippet = {}
         keywords_rest = {}
         index_i = 0
-        for k, v in sorted(candidate["_source"].get("keywords").items(), key=lambda item: item[1], reverse=True):
+        for k, v in sorted(
+            candidate["_source"].get("keywords").items(),
+            key=lambda item: item[1],
+            reverse=True,
+        ):
             index_i += 1
             if index_i < 5:
                 keywords_snippet[k] = v
@@ -93,7 +99,7 @@ def search(query: str, index: str, top_k: int) -> List[Article]:
             venue=venue,
             keywords_snippet=keywords_snippet,
             keywords_rest=keywords_rest,
-            CSO_keywords=candidate["_source"].get("CSO_keywords")['union'],
+            CSO_keywords=candidate["_source"].get("CSO_keywords")["union"],
             citations=citations,
             references=references,
         )
