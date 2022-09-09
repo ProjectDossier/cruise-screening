@@ -1,6 +1,9 @@
 from django.http import JsonResponse
 
+from .concept_classification import CSOClassification
 from .taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
+
+cso_cls = CSOClassification()
 
 taxonomies = {
     "CSO": TaxonomyRDFCSO("../../data/external/"),
@@ -40,3 +43,18 @@ def search_concepts(request, query):
             )
 
         return JsonResponse(tax_results, safe=False)
+
+def classify_concepts(request, title):
+    """
+    Search concepts relevant to the query inside taxonomies
+    """
+    if request.method == "GET":
+        results = cso_cls.classifier.run(
+            {
+                "title": title,
+                "abstract": title,
+                "keywords": [],
+            }
+        )["union"]
+
+        return JsonResponse(results, safe=False)
