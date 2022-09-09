@@ -46,7 +46,7 @@ def search_concepts(request, query):
         return JsonResponse(tax_results, safe=False)
 
 
-def classify_concepts(request, title, abstract=''):
+def classify_concepts(request, title, abstract=""):
     """
     Search concepts relevant to the query inside taxonomies
     """

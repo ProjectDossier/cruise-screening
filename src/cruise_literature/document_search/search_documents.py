@@ -125,12 +125,16 @@ def merge_results(
     core_search_results: List[Article],
     semantic_scholar_results: List[Article],
 ) -> List[Article]:
-    output_results_dict = {item.title.lower().strip(): item for item in semantic_scholar_results}
+    output_results_dict = {
+        item.title.lower().strip(): item for item in semantic_scholar_results
+    }
     for _item in core_search_results:
         if _item.title.lower() not in output_results_dict.keys():
             semantic_scholar_results.append(_item)
 
-    output_results_dict = {item.title.lower().strip(): item for item in semantic_scholar_results}
+    output_results_dict = {
+        item.title.lower().strip(): item for item in semantic_scholar_results
+    }
     for _item in internal_search_results:
         if _item.title.lower() not in output_results_dict.keys():
             semantic_scholar_results.append(_item)

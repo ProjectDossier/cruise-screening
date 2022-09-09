@@ -16,7 +16,9 @@ if SEARCH_WITH_CORE:
     with open(api_key_file, "r") as apikey_file:
         api_key = apikey_file.readlines()[0].strip()
         if api_key == "ADD_YOUR_CORE_API_KEY_HERE":
-            raise ValueError(f"You need to update CORE API key in {api_key_file} in order to use CORE search")
+            raise ValueError(
+                f"You need to update CORE API key in {api_key_file} in order to use CORE search"
+            )
 
 api_endpoint = "https://api.core.ac.uk/v3/search/works"
 
@@ -35,16 +37,18 @@ def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
 
 def search_core(query: str, index: str, top_k: int) -> List[Article]:
     if SEARCH_WITH_CORE:
-        data = { "q": query,
+        data = {
+            "q": query,
             "limit": str(top_k),
         }
-        headers = {"Content-Type": "application/json", "Authorization": "Bearer " + api_key}
-        response = requests.post(
-            url=api_endpoint, headers=headers, json=data
-        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + api_key,
+        }
+        response = requests.post(url=api_endpoint, headers=headers, json=data)
         candidate_list = []
         if response.status_code == 200:
-            for index_i, candidate in enumerate(response.json()['results']):
+            for index_i, candidate in enumerate(response.json()["results"]):
 
                 try:
                     snippet = candidate.get("abstract")[:300]
@@ -53,20 +57,20 @@ def search_core(query: str, index: str, top_k: int) -> List[Article]:
                     snippet = ""
                     abstract = ""
 
-                authors = get_authors(candidate.get('authors'))
+                authors = get_authors(candidate.get("authors"))
                 authors = ", ".join([a.display_name for a in authors])
 
-                year = candidate.get('yearPublished')
+                year = candidate.get("yearPublished")
                 if not year:
                     year = "   "
 
                 urls = candidate.get("links")
                 if urls and len(urls) >= 4:
-                    url = urls[4]['url']
+                    url = urls[4]["url"]
                 elif urls and len(urls) >= 2:
-                    url = urls[1]['url']
+                    url = urls[1]["url"]
                 elif urls:
-                    url = urls[0]['url']
+                    url = urls[0]["url"]
                 else:
                     url = None
 
@@ -80,7 +84,7 @@ def search_core(query: str, index: str, top_k: int) -> List[Article]:
                     core_id=candidate["id"],
                     title=candidate.get("title"),
                     url=url,
-                    pdf=candidate.get('downloadUrl'),
+                    pdf=candidate.get("downloadUrl"),
                     snippet=snippet,
                     abstract=abstract,
                     authors=authors,
@@ -97,4 +101,3 @@ def search_core(query: str, index: str, top_k: int) -> List[Article]:
         return candidate_list
     else:
         return []
-
