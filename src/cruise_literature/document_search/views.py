@@ -49,7 +49,7 @@ def search_results(request):
         index_name = "papers"
         top_k = 50
 
-        search_functions = [search_semantic_scholar, search_core, search]
+        search_functions = [search, search_core, search_semantic_scholar]
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             results = [executor.submit(search_function, search_query, index_name, top_k) for search_function in search_functions]
             results = [future.result() for future in concurrent.futures.as_completed(results)]
