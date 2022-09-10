@@ -65,6 +65,9 @@
                         {{ user.username|title }}
                     </a>
                     <div class="navbar-dropdown">
+                        <a href="{% url 'user_profile' %}" class="navbar-item">
+                            My profile
+                        </a>
                         <a href="{% url 'about' %}" class="navbar-item">
                             About us
                         </a>
