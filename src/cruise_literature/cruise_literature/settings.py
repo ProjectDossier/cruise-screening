@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "document_search",
     "concept_search",
     "users",
+    "citation_screening",
 ]
 
 MIDDLEWARE = [
@@ -105,6 +106,9 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = (
+    'citation_screening.dbrouters.LiteratureReviewDBRouter',
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

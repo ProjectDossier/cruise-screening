@@ -2,7 +2,7 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from ..cruise_literature import settings
+from cruise_literature import settings
 
 REVIEW_TITLE_MAX_LEN = 100
 REVIEW_TITLE_MIN_LEN = 3

@@ -58,6 +58,8 @@ postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO cruise_literatu
 Run migrations and start server:
 
 ```bash
+$ python manage.py makemigrations
+$ python manage.py migrate --database=literature_review
 $ python manage.py migrate
 $ python manage.py runserver
 ```
