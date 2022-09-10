@@ -95,6 +95,13 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+    },
+    "literature_review": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "cruise_literature",
+        "USER": "cruise_literature_user",
+        "HOST": "localhost",
+        "PORT": 5432,  # default postgres port
     }
 }
 
