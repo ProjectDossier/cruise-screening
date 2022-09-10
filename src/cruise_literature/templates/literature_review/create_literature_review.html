@@ -1,0 +1,17 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="register">
+        <h1 class="title is-1">Create new literature review</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div>
+                <button type="submit" class="button is-link">Create new literature review</button>
+            </div>
+        </form>
+    </div>
+
+    {% include "_footer.html" %}
+
+{% endblock %}

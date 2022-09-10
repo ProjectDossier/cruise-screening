@@ -51,6 +51,7 @@ class LiteratureReview(models.Model):
     first_screening = models.ForeignKey(
         CitationScreening,
         on_delete=models.CASCADE,
+        null=True,
         related_name="title_abstract_screening",
         help_text="Citation screening ID",
     )
