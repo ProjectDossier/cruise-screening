@@ -7,7 +7,7 @@ from cruise_literature.settings import SEARCH_WITH_CORE
 
 from utils.article import Article
 
-from src.cruise_literature.utils.article import Author
+from utils.article import Author
 
 if SEARCH_WITH_CORE:
     CURRENT_FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
