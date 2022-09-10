@@ -1,8 +1,8 @@
-import requests
 import json
 import re
 from typing import List
 
+import requests
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils.article import Article
 
@@ -26,7 +26,8 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
-def search(query: str, index: str, top_k: int):
+def search(query: str, index: str, top_k: int) -> List[Article]:
+    """Search internal elasticsearch database."""
     headers = {"Content-type": "application/json"}
     res = requests.post(
         "http://localhost:9880" + "/search",
@@ -38,7 +39,9 @@ def search(query: str, index: str, top_k: int):
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("abstract")
         if doc_text and "abstract" in candidate["highlight"]:
-            abstract, snippet = highlighter(doc_text, candidate["highlight"]["abstract"])
+            abstract, snippet = highlighter(
+                doc_text, candidate["highlight"]["abstract"]
+            )
         else:
             abstract = candidate["_source"].get("abstract")
             snippet = candidate["_source"].get("abstract")[:300]
@@ -51,9 +54,16 @@ def search(query: str, index: str, top_k: int):
         else:
             author_details = []
 
+        citations = len(candidate["_source"].get("n_citations"))
+        if citations == 0:  # TODO: learn why citation is equal to 0
+            citations = "?"
+        references = len(candidate["_source"].get("references"))
+
         venue_raw = candidate["_source"].get("venue")
-        if venue_raw:
+        if venue_raw and venue_raw.get("name_d"):
             venue = venue_raw.get("name_d")
+        elif venue_raw and venue_raw.get("raw"):
+            venue = venue_raw.get("raw")
         else:
             venue = ""
 
@@ -67,7 +77,11 @@ def search(query: str, index: str, top_k: int):
         keywords_snippet = {}
         keywords_rest = {}
         index_i = 0
-        for k, v in sorted(candidate["_source"].get("keywords").items(), key=lambda item: item[1], reverse=True):
+        for k, v in sorted(
+            candidate["_source"].get("keywords").items(),
+            key=lambda item: item[1],
+            reverse=True,
+        ):
             index_i += 1
             if index_i < 5:
                 keywords_snippet[k] = v
@@ -86,7 +100,9 @@ def search(query: str, index: str, top_k: int):
             venue=venue,
             keywords_snippet=keywords_snippet,
             keywords_rest=keywords_rest,
-            CSO_keywords=candidate["_source"].get("CSO_keywords")['union'],
+            CSO_keywords=candidate["_source"].get("CSO_keywords")["union"],
+            citations=citations,
+            references=references,
         )
         candidate_list.append(retrieved_art)
 
@@ -103,3 +119,25 @@ def paginate_results(search_result: list, page: int, results_per_page: int = 19)
         search_result_list = paginator.page(paginator.num_pages)
 
     return search_result_list, paginator
+
+
+def merge_results(
+    internal_search_results: List[Article],
+    core_search_results: List[Article],
+    semantic_scholar_results: List[Article],
+) -> List[Article]:
+    output_results_dict = {
+        item.title.lower().strip(): item for item in semantic_scholar_results
+    }
+    for _item in core_search_results:
+        if _item.title.lower() not in output_results_dict.keys():
+            semantic_scholar_results.append(_item)
+
+    output_results_dict = {
+        item.title.lower().strip(): item for item in semantic_scholar_results
+    }
+    for _item in internal_search_results:
+        if _item.title.lower() not in output_results_dict.keys():
+            semantic_scholar_results.append(_item)
+
+    return semantic_scholar_results

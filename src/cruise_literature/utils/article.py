@@ -18,6 +18,11 @@ class Article:
     keywords_snippet: Union[Dict[str, Union[int, float]], None] = None
     keywords_rest: Union[Dict[str, Union[int, float]], None] = None
     CSO_keywords: Union[Dict[str, Union[int, float]], None] = None
+    references: Optional[int] = None  # references count
+    citations: Optional[int] = None  # citations count
+
+    semantic_scholar_id: Optional[str] = None
+    core_id: Optional[str] = None
 
 
 @dataclass()
@@ -37,5 +42,10 @@ class WikipediaArticle:
 class Author:
     """Class representing author."""
 
-    id: str
-    name: str
+    display_name: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+    id: Optional[str] = None
+    aminer_id: Optional[str] = None
+    semantic_scholar_id: Optional[str] = None

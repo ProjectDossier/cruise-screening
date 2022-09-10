@@ -1,15 +1,21 @@
+{% load static %}
+
 <article class="card mb-4" x-data="{ openAbstract: false, openKeywords: false, showCSOKeywords: false}">
-    <div class="card-content">
+    <div class="card-content pb-1">
         <p class="title">
             {% if search_result.url %}
                 <a href="{{ search_result.url }}">{{ search_result.title }}</a>
             {% else %}
                 {{ search_result.title }}
             {% endif %}
+            {% if search_result.pdf %}
+                <a href="{{ search_result.pdf }}"><img src="{% static 'pdf_icon.svg' %}" width="25" height="25"></a>
+            {% endif %}
         </p>
-        <p class="subtitle">{{ search_result.authors }}</p>
+        <p class="subtitle mb-2">{{ search_result.authors }}</p>
+        <p class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</p>
     </div>
-    <div class="card-content">
+    <div class="card-content pt-1">
         <div class="content">
             <template x-if="openAbstract">
                 <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
@@ -36,21 +42,45 @@
                     </template>
                 {% endif %}
             </p>
-            <h6>
-                <template x-if="!showCSOKeywords">
-                    <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
+            <p class="has-text-info">
+                Cited by {{ search_result.citations }}&nbsp;&nbsp; - &nbsp;&nbsp;{{ search_result.references }} references
+            </p>
+            {% if search_result.CSO_keywords|length > 0 %}
+                <h6>
+                    <template x-if="!showCSOKeywords">
+                        <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
+                    </template>
+                    <template x-if="showCSOKeywords">
+                        <button type="button" class="card__show-more" x-on:click="showCSOKeywords = false">CSO keywords ▴</button>
+                    </template>
+                </h6>
+                <template x-if="showCSOKeywords" x-cloak>
+                    <p>
+                        {% for keyword in search_result.CSO_keywords %}
+                            <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
+                        {% endfor %}
+                    </p>
                 </template>
-                <template x-if="showCSOKeywords">
-                    <button type="button" class="card__show-more" x-on:click="showCSOKeywords = false">CSO keywords ▴</button>
-                </template>
-            </h6>
-            <template x-if="showCSOKeywords" x-cloak>
-                <p>
-                    {% for keyword in search_result.CSO_keywords %}
-                        <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
-                    {% endfor %}
-                </p>
-            </template>
+            {% else %}
+                <div x-data="{cso_keywords: []}">
+                    <h6>
+                        <template x-if="!showCSOKeywords">
+                            <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
+                        </template>
+                        <template x-if="showCSOKeywords">
+                            <button type="button" class="card__show-more" x-on:click="showCSOKeywords = false">CSO keywords ▴</button>
+                        </template>
+                    </h6>
+                    <template x-if="showCSOKeywords" x-cloak>
+                        {#  TODO: request below fails when paper contains '/' character in title or abstract. Need to escape remove it. #}
+                        <p x-init="cso_keywords = await (await fetch('classify_concepts/{{ search_result.title | escapejs }}/{{ search_result.abstract | escapejs }}/')).json();">
+                            <template x-for="_cso_keyword in cso_keywords">
+                                <a x-bind:href="'{% url 'search_results' %}?search_query=' + _cso_keyword + '&source=keywords'" x-text="_cso_keyword" class="button is-light is-small mb-2 mr-1"></a>
+                            </template>
+                        </p>
+                    </template>
+                </div>
+            {% endif %}
 
         </div>
       </div>
