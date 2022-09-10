@@ -3,12 +3,11 @@ import json
 import re
 from typing import List
 
-import requests
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils.article import Article
 
 
-def highlighter(query: str, doc: str, es_highlighted_texts: List[str]):
+def highlighter(doc: str, es_highlighted_texts: List[str]):
     pattern = re.compile(r"<em>(.*?)</em>")
     highlight_terms = []
     for line in es_highlighted_texts:
@@ -38,13 +37,12 @@ def search(query: str, index: str, top_k: int):
     candidate_list = []
     for candidate in results["hits"]["hits"]:
         doc_text = candidate["_source"].get("abstract")
-        if doc_text:
-            abstract, snippet = highlighter(
-                query, doc_text, candidate["highlight"]["abstract"]
-            )
+        if doc_text and "abstract" in candidate["highlight"]:
+            abstract, snippet = highlighter(doc_text, candidate["highlight"]["abstract"])
         else:
-            abstract = ""
-            snippet = ""
+            abstract = candidate["_source"].get("abstract")
+            snippet = candidate["_source"].get("abstract")[:300]
+
         authors_raw = candidate["_source"].get("authors")
         if authors_raw:
             author_details = [
@@ -55,9 +53,11 @@ def search(query: str, index: str, top_k: int):
 
         venue_raw = candidate["_source"].get("venue")
         if venue_raw:
-            venue = venue_raw.get("raw")
+            venue = venue_raw.get("name_d")
         else:
             venue = ""
+
+        pdf = candidate["_source"].get("pdf")
 
         url_candidates = candidate["_source"].get("url")
         url = ""
@@ -78,10 +78,11 @@ def search(query: str, index: str, top_k: int):
             id=candidate["_id"],
             title=candidate["_source"].get("title"),
             url=url,
+            pdf=pdf,
             snippet=snippet,
             abstract=abstract,
             authors=", ".join(author_details),
-            publication_date="publication_date",
+            publication_date=candidate["_source"].get("year"),
             venue=venue,
             keywords_snippet=keywords_snippet,
             keywords_rest=keywords_rest,

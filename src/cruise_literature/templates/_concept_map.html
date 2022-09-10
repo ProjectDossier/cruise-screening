@@ -1,32 +1,36 @@
-<div class="concept-map-page" x-data="renderPage"
-     x-init="taxonomy = {{ tax_results|get_item:default_taxonomy }}; renderTaxonomy(taxonomy=taxonomy, taxonomy_name= '{{ default_taxonomy }}')">
-    <div class="card concept-map-page__taxonomies" x-data="{selectedTaxonomy: '{{ default_taxonomy }}', hidden: false  }">
-        <p>Select taxonomy</p>
-        {% for key, value in tax_results.items %}
-            <button class="button is-info is-rounded"
-                    :class="'{{ key }}' == selectedTaxonomy ? '' : 'is-inverted'"
-                    @click="taxonomy = {{ value }}; selectedTaxonomy = '{{ key }}'; renderTaxonomy(taxonomy=taxonomy, taxonomy_name=selectedTaxonomy);">
-                {{ key }}</button>
-        {% endfor %}
-    </div>
+<div class="concept-map-page" x-data="renderPage">
+    <div class="concept-map-page" x-data="{taxonomy_results: []}"
+         x-init="taxonomy_results = await (await fetch('search_concepts/{{ search_query }}')).json();
+         $nextTick(() => {taxonomy = taxonomy_results.filter(t => t.name == '{{ default_taxonomy }}')[0];
+         renderTaxonomy(taxonomy=taxonomy, taxonomy_name= '{{ default_taxonomy }}') });">
+        <div class="card concept-map-page__taxonomies"
+             x-data="{selectedTaxonomy: '{{ default_taxonomy }}', hidden: false  }">
+            <p>Select taxonomy</p>
+            <template x-for="_taxonomy in taxonomy_results">
+                <button class="button is-info is-rounded"
+                        x-text="_taxonomy.name"
+                        :class="_taxonomy.name == selectedTaxonomy ? '' : 'is-inverted'"
+                        @click="renderTaxonomy(taxonomy=_taxonomy, taxonomy_name=_taxonomy.name); selectedTaxonomy=_taxonomy.name;"
+                ></button>
+            </template>
+        </div>
+        <div class="concept-map" x-on:wheel.prevent="zoom">
+            <div :style="transform">
 
-    <div class="concept-map" x-on:wheel.prevent="zoom">
-        <div :style="transform">
+                <div class="concept-map__row" x-ref="subParentConcepts"></div>
+                <canvas width="1" height="30" x-ref="parentsSubParents"></canvas>
 
-            <div class="concept-map__row" x-ref="subParentConcepts"></div>
-            <canvas width="1" height="30" x-ref="parentsSubParents"></canvas>
+                <div class="concept-map__row" x-ref="parentConcepts"></div>
+                <canvas width="1" height="30" x-ref="conceptParents"></canvas>
 
-            <div class="concept-map__row" x-ref="parentConcepts"></div>
-            <canvas width="1" height="30" x-ref="conceptParents"></canvas>
+                <div class="concept-map__row" x-ref="coreConcept"></div>
+                <canvas width="1" height="30" x-ref="conceptChildren"></canvas>
 
-            <div class="concept-map__row" x-ref="coreConcept"></div>
-            <canvas width="1" height="30" x-ref="conceptChildren"></canvas>
+                <div class="concept-map__row" x-ref="childrenConcepts"></div>
+                <canvas width="1" height="30" x-ref="childrenSubChildren"></canvas>
 
-            <div class="concept-map__row" x-ref="childrenConcepts"></div>
-            <canvas width="1" height="30" x-ref="childrenSubChildren"></canvas>
-
-            <div class="concept-map__row" x-ref="subChildrenConcepts"></div>
+                <div class="concept-map__row" x-ref="subChildrenConcepts"></div>
+            </div>
         </div>
     </div>
 </div>
-

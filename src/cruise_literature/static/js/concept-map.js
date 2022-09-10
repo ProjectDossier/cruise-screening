@@ -69,21 +69,23 @@ window.renderPage = () => {
         },
 
         renderTaxonomy(taxonomy, taxonomy_name) {
-            // todo: take a look at $nextTick
-            this.$nextTick(() => {
-                this.createConcepts(this.$refs.subParentConcepts, taxonomy.subparents, button_class = "button is-small", source_taxonomy = taxonomy_name)
-                this.createConcepts(this.$refs.parentConcepts, taxonomy.parents, button_class = "button", source_taxonomy = taxonomy_name)
-                this.createConcepts(this.$refs.coreConcept, [taxonomy.concept], button_class = "button is-link is-medium", source_taxonomy = taxonomy_name)
-                this.createConcepts(this.$refs.childrenConcepts, taxonomy.children, button_class = "button", source_taxonomy = taxonomy_name)
-                this.createConcepts(this.$refs.subChildrenConcepts, taxonomy.subchildren, button_class = "button is-small", source_taxonomy = taxonomy_name)
+            if (!(taxonomy === undefined)) {
+                // todo: take a look at $nextTick
+                this.$nextTick(() => {
+                    this.createConcepts(this.$refs.subParentConcepts, taxonomy.subparents, button_class = "button is-small", source_taxonomy = taxonomy_name)
+                    this.createConcepts(this.$refs.parentConcepts, taxonomy.parents, button_class = "button", source_taxonomy = taxonomy_name)
+                    this.createConcepts(this.$refs.coreConcept, [taxonomy.concept], button_class = "button is-link is-medium", source_taxonomy = taxonomy_name)
+                    this.createConcepts(this.$refs.childrenConcepts, taxonomy.children, button_class = "button", source_taxonomy = taxonomy_name)
+                    this.createConcepts(this.$refs.subChildrenConcepts, taxonomy.subchildren, button_class = "button is-small", source_taxonomy = taxonomy_name)
 
-                this.drawGraph(this.$refs.conceptParents, 'top')
-                this.drawGraph(this.$refs.parentsSubParents, 'top')
-                this.drawGraph(this.$refs.conceptChildren, 'bottom')
-                this.drawGraph(this.$refs.childrenSubChildren, 'bottom')
+                    this.drawGraph(this.$refs.conceptParents, 'top')
+                    this.drawGraph(this.$refs.parentsSubParents, 'top')
+                    this.drawGraph(this.$refs.conceptChildren, 'bottom')
+                    this.drawGraph(this.$refs.childrenSubChildren, 'bottom')
 
 
-            });
+                });
+            }
         },
         $nextTick(param) {
 
