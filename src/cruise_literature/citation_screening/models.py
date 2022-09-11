@@ -62,12 +62,16 @@ class LiteratureReview(models.Model):
     # after creating, we will run queries to the search engine and load all search results to the review into papers
 
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
-    inclusion_criteria = ArrayField(models.CharField(max_length=250, blank=True), null=True)
-    exclusion_criteria = ArrayField(models.CharField(max_length=250, blank=True), null=True)
+    inclusion_criteria = ArrayField(
+        models.CharField(max_length=250, blank=True), null=True
+    )
+    exclusion_criteria = ArrayField(
+        models.CharField(max_length=250, blank=True), null=True
+    )
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        through='LiteratureReviewMember',
-        through_fields=('literature_review', 'member'),
+        through="LiteratureReviewMember",
+        through_fields=("literature_review", "member"),
     )
 
     papers = models.JSONField(null=True)
@@ -89,8 +93,6 @@ class LiteratureReview(models.Model):
     #     },
     #     ...
     # ]}
-
-
 
     @property
     def number_of_papers(self):
@@ -114,11 +116,11 @@ class LiteratureReviewMember(models.Model):
     )
 
     roles_choices = [
-        ('AD', 'Admin'),
-        ('ME', 'Member'),
+        ("AD", "Admin"),
+        ("ME", "Member"),
     ]
     role = models.CharField(
         max_length=2,
         choices=roles_choices,
-        default='ME',
+        default="ME",
     )

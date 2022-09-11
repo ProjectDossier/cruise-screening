@@ -94,10 +94,6 @@ WSGI_APPLICATION = "cruise_literature.wsgi.application"
 
 DATABASES = {
     "default": {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": BASE_DIR / "db.sqlite3",
-    # },
-    # "literature_review": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "cruise_literature",
         "USER": "cruise_literature_user",
@@ -105,10 +101,6 @@ DATABASES = {
         "PORT": 5432,  # default postgres port
     }
 }
-#
-# DATABASE_ROUTERS = (
-#     'citation_screening.dbrouters.LiteratureReviewDBRouter',
-# )
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

@@ -29,13 +29,17 @@ def create_new_review(request):
 
     form = NewLiteratureReviewForm(user=request.user)
     return render(
-        request=request, template_name="literature_review/create_literature_review.html", context={"form": form}
+        request=request,
+        template_name="literature_review/create_literature_review.html",
+        context={"form": form},
     )
 
 
 def literature_review_home(request):
     context = {}
-    context['literature_reviews'] = LiteratureReview.objects.filter(members=request.user)
+    context["literature_reviews"] = LiteratureReview.objects.filter(
+        members=request.user
+    )
 
     return render(
         request=request, template_name="literature_review/home.html", context=context

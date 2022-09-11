@@ -8,9 +8,13 @@ from document_search.search_semantic_scholar import search_semantic_scholar
 
 
 class NewLiteratureReviewForm(ModelForm):
-    search_queries = SimpleArrayField(CharField(), delimiter='\n', widget=Textarea())
-    inclusion_criteria = SimpleArrayField(CharField(), delimiter='\n', widget=Textarea())
-    exclusion_criteria = SimpleArrayField(CharField(), delimiter='\n', widget=Textarea())
+    search_queries = SimpleArrayField(CharField(), delimiter="\n", widget=Textarea())
+    inclusion_criteria = SimpleArrayField(
+        CharField(), delimiter="\n", widget=Textarea()
+    )
+    exclusion_criteria = SimpleArrayField(
+        CharField(), delimiter="\n", widget=Textarea()
+    )
 
     class Meta:
         model = LiteratureReview
@@ -23,22 +27,28 @@ class NewLiteratureReviewForm(ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super(NewLiteratureReviewForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
 
-        queries = self.cleaned_data['search_queries']
+        queries = self.cleaned_data["search_queries"]
         results = []
         for query in queries:
-            results.extend([asdict(x) for x in search_semantic_scholar(query=query, index='', top_k=3)])
+            results.extend(
+                [
+                    asdict(x)
+                    for x in search_semantic_scholar(query=query, index="", top_k=3)
+                ]
+            )
         instance.papers = results
 
         if commit:
             instance.save()
-            member = LiteratureReviewMember(member=self.user, literature_review=instance, role='AD')
+            member = LiteratureReviewMember(
+                member=self.user, literature_review=instance, role="AD"
+            )
             member.save()
 
         return instance
-
