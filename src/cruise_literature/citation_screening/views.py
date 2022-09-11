@@ -31,3 +31,8 @@ def create_new_review(request):
         request=request, template_name="literature_review/create_literature_review.html", context={"form": form}
     )
 
+
+def literature_review_home(request):
+    return render(
+        request=request, template_name="literature_review/home.html"
+    )

@@ -1,0 +1,13 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="card">
+        <h1 class="title is-1">Literature review menu</h1>
+            <a href="{% url 'create_new_review' %}" class="button is-link">
+                Create new review
+            </a>
+    </div>
+
+    {% include "_footer.html" %}
+
+{% endblock %}
