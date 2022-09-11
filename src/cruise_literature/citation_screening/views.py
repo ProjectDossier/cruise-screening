@@ -77,12 +77,12 @@ def screen_papers(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user in review.members.all():
         if request.method == "GET":
-            for x in review.papers:
-                if not x.get("decisions") or len(x.get("decisions")) < MIN_DECISIONS:
+            for paper in review.papers:
+                if not paper.get("decisions") or len(paper.get("decisions")) < MIN_DECISIONS:
                     return render(
                         request,
                         "literature_review/screen_paper.html",
-                        {"review": review, "paper": x},
+                        {"review": review, "paper": paper},
                     )
         elif request.method == "POST":
             keys = request.POST.keys()
@@ -123,12 +123,12 @@ def screen_papers(request, review_id):
                 review.papers[edited_index]["screened"] = True
             review.save()
 
-            for x in review.papers:
-                if not x.get("decisions") or len(x.get("decisions")) < MIN_DECISIONS:
+            for paper in review.papers:
+                if not paper.get("decisions") or len(paper.get("decisions")) < MIN_DECISIONS:
                     return render(
                         request,
                         "literature_review/screen_paper.html",
-                        {"review": review, "paper": x},
+                        {"review": review, "paper": paper},
                     )
 
     else:
@@ -141,4 +141,12 @@ def export_review(request, review_id):
 
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user in review.members.all():
-        return HttpResponse(json.dumps(review.papers, indent=2), content_type="application/json")
+        data = {
+            "title": review.title,
+            "description": review.description,
+            "search_queries": review.search_queries,
+            "inclusion_criteria": review.inclusion_criteria,
+            "exclusion_criteria": review.exclusion_criteria,
+            "papers": review.papers,
+        }
+        return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
