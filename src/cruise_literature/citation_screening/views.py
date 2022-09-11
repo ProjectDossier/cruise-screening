@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from .forms import NewLiteratureReviewForm
@@ -44,3 +44,15 @@ def literature_review_home(request):
     return render(
         request=request, template_name="literature_review/home.html", context=context
     )
+
+
+def review_details(request, review_id):
+    if not request.user.is_authenticated:
+        return redirect("home")
+
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user in review.members.all():
+        return render(request, 'literature_review/view_review.html', {'review': review})
+    else:
+        return redirect("home")
+

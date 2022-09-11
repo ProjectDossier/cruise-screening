@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-content">
             <h1 class="title is-1">Literature review menu</h1>
-            <a href="{% url 'create_new_review' %}" class="button is-link">
+            <a href="{% url 'literature_review:create_new_review' %}" class="button is-link">
                 Create new review
             </a>
         </div>
@@ -28,7 +28,7 @@
                 {% for review in literature_reviews %}
                     <tr>
                         <th>{{ forloop.counter }}</th>
-                        <td>{{ review.title }}</td>
+                        <td><a href="{% url 'literature_review:review_details' review.id %}">{{ review.title }}</a></td>
                         <td>{{ review.description }}</td>
                         <td>TBD</td>
                         <td>

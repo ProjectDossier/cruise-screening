@@ -97,9 +97,6 @@ class LiteratureReview(models.Model):
     @property
     def number_of_papers(self):
         if self.papers:
-            # try:
-            papers_list = list(self.papers)
-            # except:
             return len(self.papers)
         else:
             return 0

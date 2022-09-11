@@ -1,0 +1,85 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
+                back
+            </a>
+        </div>
+        <div class="card-content">
+            <h1 class="title is-1">{{ review.title }}</h1>
+            <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+            <p>Search queries:
+                {% for query in review.search_queries %}
+                    <span class="tag is-light">{{ query }}</span>
+                {% endfor %}
+            </p>
+            <hr/>
+            <p>
+                Inclusion criteria:
+                {% for criterion in review.inclusion_criteria %}
+                    <span class="tag is-success is-light">{{ criterion }}</span>
+                {% endfor %}
+
+            </p>
+            <p>
+                Exclusion criteria:
+                {% for criterion in review.exclusion_criteria %}
+                    <span class="tag is-danger is-light">{{ criterion }}</span>
+                {% endfor %}
+
+            </p>
+
+        </div>
+        <div class="card-content">
+            <table class="table is-striped table is-fullwidth is-hoverable">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Authors</th>
+                    <th>Year</th>
+                    <th>Journal</th>
+                    <th>PDF</th>
+                    <th>Screened</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for paper in review.papers %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        {% if paper.url %}
+                            <td><a href="{{ paper.url }}">{{ paper.title }}</a></td>
+                        {% else %}
+                            <td>{{ paper.title }}</td>
+                        {% endif %}
+                        <td>{{ paper.authors }}</td>
+                        <td>{{ paper.publication_date }}</td>
+                        <td>{{ paper.venue }}</td>
+                        {% if paper.pdf %}
+                            <td>Yes</td>
+                        {% else %}
+                            <td>No</td>
+                        {% endif %}
+                        {% if paper.screened %}
+                            <td>Yes</td>
+                        {% else %}
+                            <td>No</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer">
+            <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
+                back
+            </a>
+        </div>
+    </div>
+
+
+    {% include "_footer.html" %}
+{% endblock %}

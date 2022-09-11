@@ -68,7 +68,7 @@
                         <a href="{% url 'user_profile' %}" class="navbar-item">
                             My profile
                         </a>
-                        <a href="{% url 'literature_review_home' %}" class="navbar-item">
+                        <a href="{% url 'literature_review:literature_review_home' %}" class="navbar-item">
                             My reviews
                         </a>
                         <a href="{% url 'about' %}" class="navbar-item">
@@ -91,11 +91,11 @@
         </div>
     </div>
 </nav>
-<div class="messages">
+<div class="messages message">
     {% if messages %}
-        <ul class="messages__list">
+        <ul class="messages__list ">
             {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                <li{% if message.tags %} class="{{ message.tags }} message-body"{% endif %}>{{ message }}</li>
             {% endfor %}
         </ul>
     {% endif %}
