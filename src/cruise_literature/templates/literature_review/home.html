@@ -2,12 +2,48 @@
 
 {% block content %}
     <div class="card">
-        <h1 class="title is-1">Literature review menu</h1>
+        <div class="card-content">
+            <h1 class="title is-1">Literature review menu</h1>
             <a href="{% url 'create_new_review' %}" class="button is-link">
                 Create new review
             </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content">
+            <table class="table is-striped table is-fullwidth">
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Discipline</th>
+                    <th>Search queries</th>
+                    <th>Tags</th>
+                    <th># papers</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for review in literature_reviews %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ review.title }}</td>
+                        <td>{{ review.description }}</td>
+                        <td>TBD</td>
+                        <td>
+                            {% for query in review.search_queries %}
+                                <span class="tag is-light">{{ query }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>TBD</td>
+                        <td>{{ review.number_of_papers }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {% include "_footer.html" %}
-
 {% endblock %}

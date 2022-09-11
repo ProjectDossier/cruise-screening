@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from .forms import NewLiteratureReviewForm
-
+from .models import LiteratureReview
 
 def create_new_review(request):
     if request.method == "POST":
@@ -33,6 +33,9 @@ def create_new_review(request):
 
 
 def literature_review_home(request):
+    context = {}
+    context['literature_reviews'] = LiteratureReview.objects.all()
+
     return render(
-        request=request, template_name="literature_review/home.html"
+        request=request, template_name="literature_review/home.html", context=context
     )
