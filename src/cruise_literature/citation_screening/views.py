@@ -1,4 +1,5 @@
 import json
+import time
 
 from django.contrib import messages
 from django.http import HttpResponse
@@ -84,9 +85,10 @@ def screen_papers(request, review_id):
                 return render(
                     request,
                     "literature_review/screen_paper.html",
-                    {"review": review, "paper": paper},
+                    {"review": review, "paper": paper, "start_time": time.time()},
                 )
     elif request.method == "POST":
+        screening_time = round(time.time() - float(request.POST["start_time"]), 2)
         keys = request.POST.keys()
         exclusions = [request.POST[x] for x in keys if x.startswith("exclusion")]
         inclusions = [request.POST[x] for x in keys if x.startswith("inclusion")]
@@ -118,6 +120,7 @@ def screen_papers(request, review_id):
                 "domain_relevance": int(domain_relevance),
                 "topic_relevance": int(topic_relevance),
                 "prior_knowledge": int(prior_knowledge),
+                "screening_time": screening_time,
             }
         ]
         review.papers[edited_index]["decision"] = decision

@@ -20,6 +20,7 @@
             <form method="POST" action="{% url 'literature_review:screen_papers' review.id %}">
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>
+                <input class="input mr-2" name="start_time" value="{{ start_time }}" type="hidden"/>
                 <div class="control p-1">
                     Did you knew this paper before?
                     <label class="radio">
