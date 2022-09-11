@@ -101,6 +101,17 @@ class LiteratureReview(models.Model):
         else:
             return 0
 
+    @property
+    def number_of_pdfs(self):
+        if self.papers:
+            count = 0
+            for paper in self.papers:
+                if paper['pdf']:
+                    count += 1
+            return count
+        else:
+            return 0
+
 
 class LiteratureReviewMember(models.Model):
     member = models.ForeignKey(

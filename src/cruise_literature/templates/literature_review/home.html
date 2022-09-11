@@ -21,7 +21,7 @@
                     <th>Discipline</th>
                     <th>Search queries</th>
                     <th>Tags</th>
-                    <th># papers</th>
+                    <th>#PDFs / #papers</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -37,7 +37,7 @@
                             {% endfor %}
                         </td>
                         <td>TBD</td>
-                        <td>{{ review.number_of_papers }}</td>
+                        <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

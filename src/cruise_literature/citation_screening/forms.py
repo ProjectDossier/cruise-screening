@@ -15,6 +15,7 @@ class NewLiteratureReviewForm(ModelForm):
     exclusion_criteria = SimpleArrayField(
         CharField(), delimiter="\n", widget=Textarea()
     )
+    top_k = forms.IntegerField(max_value=200, min_value=10, help_text="How many records do you want to retrieve?")
 
     class Meta:
         model = LiteratureReview
@@ -32,6 +33,7 @@ class NewLiteratureReviewForm(ModelForm):
 
     def save(self, commit=True):
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
+        top_k = self.data.get('top_k')
 
         queries = self.cleaned_data["search_queries"]
         results = []
@@ -39,7 +41,7 @@ class NewLiteratureReviewForm(ModelForm):
             results.extend(
                 [
                     asdict(x)
-                    for x in search_semantic_scholar(query=query, index="", top_k=3)
+                    for x in search_semantic_scholar(query=query, index="", top_k=top_k)
                 ]
             )
         instance.papers = results

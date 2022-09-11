@@ -58,7 +58,7 @@
                         <td>{{ paper.publication_date }}</td>
                         <td>{{ paper.venue }}</td>
                         {% if paper.pdf %}
-                            <td>Yes</td>
+                            <td><a href="{{ paper.pdf }}">Yes</a></td>
                         {% else %}
                             <td>No</td>
                         {% endif %}
