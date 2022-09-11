@@ -11,7 +11,7 @@
                     Screen
                 </a>
             {% endif %}
-            <a class="button is-warning is-small">
+            <a href="{% url 'literature_review:export_review' review.id %}" class="button is-warning is-small">
                 {#                TODO#}
                 Export
             </a>

@@ -11,5 +11,6 @@ urlpatterns = [
     ),
     path('literature_review/<int:review_id>/', views.review_details, name='review_details'),
     path('screen_papers/<int:review_id>/', views.screen_papers, name='screen_papers'),
+    path('export_review/<int:review_id>/', views.export_review, name='export_review'),
     path("create_review/", views.create_new_review, name="create_new_review"),
 ]

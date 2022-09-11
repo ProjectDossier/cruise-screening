@@ -1,4 +1,7 @@
+import json
+
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
@@ -116,3 +119,13 @@ def screen_papers(request, review_id):
 
     else:
         return redirect("home")
+
+
+def export_review(request, review_id):
+    if not request.user.is_authenticated:
+        return redirect("home")
+
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user in review.members.all():
+        response = HttpResponse(json.dumps(review.papers, indent=2), content_type='application/json')
+        return response
