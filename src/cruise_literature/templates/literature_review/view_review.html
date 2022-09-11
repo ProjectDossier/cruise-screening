@@ -2,9 +2,18 @@
 
 {% block content %}
     <div class="card">
-        <div class="card-header">
+        <div class="card-header pl-4">
             <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
-                back
+                Back
+            </a>
+            {% if  review.papers|length > 0 %}
+                <a href="{% url 'literature_review:screen_papers' review.id %}" class="button is-success is-small">
+                    Screen
+                </a>
+            {% endif %}
+            <a class="button is-warning is-small">
+                {#                TODO#}
+                Export
             </a>
         </div>
         <div class="card-content">
@@ -73,10 +82,15 @@
             </table>
         </div>
 
-        <div class="card-footer">
+        <div class="card-footer pl-4">
             <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
-                back
+                Back
             </a>
+            {% if  review.papers|length > 0 %}
+                <a href="{% url 'literature_review:screen_papers' review.id %}" class="button is-success is-small">
+                    Screen
+                </a>
+            {% endif %}
         </div>
     </div>
 

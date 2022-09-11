@@ -22,6 +22,7 @@
                     <th>Search queries</th>
                     <th>Tags</th>
                     <th>#PDFs / #papers</th>
+                    <th>#Screened (%)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -38,6 +39,7 @@
                         </td>
                         <td>TBD</td>
                         <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
+                        <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
                     </tr>
                 {% endfor %}
                 </tbody>

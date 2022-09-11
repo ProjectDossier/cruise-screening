@@ -112,6 +112,24 @@ class LiteratureReview(models.Model):
         else:
             return 0
 
+    @property
+    def number_of_screened(self):
+        if self.papers:
+            count = 0
+            for paper in self.papers:
+                if paper.get('screened'):
+                    count += 1
+            return count
+        else:
+            return 0
+
+    @property
+    def percentage_screened(self):
+        if self.number_of_papers > 0:
+            return round(100*self.number_of_screened / self.number_of_papers, 2)
+        else:
+            return 0.0
+
 
 class LiteratureReviewMember(models.Model):
     member = models.ForeignKey(
