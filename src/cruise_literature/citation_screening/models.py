@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -129,6 +131,30 @@ class LiteratureReview(models.Model):
             return round(100*self.number_of_screened / self.number_of_papers, 2)
         else:
             return 0.0
+
+    @property
+    def decisions_count(self) -> Tuple[int, int, int, int]:
+        """returns include, not sure, exclude, no decision"""
+        if self.papers:
+            includes = 0
+            not_sures = 0
+            excludes = 0
+            no_decision = 0
+
+            for paper in self.papers:
+                if paper.get('decision'):
+                    if paper['decision'] == '1':
+                        includes += 1
+                    elif paper['decision'] == '-1':
+                        not_sures += 1
+                    elif paper['decision'] == '0':
+                        excludes += 1
+                else:
+                    no_decision += 1
+
+            return includes, not_sures, excludes, no_decision
+        else:
+            return 0, 0, 0, 0
 
 
 class LiteratureReviewMember(models.Model):

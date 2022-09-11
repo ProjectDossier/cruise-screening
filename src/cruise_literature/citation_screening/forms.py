@@ -38,12 +38,13 @@ class NewLiteratureReviewForm(ModelForm):
         queries = self.cleaned_data["search_queries"]
         results = []
         for query in queries:
-            results.extend(
-                [
-                    asdict(x)
-                    for x in search_semantic_scholar(query=query, index="", top_k=top_k)
-                ]
-            )
+            # TODO: add more search engines
+            for paper in search_semantic_scholar(query=query, index="", top_k=top_k):
+                paper = asdict(paper)
+                paper['query'] = query
+                paper['search_engine'] = 'semantic_scholar'
+                paper['decision'] = None
+                results.append(paper)
         instance.papers = results
 
         if commit:

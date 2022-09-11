@@ -23,6 +23,7 @@
                     <th>Tags</th>
                     <th>#PDFs / #papers</th>
                     <th>#Screened (%)</th>
+                    <th>Decisions (I / ? / E)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -40,6 +41,7 @@
                         <td>TBD</td>
                         <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
                         <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
+                        <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }} / {{ review.decisions_count.2 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

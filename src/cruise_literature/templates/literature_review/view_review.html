@@ -30,16 +30,19 @@
                 {% for criterion in review.inclusion_criteria %}
                     <span class="tag is-success is-light">{{ criterion }}</span>
                 {% endfor %}
-
             </p>
             <p>
                 Exclusion criteria:
                 {% for criterion in review.exclusion_criteria %}
                     <span class="tag is-danger is-light">{{ criterion }}</span>
                 {% endfor %}
-
             </p>
-
+            <p>
+                Decisions so far:
+                Includes: {{ review.decisions_count.0 }}
+                Not sures: {{ review.decisions_count.1 }}
+                Excludes: {{ review.decisions_count.2 }}
+            </p>
         </div>
         <div class="card-content">
             <table class="table is-striped table is-fullwidth is-hoverable">
@@ -56,7 +59,15 @@
                 </thead>
                 <tbody>
                 {% for paper in review.papers %}
-                    <tr>
+                    {% if paper.decision == "1" %}
+                        <tr class="has-text-success">
+                    {% elif paper.decision == "-1" %}
+                        <tr class="has-text-warning">
+                    {% elif paper.decision == "0" %}
+                        <tr class="has-text-grey-lighter">
+                    {% else %}
+                        <tr class>
+                    {% endif %}
                         <th>{{ forloop.counter }}</th>
                         {% if paper.url %}
                             <td><a href="{{ paper.url }}">{{ paper.title }}</a></td>
