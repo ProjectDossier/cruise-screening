@@ -8,14 +8,29 @@ from document_search.search_semantic_scholar import search_semantic_scholar
 
 
 class NewLiteratureReviewForm(ModelForm):
-    search_queries = SimpleArrayField(CharField(), delimiter="\n", widget=Textarea())
+    search_queries = SimpleArrayField(
+        CharField(),
+        delimiter="\n",
+        widget=Textarea(),
+        help_text="Type in your search queries, every query in a new line",
+    )
     inclusion_criteria = SimpleArrayField(
-        CharField(), delimiter="\n", widget=Textarea()
+        CharField(),
+        delimiter="\n",
+        widget=Textarea(),
+        help_text="Type in your inclusion criteria, every one in a new line",
     )
     exclusion_criteria = SimpleArrayField(
-        CharField(), delimiter="\n", widget=Textarea()
+        CharField(),
+        delimiter="\n",
+        widget=Textarea(),
+        help_text="Type in your exclusion criteria, every one in a new line",
     )
-    top_k = forms.IntegerField(max_value=200, min_value=10, help_text="How many records do you want to retrieve?")
+    top_k = forms.IntegerField(
+        max_value=200,
+        min_value=10,
+        help_text="How many records do you want to retrieve?",
+    )
 
     class Meta:
         model = LiteratureReview
@@ -33,7 +48,7 @@ class NewLiteratureReviewForm(ModelForm):
 
     def save(self, commit=True):
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
-        top_k = self.data.get('top_k')
+        top_k = self.data.get("top_k")
 
         queries = self.cleaned_data["search_queries"]
         results = []
@@ -41,9 +56,9 @@ class NewLiteratureReviewForm(ModelForm):
             # TODO: add more search engines
             for paper in search_semantic_scholar(query=query, index="", top_k=top_k):
                 paper = asdict(paper)
-                paper['query'] = query
-                paper['search_engine'] = 'semantic_scholar'
-                paper['decision'] = None
+                paper["query"] = query
+                paper["search_engine"] = "semantic_scholar"
+                paper["decision"] = None
                 results.append(paper)
         instance.papers = results
 

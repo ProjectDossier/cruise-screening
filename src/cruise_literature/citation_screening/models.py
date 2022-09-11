@@ -98,63 +98,46 @@ class LiteratureReview(models.Model):
 
     @property
     def number_of_papers(self):
-        if self.papers:
-            return len(self.papers)
-        else:
-            return 0
+        return len(self.papers) if self.papers else 0
 
     @property
     def number_of_pdfs(self):
-        if self.papers:
-            count = 0
-            for paper in self.papers:
-                if paper['pdf']:
-                    count += 1
-            return count
-        else:
-            return 0
+        return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
 
     @property
     def number_of_screened(self):
         if self.papers:
-            count = 0
-            for paper in self.papers:
-                if paper.get('screened'):
-                    count += 1
-            return count
+            return sum(bool(paper.get("screened")) for paper in self.papers)
         else:
             return 0
 
     @property
     def percentage_screened(self):
         if self.number_of_papers > 0:
-            return round(100*self.number_of_screened / self.number_of_papers, 2)
+            return round(100 * self.number_of_screened / self.number_of_papers, 2)
         else:
             return 0.0
 
     @property
     def decisions_count(self) -> Tuple[int, int, int, int]:
         """returns include, not sure, exclude, no decision"""
-        if self.papers:
-            includes = 0
-            not_sures = 0
-            excludes = 0
-            no_decision = 0
-
-            for paper in self.papers:
-                if paper.get('decision'):
-                    if paper['decision'] == '1':
-                        includes += 1
-                    elif paper['decision'] == '-1':
-                        not_sures += 1
-                    elif paper['decision'] == '0':
-                        excludes += 1
-                else:
-                    no_decision += 1
-
-            return includes, not_sures, excludes, no_decision
-        else:
+        if not self.papers:
             return 0, 0, 0, 0
+        includes = 0
+        not_sures = 0
+        excludes = 0
+        no_decision = 0
+        for paper in self.papers:
+            if paper.get("decision"):
+                if paper["decision"] == "1":
+                    includes += 1
+                elif paper["decision"] == "-1":
+                    not_sures += 1
+                elif paper["decision"] == "0":
+                    excludes += 1
+            else:
+                no_decision += 1
+        return includes, not_sures, excludes, no_decision
 
 
 class LiteratureReviewMember(models.Model):
