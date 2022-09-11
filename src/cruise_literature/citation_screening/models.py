@@ -1,6 +1,7 @@
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.fields import ArrayField
 
 from cruise_literature import settings
 
@@ -55,6 +56,34 @@ class LiteratureReview(models.Model):
         related_name="title_abstract_screening",
         help_text="Citation screening ID",
     )
+
+    # TODO: next steps - add search queries and inclusion criteria as json fields to the form
+    # so they have to be textfield (ideally) or charfield, and assumption that every item is a new line
+    # after creating, we will run queries to the search engine and load all search results to the review into papers
+
+    search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
+    inclusion_criteria = ArrayField(models.CharField(max_length=250, blank=True), null=True)
+    exclusion_criteria = ArrayField(models.CharField(max_length=250, blank=True), null=True)
+
+    papers = models.JSONField(null=True)
+    # { [{
+    #     "id": 1,
+    #     article: Article,
+    #     query: 'sdasdasd asd asda',
+    #     search_engine: ['core'],
+    #     decisions: [
+    #         {
+    #             "reviewer_id": 11,
+    #             "decision": {0|1|-1},
+    #             "reason": [E1, E2, E3],
+    #             "stage": first,
+    #             "relevance": [1,2,1,1],
+    #          },
+    #         ...
+    #     ]
+    #     },
+    #     ...
+    # ]}
 
 
 class LiteratureReviewMember(models.Model):
