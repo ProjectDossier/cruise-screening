@@ -1,36 +1,42 @@
 from dataclasses import asdict
+import datetime
+
 from django import forms
 
-from django.forms import ModelForm, CharField, Textarea
 from .models import LiteratureReview, LiteratureReviewMember
 from django.contrib.postgres.forms import SimpleArrayField
 from document_search.search_semantic_scholar import search_semantic_scholar
+from document_search.search_core import search_core
 
 
-class NewLiteratureReviewForm(ModelForm):
+class NewLiteratureReviewForm(forms.ModelForm):
+    title = forms.CharField()
     search_queries = SimpleArrayField(
-        CharField(),
+        forms.CharField(),
         delimiter="\n",
-        widget=Textarea(),
+        widget=forms.Textarea(),
         help_text="Type in your search queries, every query in a new line",
     )
     inclusion_criteria = SimpleArrayField(
-        CharField(),
+        forms.CharField(),
         delimiter="\n",
-        widget=Textarea(),
+        widget=forms.Textarea(),
         help_text="Type in your inclusion criteria, every one in a new line",
     )
     exclusion_criteria = SimpleArrayField(
-        CharField(),
+        forms.CharField(),
         delimiter="\n",
-        widget=Textarea(),
+        widget=forms.Textarea(),
         help_text="Type in your exclusion criteria, every one in a new line",
     )
     top_k = forms.IntegerField(
+        initial=10,
         max_value=200,
         min_value=10,
         help_text="How many records do you want to retrieve?",
     )
+    project_deadline = forms.DateField(initial=datetime.date.today,
+                                       widget=forms.SelectDateWidget(years=range(2020, 2030)))
 
     class Meta:
         model = LiteratureReview
@@ -40,6 +46,10 @@ class NewLiteratureReviewForm(ModelForm):
             "search_queries",
             "inclusion_criteria",
             "exclusion_criteria",
+            "project_deadline",
+            "tags",
+            "discipline",
+            "annotations_per_paper",
         )
 
     def __init__(self, *args, **kwargs):
@@ -51,16 +61,19 @@ class NewLiteratureReviewForm(ModelForm):
         top_k = self.data.get("top_k")
 
         queries = self.cleaned_data["search_queries"]
-        results = []
+        results = {}
         for query in queries:
             # TODO: add more search engines
-            for paper in search_semantic_scholar(query=query, index="", top_k=top_k):
-                paper = asdict(paper)
-                paper["query"] = query
-                paper["search_engine"] = "semantic_scholar"
-                paper["decision"] = None
-                results.append(paper)
-        instance.papers = results
+            search_engines = {"semantic_scholar": search_semantic_scholar, "CORE": search_core}
+            for search_engine_name, search_method in search_engines.items():
+                for paper in search_method(query=query, index="", top_k=top_k):
+                    paper = asdict(paper)
+                    paper["query"] = query
+                    paper["search_engine"] = search_engine_name
+                    paper["decision"] = None
+                    results[paper["id"]] = paper
+
+        instance.papers = list(results.values())
 
         if commit:
             instance.save()

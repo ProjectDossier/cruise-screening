@@ -20,7 +20,6 @@
                     <th>Description</th>
                     <th>Discipline</th>
                     <th>Search queries</th>
-                    <th>Tags</th>
                     <th>#PDFs / #papers</th>
                     <th>#Screened (%)</th>
                     <th>Decisions (I / ? / E)</th>
@@ -32,13 +31,12 @@
                         <th>{{ forloop.counter }}</th>
                         <td><a href="{% url 'literature_review:review_details' review.id %}">{{ review.title }}</a></td>
                         <td>{{ review.description }}</td>
-                        <td>TBD</td>
+                        <td>{{ review.discipline }}</td>
                         <td>
                             {% for query in review.search_queries %}
                                 <span class="tag is-light">{{ query }}</span>
                             {% endfor %}
                         </td>
-                        <td>TBD</td>
                         <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
                         <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
                         <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }} / {{ review.decisions_count.2 }}</td>

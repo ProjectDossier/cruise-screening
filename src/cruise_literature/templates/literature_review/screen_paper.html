@@ -6,17 +6,16 @@
             <a href="{% url 'literature_review:review_details' review.id %}" class="button is-link is-small">
                 Back
             </a>
+            <p class="pl-4 pt-1">{{ review.title }}</p>
         </div>
         <div class="card-content">
-            <h1 class="title is-1">{{ review.title }}</h1>
-            <p class="is-5"><strong>Review description:</strong> {{ review.description }}</p>
-
+{#            <h1 class="title is-1">{{ review.title }}</h1>#}
             <h1 class="title is-3">{{ paper.title }}</h1>
             <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract }}</p>
             <p class="has-text-grey p-3">{{ paper.publication_date }} -- {{ paper.venue }}</p>
             <p class="is-italic p-3">{{ paper.authors }}</p>
             <hr/>
-
+            <p class="is-5"><strong>Review description:</strong> {{ review.description }}</p>
             <form method="POST" action="{% url 'literature_review:screen_papers' review.id %}">
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>

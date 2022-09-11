@@ -151,4 +151,4 @@ M1_CHIP = True
 AUTH_USER_MODEL = "users.User"
 
 # if True then also search inside CORE publications aggregator
-SEARCH_WITH_CORE = False
+SEARCH_WITH_CORE = True

@@ -1,34 +1,15 @@
 from typing import Tuple
 
-from django.core.validators import MinLengthValidator, MaxLengthValidator
+from django.core.validators import MinLengthValidator, MaxLengthValidator, MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
 from cruise_literature import settings
+from users.models import KnowledgeArea
 
 REVIEW_TITLE_MAX_LEN = 100
 REVIEW_TITLE_MIN_LEN = 3
-
-
-class CitationScreening(models.Model):
-    inclusion_criteria = models.TextField(
-        _("inclusion criteria"),
-        blank=True,
-        null=True,
-        default="",
-        help_text="Inclusion Criteria",
-    )
-    exclusion_criteria = models.TextField(
-        _("exclusion criteria"),
-        blank=True,
-        null=True,
-        default="",
-        help_text="Exclusion Criteria",
-    )
-
-
-#     function assign() which will create assignments of papers for people
 
 
 class LiteratureReview(models.Model):
@@ -51,17 +32,24 @@ class LiteratureReview(models.Model):
         default="",
         help_text="Project description",
     )
-    first_screening = models.ForeignKey(
-        CitationScreening,
-        on_delete=models.CASCADE,
+    additional_description = models.TextField(
+        blank=True,
         null=True,
-        related_name="title_abstract_screening",
-        help_text="Citation screening ID",
+        default="",
+        help_text="Additional description field, for instance for topic narrative.",
     )
+    discipline = models.ForeignKey(KnowledgeArea, on_delete=models.SET_NULL, null=True, blank=True)
+    tags = ArrayField(models.CharField(max_length=250, blank=True), null=True, blank=True)
+    search_databases = models.CharField(max_length=250, blank=True, null=True)
 
-    # TODO: next steps - add search queries and inclusion criteria as json fields to the form
-    # so they have to be textfield (ideally) or charfield, and assumption that every item is a new line
-    # after creating, we will run queries to the search engine and load all search results to the review into papers
+    creation_date = models.DateField(auto_now_add=True)
+    last_edit_date = models.DateField(auto_now=True)
+    project_deadline = models.DateField()
+
+    annotations_per_paper = models.IntegerField(default=1,
+                                                help_text="How many reviewers need to screen every paper. Default is 1.",
+                                                validators=[MinValueValidator(1),
+                                                            MaxValueValidator(3)])
 
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
     inclusion_criteria = ArrayField(
@@ -77,24 +65,6 @@ class LiteratureReview(models.Model):
     )
 
     papers = models.JSONField(null=True)
-    # { [{
-    #     "id": 1,
-    #     article: Article,
-    #     query: 'sdasdasd asd asda',
-    #     search_engine: ['core'],
-    #     decisions: [
-    #         {
-    #             "reviewer_id": 11,
-    #             "decision": {0|1|-1},
-    #             "reason": [E1, E2, E3],
-    #             "stage": first,
-    #             "relevance": [1,2,1,1],
-    #          },
-    #         ...
-    #     ]
-    #     },
-    #     ...
-    # ]}
 
     @property
     def number_of_papers(self):
