@@ -64,6 +64,11 @@ class LiteratureReview(models.Model):
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
     inclusion_criteria = ArrayField(models.CharField(max_length=250, blank=True), null=True)
     exclusion_criteria = ArrayField(models.CharField(max_length=250, blank=True), null=True)
+    members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through='LiteratureReviewMember',
+        through_fields=('literature_review', 'member'),
+    )
 
     papers = models.JSONField(null=True)
     # { [{
@@ -85,6 +90,8 @@ class LiteratureReview(models.Model):
     #     ...
     # ]}
 
+
+
     @property
     def number_of_papers(self):
         if self.papers:
@@ -97,12 +104,21 @@ class LiteratureReview(models.Model):
 
 
 class LiteratureReviewMember(models.Model):
-    user = models.ForeignKey(
+    member = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="project_memberships",
         help_text="User ID",
     )
     literature_review = models.ForeignKey(
         LiteratureReview, on_delete=models.CASCADE, help_text="Literature Review ID"
+    )
+
+    roles_choices = [
+        ('AD', 'Admin'),
+        ('ME', 'Member'),
+    ]
+    role = models.CharField(
+        max_length=2,
+        choices=roles_choices,
+        default='ME',
     )

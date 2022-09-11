@@ -5,9 +5,10 @@ from django.shortcuts import render, redirect
 from .forms import NewLiteratureReviewForm
 from .models import LiteratureReview
 
+
 def create_new_review(request):
     if request.method == "POST":
-        form = NewLiteratureReviewForm(request.POST)
+        form = NewLiteratureReviewForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
             title = form.cleaned_data.get("title")
@@ -26,7 +27,7 @@ def create_new_review(request):
     if not request.user.is_authenticated:
         return redirect("home")
 
-    form = NewLiteratureReviewForm
+    form = NewLiteratureReviewForm(user=request.user)
     return render(
         request=request, template_name="literature_review/create_literature_review.html", context={"form": form}
     )
@@ -34,7 +35,7 @@ def create_new_review(request):
 
 def literature_review_home(request):
     context = {}
-    context['literature_reviews'] = LiteratureReview.objects.all()
+    context['literature_reviews'] = LiteratureReview.objects.filter(members=request.user)
 
     return render(
         request=request, template_name="literature_review/home.html", context=context

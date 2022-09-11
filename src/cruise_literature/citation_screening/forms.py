@@ -1,7 +1,8 @@
 from dataclasses import asdict
+from django import forms
 
 from django.forms import ModelForm, CharField, Textarea
-from .models import LiteratureReview
+from .models import LiteratureReview, LiteratureReviewMember
 from django.contrib.postgres.forms import SimpleArrayField
 from document_search.search_semantic_scholar import search_semantic_scholar
 
@@ -21,6 +22,10 @@ class NewLiteratureReviewForm(ModelForm):
             "exclusion_criteria",
         )
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(NewLiteratureReviewForm, self).__init__(*args, **kwargs)
+
     def save(self, commit=True):
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
 
@@ -32,5 +37,8 @@ class NewLiteratureReviewForm(ModelForm):
 
         if commit:
             instance.save()
+            member = LiteratureReviewMember(member=self.user, literature_review=instance, role='AD')
+            member.save()
+
         return instance
 
