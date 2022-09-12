@@ -6,23 +6,113 @@
             <a href="{% url 'literature_review:review_details' review.id %}" class="button is-link is-small">
                 Back
             </a>
-            <p class="pl-4 pt-1">{{ review.title }}</p>
+            <p class="pl-4 pt-1"><strong>Review title:</strong> {{ review.title }}</p>
         </div>
         <div class="card-content">
-{#            <h1 class="title is-1">{{ review.title }}</h1>#}
+            {#            <h1 class="title is-1">{{ review.title }}</h1>#}
             <h1 class="title is-3">{{ paper.title }}</h1>
             <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract }}</p>
             <p class="has-text-grey p-3">{{ paper.publication_date }} -- {{ paper.venue }}</p>
             <p class="is-italic p-3">{{ paper.authors }}</p>
             <hr/>
-            <p class="is-5"><strong>Review description:</strong> {{ review.description }}</p>
+            {#            <p class="is-5"><strong>Review description:</strong> {{ review.description }}</p>#}
             <form method="POST" action="{% url 'literature_review:screen_papers' review.id %}">
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>
                 <input class="input mr-2" name="start_time" value="{{ start_time }}" type="hidden"/>
+                <strong class="has-background-link-light">
+                    Relevance:
+                </strong>
+
+                <div class="control m-2 p-1 box">
+                    <span class="tag is-light is-size-6">Domain relevance</span>
+                    <label class="radio ml-4">
+                        <input type="radio" name="domain_relevance" value="2" required>
+                        very relevant
+                    </label>
+                    <label class="radio ml-4">
+                        <input type="radio" name="domain_relevance" value="1">
+                        somewhat relevant
+                    </label>
+                    <label class="radio ml-4">
+                        <input type="radio" name="domain_relevance" value="0">
+                        not relevant
+                    </label>
+                </div>
+                <div class="control m-2 p-1 box">
+                    <span class="tag is-light is-size-6">Topic relevance</span>
+                    <label class="radio ml-4 button is-small">
+                        <input type="radio" name="topic_relevance" value="2" required>
+                        very relevant
+                    </label>
+                    <label class="radio ml-4">
+                        <input type="radio" name="topic_relevance" value="1">
+                        somewhat relevant
+                    </label>
+                    <label class="radio ml-4">
+                        <input type="radio" name="topic_relevance" value="0">
+                        not relevant
+                    </label>
+                </div>
+                <div class="control m-2 p-1 box">
+                    <span class="tag is-light is-size-6">Decision based on title and abstract</span>
+                    <label class="radio ml-4">
+                        <input type="radio" name="decision" value="1" required>
+                        include
+                    </label>
+                    <label class="radio ml-4">
+                        <input type="radio" name="decision" value="-1">
+                        <span>not sure</span>
+                    </label>
+                    <label class="radio ml-4">
+                        <input type="radio" name="decision" value="0">
+                        exclude
+                    </label>
+                </div>
+
+                <hr/>
+                <div class="columns">
+                    <div class="column">
+                        <strong class="has-background-link-light">Inclusion criteria:</strong>
+                        {% for criterion in review.inclusion_criteria %}
+                            <div class="control m-3 p-1 box">
+                                <span class="is-light tag is-size-6">{{ criterion }}</span>
+                                <label class="radio ml-4">
+                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="yes">
+                                    Yes
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="no">
+                                    No
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="column">
+                        <strong class="has-background-link-light">Exclusion criteria:</strong>
+                        {% for criterion in review.exclusion_criteria %}
+                            <div class="control m-3 p-1 box">
+                                <span class="tag is-light is-size-6">{{ criterion }}</span>
+                                <label class="radio ml-4">
+                                    <input type="radio" name="exclusion_{{ forloop.counter }}" value="yes" required>
+                                    Yes
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" name="exclusion_{{ forloop.counter }}" value="no">
+                                    No
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <strong class="has-background-link-light">
+                    Descriptive reason:
+                </strong>
+                <input class="input mr-2" name="reason" value="" required/>
+                <hr/>
                 <div class="control p-1">
-                    Did you knew this paper before?
-                    <label class="radio">
+                    <strong class="has-background-link-light">Did you know this paper before?</strong><br/>
+                    <label class="radio p-3">
                         <input type="radio" name="prior_knowledge" value="2" required>
                         2 (I knew and read the full paper before)
                     </label>
@@ -35,83 +125,7 @@
                         0 (I did not know it before)
                     </label>
                 </div>
-                <div class="control p-1">
-                    Domain relevance
-                    <label class="radio has-text-success">
-                        <input type="radio" name="domain_relevance" value="2" required>
-                        2 (very relevant)
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="domain_relevance" value="1">
-                        1 (somewhat relevant)
-                    </label>
-                    <label class="radio has-text-danger">
-                        <input type="radio" name="domain_relevance" value="0">
-                        0 (not relevant)
-                    </label>
-                </div>
-                <div class="control p-1">
-                    Topic relevance
-                    <label class="radio has-text-success">
-                        <input type="radio" name="topic_relevance" value="2" required>
-                        2 (very relevant)
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="topic_relevance" value="1">
-                        1 (somewhat relevant)
-                    </label>
-                    <label class="radio has-text-danger">
-                        <input type="radio" name="topic_relevance" value="0">
-                        0 (not relevant)
-                    </label>
-                </div>
-                <div class="control p-1">
-                    Decision based on title and abstract
-                    <label class="radio has-text-success">
-                        <input type="radio" name="decision" value="1" required>
-                        1 (include)
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="decision" value="-1">
-                        <span>-1 (not sure)</span>
-                    </label>
-                    <label class="radio has-text-danger">
-                        <input type="radio" name="decision" value="0">
-                        0 (exclude)
-                    </label>
-                </div>
-
-                <hr/>
-                {% for criterion in review.inclusion_criteria %}
-                    <div class="control p-1">
-                        <span class="tag is-success is-light">{{ criterion }}</span>
-                        <label class="radio">
-                            <input type="radio" name="inclusion_{{ forloop.counter }}" value="yes">
-                            Yes
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="inclusion_{{ forloop.counter }}" value="no">
-                            No
-                        </label>
-                    </div>
-                {% endfor %}
-                <hr/>
-                {% for criterion in review.exclusion_criteria %}
-                    <div class="control p-1">
-                        <span class="tag is-danger is-light">{{ criterion }}</span>
-                        <label class="radio">
-                            <input type="radio" name="exclusion_{{ forloop.counter }}" value="yes" required>
-                            Yes
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="exclusion_{{ forloop.counter }}" value="no">
-                            No
-                        </label>
-                    </div>
-                {% endfor %}
-                <hr/>
-                Descriptive reason: <input class="input mr-2" name="reason" value="" required/>
-                <button class="button is-primary m-3">Submit</button>
+                <button class="button is-primary is-fullwidth mt-5">Submit</button>
             </form>
 
         </div>
