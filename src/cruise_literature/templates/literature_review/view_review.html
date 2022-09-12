@@ -27,13 +27,13 @@
             </p>
             <hr/>
             <p>
-                Inclusion criteria:
+               <strong class="has-background-orange-light m-2">Inclusion criteria:</strong>
                 {% for criterion in review.inclusion_criteria %}
                     <span class="tag is-success is-light">{{ criterion }}</span>
                 {% endfor %}
             </p>
             <p>
-                Exclusion criteria:
+                <strong class="has-background-orange-light m-2">Exclusion criteria:</strong>
                 {% for criterion in review.exclusion_criteria %}
                     <span class="tag is-danger is-light">{{ criterion }}</span>
                 {% endfor %}
@@ -54,6 +54,7 @@
                     <th>Authors</th>
                     <th>Year</th>
                     <th>Journal</th>
+                    <th>URL</th>
                     <th>PDF</th>
                     <th>Screened</th>
                 </tr>
@@ -71,22 +72,27 @@
                     {% endif %}
                 <th>{{ forloop.counter }}</th>
                 {% if paper.url %}
-                    <td><a href="{{ paper.url }}">{{ paper.title }}</a></td>
+                    <td><a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a></td>
                 {% else %}
                     <td>{{ paper.title }}</td>
                 {% endif %}
                 <td>{{ paper.authors }}</td>
                 <td>{{ paper.publication_date }}</td>
                 <td>{{ paper.venue }}</td>
-                {% if paper.pdf %}
-                    <td><a href="{{ paper.pdf }}">Yes</a></td>
+                {% if paper.url %}
+                    <td><a href="{{ paper.url }}">🌐</a></td>
                 {% else %}
-                    <td>No</td>
+                    <td>—</td>
+                {% endif %}
+                {% if paper.pdf %}
+                    <td><a href="{{ paper.pdf }}">🔗</a></td>
+                {% else %}
+                    <td>—</td>
                 {% endif %}
                 {% if paper.screened %}
-                    <td>Yes</td>
+                    <td>Yes, <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a></td>
                 {% else %}
-                    <td>No</td>
+                    <td><a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a></td>
                 {% endif %}
                 </tr>
                 {% endfor %}

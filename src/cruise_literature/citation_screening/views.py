@@ -71,7 +71,7 @@ def make_decision(exclusions, inclusions):
     return True
 
 
-def screen_papers(request, review_id):
+def screen_papers(request, review_id, paper_id=None):
     if not request.user.is_authenticated:
         return redirect("home")
 
@@ -80,6 +80,19 @@ def screen_papers(request, review_id):
         return redirect("home")
 
     if request.method == "GET":
+        if paper_id:
+            print(paper_id, [x['id'] for x in review.papers])
+            edited_index = [
+                index_i
+                for index_i, x in enumerate(review.papers)
+                if str(x["id"]) == str(paper_id)
+            ][0]
+            return render(
+                request,
+                "literature_review/screen_paper.html",
+                {"review": review, "paper": review.papers[edited_index], "start_time": time.time()},
+            )
+
         for paper in review.papers:
             if not paper.get("decisions") or len(paper.get("decisions")) < MIN_DECISIONS:
                 return render(
@@ -106,7 +119,7 @@ def screen_papers(request, review_id):
         edited_index = [
             index_i
             for index_i, x in enumerate(review.papers)
-            if x["id"] == paper_id
+            if str(x["id"]) == str(paper_id)
         ][0]  # FIXME: this will fail if duplicates in DB
         review.papers[edited_index]["decisions"] = [
             {
