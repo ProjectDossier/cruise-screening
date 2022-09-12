@@ -4,26 +4,20 @@
     <div class="card">
         <div class="card-header pl-4">
             <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
-{#                todo add arrow <i class="fa-solid fa-arrow-left-long"></i> #}
                 Back
             </a>
             <a href="{% url 'literature_review:export_review' review.id %}" class="ml-4 button is-light is-small">
                 Export results
             </a>
-            <span class="icon">
-              <i class="fas fa-home"></i>
-            </span>
-
         </div>
         <div class="card-content">
             <h1 class="title is-1">
                 {{ review.title }}
                 {% if  review.papers|length > 0 %}
-                <a href="{% url 'literature_review:screen_papers' review.id %}" class="button is-success is-medium">
-                    Screen papers
-                </a>
-            {% endif %}
-
+                    <a href="{% url 'literature_review:screen_papers' review.id %}" class="button is-success is-medium mt-1">
+                        Screen papers
+                    </a>
+                {% endif %}
             </h1>
             <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
             <p>Search queries:
@@ -68,33 +62,33 @@
                 {% for paper in review.papers %}
                     {% if paper.decision == "1" %}
                         <tr class="has-text-success">
-                    {% elif paper.decision == "-1" %}
-                        <tr class="has-text-success-dark">
-                    {% elif paper.decision == "0" %}
+                            {% elif paper.decision == "-1" %}
+                        <tr class="has-text-orange">
+                            {% elif paper.decision == "0" %}
                         <tr class="has-text-grey-lighter">
-                    {% else %}
+                            {% else %}
                         <tr class>
                     {% endif %}
-                        <th>{{ forloop.counter }}</th>
-                        {% if paper.url %}
-                            <td><a href="{{ paper.url }}">{{ paper.title }}</a></td>
-                        {% else %}
-                            <td>{{ paper.title }}</td>
-                        {% endif %}
-                        <td>{{ paper.authors }}</td>
-                        <td>{{ paper.publication_date }}</td>
-                        <td>{{ paper.venue }}</td>
-                        {% if paper.pdf %}
-                            <td><a href="{{ paper.pdf }}">Yes</a></td>
-                        {% else %}
-                            <td>No</td>
-                        {% endif %}
-                        {% if paper.screened %}
-                            <td>Yes</td>
-                        {% else %}
-                            <td>No</td>
-                        {% endif %}
-                    </tr>
+                <th>{{ forloop.counter }}</th>
+                {% if paper.url %}
+                    <td><a href="{{ paper.url }}">{{ paper.title }}</a></td>
+                {% else %}
+                    <td>{{ paper.title }}</td>
+                {% endif %}
+                <td>{{ paper.authors }}</td>
+                <td>{{ paper.publication_date }}</td>
+                <td>{{ paper.venue }}</td>
+                {% if paper.pdf %}
+                    <td><a href="{{ paper.pdf }}">Yes</a></td>
+                {% else %}
+                    <td>No</td>
+                {% endif %}
+                {% if paper.screened %}
+                    <td>Yes</td>
+                {% else %}
+                    <td>No</td>
+                {% endif %}
+                </tr>
                 {% endfor %}
                 </tbody>
             </table>

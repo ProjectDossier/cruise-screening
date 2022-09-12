@@ -3,10 +3,12 @@
 {% block content %}
     <div class="card">
         <div class="card-content">
-            <h1 class="title is-1">Literature review menu</h1>
-            <a href="{% url 'literature_review:create_new_review' %}" class="button is-link">
-                Create new review
-            </a>
+            <h1 class="title is-1">
+                My literature reviews
+                <a href="{% url 'literature_review:create_new_review' %}" class="button is-link ml-5 mt-3">
+                    Create new review
+                </a>
+            </h1>
         </div>
     </div>
 
@@ -39,7 +41,8 @@
                         </td>
                         <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
                         <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
-                        <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }} / {{ review.decisions_count.2 }}</td>
+                        <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }}
+                            / {{ review.decisions_count.2 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

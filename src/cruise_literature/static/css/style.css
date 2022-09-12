@@ -213,3 +213,28 @@ search-results-one-column {
 .user-profile__text p {
   margin: 16px 0;
 }
+
+.screen_paper_relevance input[type="radio"] {
+    opacity: 0;
+}
+
+.screen_paper_relevance span:hover {
+  background: #DDD;
+}
+
+.screen_paper_relevance input[type="radio"]:checked+span {
+  background: rgba(224, 158, 59, 0.68);
+  color: #565656;
+}
+
+.has-text-orange {
+  color: #e8b167;
+}
+
+.has-background-orange-light {
+    background: rgba(252, 204, 145, 0.41);
+}
+
+.align-button-to-right {
+  margin-left: auto;
+}
