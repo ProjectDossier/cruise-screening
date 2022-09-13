@@ -49,3 +49,4 @@ class Author:
     id: Optional[str] = None
     aminer_id: Optional[str] = None
     semantic_scholar_id: Optional[str] = None
+    google_scholar_id: Optional[str] = None
