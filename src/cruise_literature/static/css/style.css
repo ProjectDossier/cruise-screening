@@ -238,3 +238,7 @@ search-results-one-column {
 .align-button-to-right {
   margin-left: auto;
 }
+
+.form_required {
+  border-color: rgba(253, 113, 113, 0.76);
+}

@@ -12,9 +12,8 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <p>Please make sure that there are no trailing new lines at the end of text area.</p>
                 <div>
-                    <button type="submit" class="button is-link">Create new literature review</button>
+                    <button type="submit" class="button is-link mt-5 is-fullwidth">Create new literature review</button>
                 </div>
             </form>
         </div>

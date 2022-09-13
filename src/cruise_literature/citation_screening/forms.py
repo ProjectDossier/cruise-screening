@@ -4,39 +4,97 @@ import datetime
 from django import forms
 
 from .models import LiteratureReview, LiteratureReviewMember
-from django.contrib.postgres.forms import SimpleArrayField
+from django.contrib.postgres.forms import (
+    SimpleArrayField,
+    ValidationError,
+    prefix_validation_error,
+)
 from document_search.search_semantic_scholar import search_semantic_scholar
 from document_search.search_core import search_core
+from users.models import KnowledgeArea
+
+
+class ArrayFieldStripWhitespaces(SimpleArrayField):
+    """Overwrites SimpleArrayField to add a check for values provided in array.
+    All empty rows are removed."""
+
+    def to_python(self, value):
+        if isinstance(value, list):
+            items = value
+        elif value:
+            items = value.split(self.delimiter)
+        else:
+            items = []
+        errors = []
+        values = []
+        for index, item in enumerate(items):
+            if not item.strip():
+                continue
+            try:
+                values.append(self.base_field.to_python(item.strip()))
+            except ValidationError as error:
+                errors.append(
+                    prefix_validation_error(
+                        error,
+                        prefix=self.error_messages["item_invalid"],
+                        code="item_invalid",
+                        params={"nth": index},
+                    )
+                )
+        if errors:
+            raise ValidationError(errors)
+        return values
 
 
 class NewLiteratureReviewForm(forms.ModelForm):
-    title = forms.CharField()
-    search_queries = SimpleArrayField(
-        forms.CharField(),
-        delimiter="\n",
-        widget=forms.Textarea(),
-        help_text="Type in your search queries, every query in a new line",
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={"class": "input form_required"})
     )
-    inclusion_criteria = SimpleArrayField(
-        forms.CharField(),
-        delimiter="\n",
-        widget=forms.Textarea(),
-        help_text="Type in your inclusion criteria, every one in a new line",
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"})
     )
-    exclusion_criteria = SimpleArrayField(
+    search_queries = ArrayFieldStripWhitespaces(
         forms.CharField(),
         delimiter="\n",
-        widget=forms.Textarea(),
-        help_text="Type in your exclusion criteria, every one in a new line",
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Type in your search queries, every query in a new line",
+    )
+    inclusion_criteria = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter="\n",
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Type in your inclusion criteria, every one in a new line",
+    )
+    exclusion_criteria = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter="\n",
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Type in your exclusion criteria, every one in a new line",
+    )
+    project_deadline = forms.DateField(
+        initial=datetime.date.today,
+        widget=forms.SelectDateWidget(years=range(2020, 2030)),
+    )
+    tags = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter=",",
+        widget=forms.TextInput(attrs={"class": "input"}),
+        label="Add optional tags, coma separated",
+    )
+    discipline = forms.ModelChoiceField(
+        queryset=KnowledgeArea.objects.all(),
+        widget=forms.Select(attrs={"class": "select"}),
+    )
+    annotations_per_paper = forms.ChoiceField(
+        choices=[(1, 1), (2, 2), (3, 3)], widget=forms.Select(attrs={"class": "select"})
     )
     top_k = forms.IntegerField(
-        initial=10,
+        initial=25,
         max_value=200,
         min_value=10,
-        help_text="How many records do you want to retrieve?",
+        label="How many records do you want to retrieve?",
+        widget=forms.NumberInput(attrs={"class": "input"})
     )
-    project_deadline = forms.DateField(initial=datetime.date.today,
-                                       widget=forms.SelectDateWidget(years=range(2020, 2030)))
 
     class Meta:
         model = LiteratureReview
@@ -64,7 +122,10 @@ class NewLiteratureReviewForm(forms.ModelForm):
         results = {}
         for query in queries:
             # TODO: add more search engines
-            search_engines = {"semantic_scholar": search_semantic_scholar, "CORE": search_core}
+            search_engines = {
+                "semantic_scholar": search_semantic_scholar,
+                "CORE": search_core,
+            }
             for search_engine_name, search_method in search_engines.items():
                 for paper in search_method(query=query, index="", top_k=top_k):
                     paper = asdict(paper)
