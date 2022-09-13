@@ -89,10 +89,12 @@ class NewLiteratureReviewForm(forms.ModelForm):
         delimiter=",",
         widget=forms.TextInput(attrs={"class": "input"}),
         label="Add optional tags, coma separated",
+        required=False,
     )
     discipline = forms.ModelChoiceField(
         queryset=KnowledgeArea.objects.all(),
         widget=forms.Select(attrs={"class": "select"}),
+        required=False,
     )
     annotations_per_paper = forms.ChoiceField(
         choices=[(1, 1), (2, 2), (3, 3)], widget=forms.Select(attrs={"class": "select"})
