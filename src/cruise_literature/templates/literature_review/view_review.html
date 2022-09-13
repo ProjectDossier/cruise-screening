@@ -101,13 +101,9 @@
                         <tr class>
                     {% endif %}
                 <th>{{ forloop.counter }}</th>
-                {% if paper.url %}
-                    <td>
-                        <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
-                    </td>
-                {% else %}
-                    <td>{{ paper.title }}</td>
-                {% endif %}
+                <td>
+                    <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
+                </td>
                 <td>{{ paper.authors }}</td>
                 <td>{{ paper.publication_date }}</td>
                 <td>{{ paper.venue }}</td>

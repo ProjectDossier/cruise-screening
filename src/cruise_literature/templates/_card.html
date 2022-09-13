@@ -17,7 +17,7 @@
     </div>
     <div class="card-content pt-1">
         <div class="content">
-            {% if search_result.abstract %}
+            {% if search_result.abstract|length > search_result.snippet|length %}
                 <template x-if="openAbstract">
                     <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
                 </template>

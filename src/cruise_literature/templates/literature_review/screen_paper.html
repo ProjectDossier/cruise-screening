@@ -32,6 +32,8 @@
                         </button>
                     </p>
                 </template>
+            {% elif paper.snippet %}
+                <p class="is-5"><strong>Snippet:</strong> {{ paper.snippet | safe }}...</p>
             {% else %}
                 <p class="is-5"><strong>Abstract:</strong> No abstract available</p>
             {% endif %}

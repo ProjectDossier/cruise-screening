@@ -81,7 +81,6 @@ def screen_papers(request, review_id, paper_id=None):
 
     if request.method == "GET":
         if paper_id:
-            print(paper_id, [x['id'] for x in review.papers])
             edited_index = [
                 index_i
                 for index_i, x in enumerate(review.papers)

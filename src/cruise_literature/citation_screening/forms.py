@@ -11,6 +11,7 @@ from django.contrib.postgres.forms import (
 )
 from document_search.search_semantic_scholar import search_semantic_scholar
 from document_search.search_core import search_core
+from document_search.search_google_scholar import search_google_scholar
 from document_search.search_documents import search
 from users.models import KnowledgeArea
 
@@ -18,6 +19,7 @@ SEARCH_ENGINES_DICT = {
     "SemanticScholar": search_semantic_scholar,
     "CORE": search_core,
     "CRUISE": search,
+    "Google Scholar": search_google_scholar,
 }
 
 
@@ -96,10 +98,11 @@ class NewLiteratureReviewForm(forms.ModelForm):
         choices=[(1, 1), (2, 2), (3, 3)], widget=forms.Select(attrs={"class": "select"})
     )
     search_engines = forms.MultipleChoiceField(
-        label="Select search engines where you want to search for papers. By default it searches in all",
+        label="Select search engines where you want to search for papers. By default it searches in first three.",
         choices=[(k, ' '.join(k.split('_'))) for k in SEARCH_ENGINES_DICT.keys()],
-        initial=list(SEARCH_ENGINES_DICT.keys()),
+        initial=list(SEARCH_ENGINES_DICT.keys())[:3],  # only first three search engines by default
         widget=forms.SelectMultiple(attrs={"class": "select is-multiple is-medium"}),
+        help_text="Selecting Google Scholar will drastically increase the search time."
     )
     top_k = forms.IntegerField(
         initial=25,
@@ -130,7 +133,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
     def save(self, commit=True):
         INDEX_NAME = 'papers'  # TODO: get rid of this parameter
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
-        top_k = self.data.get("top_k")
+        top_k = self.cleaned_data["top_k"]
         search_engines = self.cleaned_data["search_engines"]
 
         queries = self.cleaned_data["search_queries"]
