@@ -83,6 +83,7 @@
                     <th>Authors</th>
                     <th>Year</th>
                     <th>Journal</th>
+                    <th>Source</th>
                     <th>URL</th>
                     <th>PDF</th>
                     <th>Screened</th>
@@ -110,6 +111,7 @@
                 <td>{{ paper.authors }}</td>
                 <td>{{ paper.publication_date }}</td>
                 <td>{{ paper.venue }}</td>
+                <td>{{ paper.search_engine }}</td>
                 {% if paper.url %}
                     <td class="has-text-centered"><a href="{{ paper.url }}">🌐</a></td>
                 {% else %}
