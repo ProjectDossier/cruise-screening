@@ -7,18 +7,44 @@
                 Back
             </a>
             <p class="pl-4 pt-1"><strong>Review title:</strong> {{ review.title }}</p>
-            <a href="{% url 'literature_review:literature_review_home' %}" class="button align-button-to-right is-small">
+            <a href="{% url 'literature_review:literature_review_home' %}"
+               class="button align-button-to-right is-small">
                 Literature Review Home
             </a>
         </div>
-        <div class="card-content">
-            {#            <h1 class="title is-1">{{ review.title }}</h1>#}
-            <h1 class="title is-3">{{ paper.title }}</h1>
-            <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract }}</p>
-            <p class="has-text-grey p-3">{{ paper.publication_date }} -- {{ paper.venue }}</p>
-            <p class="is-italic p-3">{{ paper.authors }}</p>
+        <div class="card-content" x-data="{ openAbstract: false, openReviewDescription: false}">
+            <h1 class="title is-3">
+                {{ paper.title }}
+                {% if paper.url %}
+                    <a href="{{ paper.url }}">🌐</a>
+                {% endif %}
+            </h1>
+            {% if paper.abstract %}
+                <template x-if="openAbstract">
+                    <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract | safe }}
+                        <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less
+                        </button>
+                    </p>
+                </template>
+                <template x-if="!openAbstract" x-cloak>
+                    <p class="is-5"><strong>Abstract:</strong> {{ paper.snippet | safe }}...
+                        <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show full abstract
+                        </button>
+                    </p>
+                </template>
+            {% else %}
+                <p class="is-5"><strong>Abstract:</strong> No abstract available</p>
+            {% endif %}
+            <p class="is-italic p-2">{{ paper.authors }}</p>
+            <p class="has-text-grey p-2">
+                {{ paper.publication_date }} —
+                {% if paper.venue %}
+                    {{ paper.venue }}
+                {% else %}
+                    <span class="is-italic">No venue information</span>
+                {% endif %}
+            </p>
             <hr/>
-            {#            <p class="is-5"><strong>Review description:</strong> {{ review.description }}</p>#}
             <form method="POST" action="{% url 'literature_review:screen_papers' review.id %}">
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>
@@ -29,19 +55,19 @@
 
                 <div class="screen_paper_relevance control m-2 p-1 box">
                     <span class="tag is-light is-size-6">Domain relevance</span>
-                        <label class="ml-4">
-                            <input type="radio" name="domain_relevance" value="2" required>
-                            <span class="button is-small">very relevant</span>
-                        </label>
-                        <label class="ml-4">
-                            <input type="radio" name="domain_relevance" value="1">
-                            <span class="button is-small">somewhat relevant</span>
-                        </label>
-                        <label class="ml-4">
-                            <input type="radio" name="domain_relevance" value="0">
-                            <span class="button is-small">not relevant</span>
-                        </label>
-                    </div>
+                    <label class="ml-4">
+                        <input type="radio" name="domain_relevance" value="2" required>
+                        <span class="button is-small">very relevant</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="domain_relevance" value="1">
+                        <span class="button is-small">somewhat relevant</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="domain_relevance" value="0">
+                        <span class="button is-small">not relevant</span>
+                    </label>
+                </div>
                 <div class="screen_paper_relevance control m-2 p-1 box">
                     <span class="tag is-light is-size-6">Topic relevance &nbsp;&nbsp;&nbsp;</span>
                     <label class="ml-4">

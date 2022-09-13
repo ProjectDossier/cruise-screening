@@ -21,7 +21,7 @@
                 <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
             </template>
             <template x-if="!openAbstract" x-cloak>
-                <p class="card__text">{{ search_result.snippet | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
+                <p class="card__text">{{ search_result.snippet | safe }}... <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
             </template>
             <p>
                 {% for keyword, score in search_result.keywords_snippet.items %}

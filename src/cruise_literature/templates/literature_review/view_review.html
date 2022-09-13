@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load static %}
 
 {% block content %}
     <div class="card">
@@ -14,7 +15,8 @@
             <h1 class="title is-1">
                 {{ review.title }}
                 {% if  review.papers|length > 0 %}
-                    <a href="{% url 'literature_review:screen_papers' review.id %}" class="button is-success is-medium mt-1">
+                    <a href="{% url 'literature_review:screen_papers' review.id %}"
+                       class="button is-success is-medium mt-1">
                         Screen papers
                     </a>
                 {% endif %}
@@ -27,7 +29,7 @@
             </p>
             <hr/>
             <p>
-               <strong class="has-background-orange-light m-2">Inclusion criteria:</strong>
+                <strong class="has-background-orange-light m-2">Inclusion criteria:</strong>
                 {% for criterion in review.inclusion_criteria %}
                     <span class="tag is-success is-light">{{ criterion }}</span>
                 {% endfor %}
@@ -38,15 +40,42 @@
                     <span class="tag is-danger is-light">{{ criterion }}</span>
                 {% endfor %}
             </p>
-            <p>
-                Decisions so far:
-                Includes: {{ review.decisions_count.0 }}
-                Not sures: {{ review.decisions_count.1 }}
-                Excludes: {{ review.decisions_count.2 }}
-            </p>
+            <div x-data="{ openStatistics: false}">
+                <template x-if="openStatistics">
+                    <table class="table is-striped is-hoverable">
+                        <thead>
+                            <tr>
+                                <th><button type="button" class="card__show-more" x-on:click="openStatistics = false">Hide ▴</button></th>
+                                <th>Decisions so far</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="has-text-success">
+                                <td>Includes</td>
+                                <td>{{ review.decisions_count.0 }}</td>
+                            </tr>
+                            <tr class="has-text-orange">
+                                <td>Maybe</td>
+                                <td>{{ review.decisions_count.1 }}</td>
+                            </tr>
+                            <tr class="has-text-grey-lighter">
+                                <td>Excludes</td>
+                                <td>{{ review.decisions_count.2 }}</td>
+                            </tr>
+                            <tr>
+                                <td>Missing judgements</td>
+                                <td>{{ review.decisions_count.3 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </template>
+                <template x-if="!openStatistics">
+                    <button type="button" class="m-2 card__show-more" x-on:click="openStatistics = true">Show review statistics ▾</button>
+                </template>
+            </div>
         </div>
         <div class="card-content">
-            <table class="table is-striped table is-fullwidth is-hoverable">
+            <table class="table is-striped is-fullwidth is-hoverable">
                 <thead>
                 <tr>
                     <th>#</th>
@@ -72,7 +101,9 @@
                     {% endif %}
                 <th>{{ forloop.counter }}</th>
                 {% if paper.url %}
-                    <td><a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a></td>
+                    <td>
+                        <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
+                    </td>
                 {% else %}
                     <td>{{ paper.title }}</td>
                 {% endif %}
@@ -80,19 +111,24 @@
                 <td>{{ paper.publication_date }}</td>
                 <td>{{ paper.venue }}</td>
                 {% if paper.url %}
-                    <td><a href="{{ paper.url }}">🌐</a></td>
+                    <td class="has-text-centered"><a href="{{ paper.url }}">🌐</a></td>
                 {% else %}
-                    <td>—</td>
+                    <td class="has-text-centered">—</td>
                 {% endif %}
                 {% if paper.pdf %}
-                    <td><a href="{{ paper.pdf }}">🔗</a></td>
+                    <td class="has-text-centered"><a href="{{ paper.pdf }}"><img src="{% static 'pdf_icon.svg' %}"
+                                                                                 width="18" height="18"></a></td>
                 {% else %}
-                    <td>—</td>
+                    <td class="has-text-centered">—</td>
                 {% endif %}
                 {% if paper.screened %}
-                    <td>Yes, <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a></td>
+                    <td>Yes, <a
+                            href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a>
+                    </td>
                 {% else %}
-                    <td><a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a></td>
+                    <td>
+                        <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a>
+                    </td>
                 {% endif %}
                 </tr>
                 {% endfor %}
@@ -104,11 +140,6 @@
             <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
                 Back
             </a>
-            {% if  review.papers|length > 0 %}
-                <a href="{% url 'literature_review:screen_papers' review.id %}" class="button is-success is-small">
-                    Screen
-                </a>
-            {% endif %}
         </div>
     </div>
 
