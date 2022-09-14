@@ -10,6 +10,15 @@
             <a class="ml-4 button is-info is-outlined is-small" disabled>
                 Screen automatically
             </a>
+            <a class="ml-4 button is-info is-outlined is-small" disabled>
+                Edit queries
+            </a>
+            <a href="{% url 'literature_review:add_seed_studies' review.id %}" class="ml-4 button is-info is-outlined is-small">
+                Add seed study
+            </a>
+            <a class="ml-4 button is-info is-outlined is-small" disabled>
+                Update search
+            </a>
             <a href="{% url 'literature_review:export_review' review.id %}" class="ml-4 button is-light is-small">
                 Export results
             </a>

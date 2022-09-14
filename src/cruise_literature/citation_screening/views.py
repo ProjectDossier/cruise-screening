@@ -4,10 +4,12 @@ import time
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from requests import HTTPError
 
 # Create your views here.
 from .forms import NewLiteratureReviewForm
 from .models import LiteratureReview
+from .process_pdf import parse_doc_grobid
 
 MIN_DECISIONS = 1
 
@@ -89,11 +91,18 @@ def screen_papers(request, review_id, paper_id=None):
             return render(
                 request,
                 "literature_review/screen_paper.html",
-                {"review": review, "paper": review.papers[edited_index], "start_time": time.time()},
+                {
+                    "review": review,
+                    "paper": review.papers[edited_index],
+                    "start_time": time.time(),
+                },
             )
 
         for paper in review.papers:
-            if not paper.get("decisions") or len(paper.get("decisions")) < MIN_DECISIONS:
+            if (
+                not paper.get("decisions")
+                or len(paper.get("decisions")) < MIN_DECISIONS
+            ):
                 return render(
                     request,
                     "literature_review/screen_paper.html",
@@ -119,7 +128,9 @@ def screen_papers(request, review_id, paper_id=None):
             index_i
             for index_i, x in enumerate(review.papers)
             if str(x["id"]) == str(paper_id)
-        ][0]  # FIXME: this will fail if duplicates in DB
+        ][
+            0
+        ]  # FIXME: this will fail if duplicates in DB
         review.papers[edited_index]["decisions"] = [
             {
                 "reviewer_id": request.user.pk,
@@ -141,7 +152,10 @@ def screen_papers(request, review_id, paper_id=None):
         review.save()
 
         for paper in review.papers:
-            if not paper.get("decisions") or len(paper.get("decisions")) < MIN_DECISIONS:
+            if (
+                not paper.get("decisions")
+                or len(paper.get("decisions")) < MIN_DECISIONS
+            ):
                 return render(
                     request,
                     "literature_review/screen_paper.html",
@@ -164,3 +178,74 @@ def export_review(request, review_id):
             "papers": review.papers,
         }
         return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
+
+
+def add_seed_studies(request, review_id):
+    if not request.user.is_authenticated:
+        return redirect("home")
+
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        return redirect("home")
+
+    if request.method == "GET":
+        return render(
+            request,
+            "literature_review/add_seed_studies.html",
+            {"review": review},
+        )
+    elif request.method == "POST":
+        seed_studies_urls = request.POST["seed_studies_urls"]
+        seed_studies_urls = list(
+            set([x.strip() for x in seed_studies_urls.split("\n")])
+        )
+
+        added_studies = []
+        for seed_studies_url in seed_studies_urls:
+            if not seed_studies_url.strip():
+                continue
+
+            try:
+                doc = parse_doc_grobid(url=seed_studies_url)
+                print(doc.header.title)
+                new_papers = list(review.papers)
+                new_papers.append(
+                    {
+                        "id": doc.pdf_md5,
+                        "pdf": seed_studies_url,
+                        "url": doc.header.url,
+                        "title": doc.header.title,
+                        "abstract": doc.abstract,
+                        "snippet": doc.abstract[:300],
+                        "authors": ", ".join([a.full_name for a in doc.header.authors]),
+                        "venue": doc.header.journal,
+                        "publication_date": doc.header.date,
+                        "references": len(
+                            doc.citations
+                        ),  # TODO: change to n_references
+                        "citations": None,
+                        "core_id": None,
+                        "semantic_scholar_id": None,
+                        "query": None,
+                        "search_engine": "Seed Study",
+                        "decision": None,
+                        "seed_study": True,
+                    }
+                )
+                review.papers = new_papers
+                review.save()
+                added_studies.append(seed_studies_url)
+            except HTTPError:
+                print("HTTPError")
+
+        if added_studies:
+            messages.success(
+                request,
+                f"{len(added_studies)} new seed studies added: {', '.join(added_studies)}",
+            )
+
+        return render(
+            request,
+            "literature_review/add_seed_studies.html",
+            {"review": review},
+        )
