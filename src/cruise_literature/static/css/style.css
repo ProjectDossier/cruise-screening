@@ -17,7 +17,7 @@
   align-items: stretch;
   justify-content: center;
   flex-direction: column;
-  min-height: calc(100vmin - 100px);
+  min-height: calc(100vmin - 160px);
   max-width: 500px;
   margin: 16px auto;
   padding: 0 10px;
