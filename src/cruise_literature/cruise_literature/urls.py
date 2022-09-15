@@ -23,4 +23,5 @@ urlpatterns = [
     path("", include("concept_search.urls")),
     path("", include("users.urls")),
     path("", include("citation_screening.urls")),
+    path("", include("document_classification.urls")),
 ]
