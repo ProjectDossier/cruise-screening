@@ -24,6 +24,11 @@ urlpatterns = [
         views.edit_review,
         name="edit_review",
     ),
+    path(
+        "literature_review/<int:review_id>/automatic_screening",
+        views.automatic_screening,
+        name="automatic_screening",
+    ),
     path("screen_papers/<int:review_id>/", views.screen_papers, name="screen_papers"),
     path("screen_papers/<int:review_id>/<str:paper_id>/", views.screen_papers, name="screen_papers"),
     path("export_review/<int:review_id>/", views.export_review, name="export_review"),

@@ -1,9 +1,14 @@
 from document_classification.models import Endpoint, MLAlgorithm, MLAlgorithmStatus
 
+from src.cruise_literature.document_classification.classifiers.dummy import DummyClassifier
+
 
 class MLRegistry:
     def __init__(self):
-        self.endpoints = {}
+        _endpoints = Endpoint.objects.all()
+        ml_algorithms = MLAlgorithm.objects.all()
+        # TODO: replace endpoints values from hardcoded DummyClassifier to a DB pickle
+        self.endpoints = {ml_algorithm.id: DummyClassifier() for ml_algorithm in ml_algorithms}
 
     def add_algorithm(
         self,

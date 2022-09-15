@@ -298,3 +298,34 @@ def add_seed_studies(request, review_id):
             "literature_review/add_seed_studies.html",
             {"review": review},
         )
+
+
+def automatic_screening(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        return redirect("home")
+
+    import inspect
+    from document_classification.registry import MLRegistry
+    from document_classification.classifiers.dummy import DummyClassifier
+
+    if request.method == "GET":
+        try:
+            registry = MLRegistry()  # create ML registry
+            # add to ML registry
+            registry.add_algorithm(endpoint_name=review.id,
+                                   algorithm_object=DummyClassifier(),
+                                   algorithm_name="dummy classifier",
+                                   algorithm_status="production",
+                                   algorithm_version="0.0.1",
+                                   owner=request.user,
+                                   algorithm_description="Dummy classifier always predicting '1'.",
+                                   algorithm_code=inspect.getsource(DummyClassifier))
+        except Exception as e:
+            print("Exception while loading the algorithms to the registry,", e)
+
+        return render(
+            request=request,
+            template_name="literature_review/view_review.html",
+            context={"review": review},
+        )

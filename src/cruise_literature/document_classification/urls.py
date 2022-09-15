@@ -9,6 +9,7 @@ from document_classification.views import (
     MLRequestViewSet,
 )
 
+from .views import PredictView
 
 app_name = "document_classification"
 
@@ -22,4 +23,7 @@ router.register(r"mlrequests", MLRequestViewSet, basename="mlrequests")
 
 urlpatterns = [
     path(r"api/v1/", include((router.urls, app_name))),
-]
+    path(
+        r"api/v1/<endpoint_name>/predict", PredictView.as_view(), name="predict"
+    ),
+    ]
