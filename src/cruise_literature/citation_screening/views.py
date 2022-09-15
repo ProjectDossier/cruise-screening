@@ -13,6 +13,7 @@ from .process_pdf import parse_doc_grobid
 import inspect
 from document_classification.registry import MLRegistry
 from document_classification.classifiers.dummy import DummyClassifier
+from document_classification.classifiers.fasttext_classifier import FastTextClassifier
 
 MIN_DECISIONS = 1  # TODO replace with database object, review specific
 
@@ -349,10 +350,11 @@ def automatic_screening(request, review_id):
                 }  # TODO: convert -1 (maybe) to 1
             else:
                 x_pred[paper["id"]] = {"title": paper["title"]}
-        algorithm_object = DummyClassifier()
+        algorithm_object = FastTextClassifier()
+        # algorithm_object = DummyClassifier()
         algorithm_object.train(
             input_data=[x["title"] for x in xy_train.values()],
-            true_label=[x["decision"] for x in xy_train.values()],
+            true_labels=[x["decision"] for x in xy_train.values()],
         )
         y_pred = algorithm_object.predict([x["title"] for x in x_pred.values()])
         print(y_pred)
@@ -367,7 +369,7 @@ def automatic_screening(request, review_id):
                 review.papers[edited_index]["automatic_decisions"] = {
                     "algorithm_id": str(algorithm_object),
                     "decision": predicted_label["label"],
-                    "probability": predicted_label["probability"],
+                    "probability": float(predicted_label["probability"]),
                     "time": str(datetime.datetime.now()),
                 }
 

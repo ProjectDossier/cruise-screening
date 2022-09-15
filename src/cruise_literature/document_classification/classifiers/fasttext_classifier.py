@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 import os
-from typing import List, Any, Tuple
+from typing import List, Any, Tuple, Dict
 
 from .base import BaseClassifier
 import fasttext
@@ -28,9 +28,9 @@ class FastTextClassifier(BaseClassifier):
         super().__init__()
         self.temp_file_path: str = f"tmp_file_fasttext_{datetime.datetime.now()}.txt"
 
-    def postprocessing(self, predicted_label: List[Any]) -> List[Tuple[int, float]]:
+    def postprocessing(self, predicted_label: List[Any]) -> list[dict[str, Any]]:
         return [
-            (int(label[0][9:]), prob[0])
+            {"probability": prob[0], "label": int(label[0][9:])}
             for label, prob in zip(predicted_label[0], predicted_label[1])
         ]
 
@@ -49,7 +49,8 @@ class FastTextClassifier(BaseClassifier):
 
     def predict(self, input_data: List[str]) -> List[Tuple[int, float]]:
         predictions = self.model.predict(input_data)
-        return self.postprocessing(predicted_label=predictions)
+        predictions = self.postprocessing(predicted_label=predictions)
+        return {"predictions": predictions, "status": "OK"}
 
     @staticmethod
     def load_model(file: str) -> FastTextClassifier:
