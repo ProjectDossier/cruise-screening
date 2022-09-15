@@ -6,12 +6,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 
-# Create your views here.
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from .process_pdf import parse_doc_grobid
 
-MIN_DECISIONS = 1
+MIN_DECISIONS = 1  # TODO replace with database object, review specific
 
 
 def create_new_review(request):
