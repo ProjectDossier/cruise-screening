@@ -83,6 +83,7 @@
                     <th @click="sortByColumn">URL</th>
                     <th @click="sortByColumn">PDF</th>
                     <th @click="sortByColumn">Screened</th>
+                    <th @click="sortByColumn">Automatic</th>
                 </tr>
                 </thead>
                 <tbody x-ref="tbody">
@@ -136,6 +137,13 @@
                     <td>
                         <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a>
                     </td>
+                {% endif %}
+                {% if paper.automatic_decisions.decision == 1 %}
+                    <td class="has-text-success">Include</td>
+                {% elif paper.automatic_decisions.decision == 0 %}
+                    <td class="has-text-grey-lighter">Exclude</td>
+                {% else %}
+                    <td></td>
                 {% endif %}
                 </tr>
                 {% endfor %}

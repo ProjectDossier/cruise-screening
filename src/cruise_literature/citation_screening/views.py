@@ -5,17 +5,26 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
-
+from django.contrib.auth.decorators import login_required
+import datetime
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from .process_pdf import parse_doc_grobid
+import inspect
+from document_classification.registry import MLRegistry
+from document_classification.classifiers.dummy import DummyClassifier
 
 MIN_DECISIONS = 1  # TODO replace with database object, review specific
 
 
+@login_required
 def create_new_review(request):
     initial = {
-        "exclusion_criteria": ["Paper written in language other than English", "Only title is available"]}
+        "exclusion_criteria": [
+            "Paper written in language other than English",
+            "Only title is available",
+        ]
+    }
     if request.method == "POST":
         form = NewLiteratureReviewForm(request.POST, user=request.user, initial=initial)
         if form.is_valid():
@@ -44,9 +53,10 @@ def create_new_review(request):
     )
 
 
+@login_required
 def edit_review(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
+    # if not request.user.is_authenticated:
+    #     return redirect("home")
 
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
@@ -55,7 +65,6 @@ def edit_review(request, review_id):
     if request.method == "POST":
         form = EditLiteratureReviewForm(request.POST, user=request.user)
         if form.is_valid():
-            # form.save()
             title = form.cleaned_data.get("title")
             review.title = title
             review.description = form.cleaned_data.get("description")
@@ -92,6 +101,7 @@ def edit_review(request, review_id):
         )
 
 
+@login_required
 def literature_review_home(request):
     context = {
         "literature_reviews": LiteratureReview.objects.filter(members=request.user)
@@ -102,6 +112,7 @@ def literature_review_home(request):
     )
 
 
+@login_required
 def review_details(request, review_id):
     if not request.user.is_authenticated:
         return redirect("home")
@@ -122,6 +133,7 @@ def make_decision(exclusions, inclusions):
     return True
 
 
+@login_required
 def screen_papers(request, review_id, paper_id=None):
     if not request.user.is_authenticated:
         return redirect("home")
@@ -212,6 +224,7 @@ def screen_papers(request, review_id, paper_id=None):
                 )
 
 
+@login_required
 def export_review(request, review_id):
     if not request.user.is_authenticated:
         return redirect("home")
@@ -229,6 +242,7 @@ def export_review(request, review_id):
         return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
 
 
+@login_required
 def add_seed_studies(request, review_id):
     if not request.user.is_authenticated:
         return redirect("home")
@@ -300,30 +314,62 @@ def add_seed_studies(request, review_id):
         )
 
 
+@login_required
 def automatic_screening(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
         return redirect("home")
 
-    import inspect
-    from document_classification.registry import MLRegistry
-    from document_classification.classifiers.dummy import DummyClassifier
-
     if request.method == "GET":
         try:
             registry = MLRegistry()  # create ML registry
             # add to ML registry
-            registry.add_algorithm(endpoint_name=review.id,
-                                   algorithm_object=DummyClassifier(),
-                                   algorithm_name="dummy classifier",
-                                   algorithm_status="production",
-                                   algorithm_version="0.0.1",
-                                   owner=request.user,
-                                   algorithm_description="Dummy classifier always predicting '1'.",
-                                   algorithm_code=inspect.getsource(DummyClassifier))
+            registry.add_algorithm(
+                endpoint_name=review.id,
+                algorithm_object=DummyClassifier(),
+                algorithm_name="dummy classifier",
+                algorithm_status="production",
+                algorithm_version="0.0.1",
+                owner=request.user,
+                algorithm_description="Dummy classifier always predicting '1'.",
+                algorithm_code=inspect.getsource(DummyClassifier),
+            )
         except Exception as e:
             print("Exception while loading the algorithms to the registry,", e)
 
+        xy_train = {}
+        x_pred = {}
+        for paper in review.papers:
+            if paper.get("decisions") and paper.get("screened"):
+                xy_train[paper["id"]] = {
+                    "title": paper["title"],
+                    "decision": paper["decisions"][0]["decision"],
+                }  # TODO: convert -1 (maybe) to 1
+            else:
+                x_pred[paper["id"]] = {"title": paper["title"]}
+        algorithm_object = DummyClassifier()
+        algorithm_object.train(
+            input_data=[x["title"] for x in xy_train.values()],
+            true_label=[x["decision"] for x in xy_train.values()],
+        )
+        y_pred = algorithm_object.predict([x["title"] for x in x_pred.values()])
+        print(y_pred)
+
+        if y_pred["status"] == "OK":
+            for paper_id, predicted_label in zip(x_pred.keys(), y_pred["predictions"]):
+                edited_index = [
+                    index_i
+                    for index_i, x in enumerate(review.papers)
+                    if str(x["id"]) == str(paper_id)
+                ][0]
+                review.papers[edited_index]["automatic_decisions"] = {
+                    "algorithm_id": str(algorithm_object),
+                    "decision": predicted_label["label"],
+                    "probability": predicted_label["probability"],
+                    "time": str(datetime.datetime.now()),
+                }
+
+                review.save()
         return render(
             request=request,
             template_name="literature_review/view_review.html",
