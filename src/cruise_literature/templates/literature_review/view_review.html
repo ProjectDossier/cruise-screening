@@ -69,23 +69,23 @@
                 </template>
             </div>
         </div>
-        <div class="card-content">
+        <div x-data="sortTable()" class="card-content">
             <table class="table is-striped is-fullwidth is-hoverable">
                 <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Authors</th>
-                    <th>Year</th>
-                    <th>Journal</th>
-                    <th>Citations</th>
-                    <th>Source</th>
-                    <th>URL</th>
-                    <th>PDF</th>
-                    <th>Screened</th>
+                    <th @click="sortByColumn" class="cursor-pointer">#</th>
+                    <th @click="sortByColumn">Title</th>
+                    <th @click="sortByColumn">Authors</th>
+                    <th @click="sortByColumn">Year</th>
+                    <th @click="sortByColumn">Journal</th>
+                    <th @click="sortByColumn">Citations</th>
+                    <th @click="sortByColumn">Source</th>
+                    <th @click="sortByColumn">URL</th>
+                    <th @click="sortByColumn">PDF</th>
+                    <th @click="sortByColumn">Screened</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody x-ref="tbody">
                 {% for paper in review.papers %}
                     {% if paper.decision == "1" %}
                         <tr class="has-text-success">
