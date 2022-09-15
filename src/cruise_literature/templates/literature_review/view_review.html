@@ -78,6 +78,7 @@
                     <th>Authors</th>
                     <th>Year</th>
                     <th>Journal</th>
+                    <th>Citations</th>
                     <th>Source</th>
                     <th>URL</th>
                     <th>PDF</th>
@@ -109,6 +110,11 @@
                     <td>{{ paper.venue }}</td>
                 {% else %}
                     <td></td>
+                {% endif %}
+                {% if paper.citations %}
+                    <td>{{ paper.citations }}</td>
+                {% else %}
+                    <td>-</td>
                 {% endif %}
                 <td>{{ paper.search_engine }}</td>
                 {% if paper.url %}
