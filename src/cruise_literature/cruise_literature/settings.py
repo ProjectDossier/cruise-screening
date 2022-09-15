@@ -40,11 +40,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    # apps
     "home",
     "document_search",
     "concept_search",
     "users",
     "citation_screening",
+    "document_classification",
 ]
 
 MIDDLEWARE = [
