@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 
 # Create your views here.
-from .forms import NewLiteratureReviewForm
+from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from .process_pdf import parse_doc_grobid
 
@@ -15,8 +15,10 @@ MIN_DECISIONS = 1
 
 
 def create_new_review(request):
+    initial = {
+        "exclusion_criteria": ["Paper written in language other than English", "Only title is available"]}
     if request.method == "POST":
-        form = NewLiteratureReviewForm(request.POST, user=request.user)
+        form = NewLiteratureReviewForm(request.POST, user=request.user, initial=initial)
         if form.is_valid():
             form.save()
             title = form.cleaned_data.get("title")
@@ -35,12 +37,60 @@ def create_new_review(request):
     if not request.user.is_authenticated:
         return redirect("home")
 
-    form = NewLiteratureReviewForm(user=request.user)
+    form = NewLiteratureReviewForm(user=request.user, initial=initial)
     return render(
         request=request,
         template_name="literature_review/create_literature_review.html",
         context={"form": form},
     )
+
+
+def edit_review(request, review_id):
+    if not request.user.is_authenticated:
+        return redirect("home")
+
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        return redirect("home")
+
+    if request.method == "POST":
+        form = EditLiteratureReviewForm(request.POST, user=request.user)
+        if form.is_valid():
+            # form.save()
+            title = form.cleaned_data.get("title")
+            review.title = title
+            review.description = form.cleaned_data.get("description")
+            review.inclusion_criteria = form.cleaned_data.get("inclusion_criteria")
+            review.exclusion_criteria = form.cleaned_data.get("exclusion_criteria")
+            review.tags = form.cleaned_data.get("tags")
+            review.save()
+            messages.success(request, f"Review successfully edited: {title}")
+            return render(
+                request=request,
+                template_name="literature_review/view_review.html",
+                context={"review": review},
+            )
+        else:
+            for msg in form.error_messages:
+                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+            return redirect("home")
+
+    elif request.method == "GET":
+        form = EditLiteratureReviewForm(
+            user=request.user,
+            initial={
+                "title": review.title,
+                "description": review.description,
+                "inclusion_criteria": review.inclusion_criteria,
+                "exclusion_criteria": review.exclusion_criteria,
+                "tags": review.tags,
+            },
+        )
+        return render(
+            request=request,
+            template_name="literature_review/edit_literature_review.html",
+            context={"form": form, "review": review},
+        )
 
 
 def literature_review_home(request):

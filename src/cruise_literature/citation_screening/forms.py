@@ -161,3 +161,45 @@ class NewLiteratureReviewForm(forms.ModelForm):
             member.save()
 
         return instance
+
+
+class EditLiteratureReviewForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super(EditLiteratureReviewForm, self).__init__(*args, **kwargs)
+
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={"class": "input form_required"})
+    )
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"})
+    )
+    inclusion_criteria = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter="\n",
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Type in your inclusion criteria, every one in a new line",
+    )
+    exclusion_criteria = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter="\n",
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Type in your exclusion criteria, every one in a new line",
+    )
+    tags = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter=",",
+        widget=forms.TextInput(attrs={"class": "input"}),
+        label="Add optional tags, coma separated",
+        required=False,
+    )
+
+    class Meta:
+        model = LiteratureReview
+        fields = (
+            "title",
+            "description",
+            "inclusion_criteria",
+            "exclusion_criteria",
+            "tags",
+        )

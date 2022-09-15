@@ -1,0 +1,32 @@
+<a href="{% url 'literature_review:literature_review_home' %}" class="button is-info is-small">
+    All reviews
+</a>
+{% if request.resolver_match.view_name != 'literature_review:review_details' %}
+    <a href="{% url 'literature_review:review_details' review.id %}" class="button is-info is-small ml-4">
+        Review home
+    </a>
+{% else %}
+    <a class="button is-info is-small ml-4" disabled>
+        Review home
+    </a>
+{% endif %}
+<a class="ml-4 button is-info is-outlined is-small" disabled>
+    Screen automatically
+</a>
+<a href="{% url 'literature_review:edit_review' review.id %}" class="ml-4 button is-info is-outlined is-small">
+    Edit review
+</a>
+<a href="{% url 'literature_review:add_seed_studies' review.id %}" class="ml-4 button is-info is-outlined is-small">
+    Add seed study
+</a>
+<a class="ml-4 button is-info is-outlined is-small" disabled>
+    Update search
+</a>
+<a href="{% url 'literature_review:export_review' review.id %}" class="ml-4 button is-light is-small">
+    Export results
+</a>
+{% if request.resolver_match.view_name == 'literature_review:review_details' %}
+<a class="button is-danger disabled light is-small align-button-to-right" disabled>
+    Delete review {#  TODO   #}
+</a>
+{% endif %}

@@ -2,26 +2,7 @@
 {% block content %}
     <div class="card">
         <div class="card-header pl-4">
-            <a href="{% url 'literature_review:review_details' review.id %}" class="button is-link is-small">
-                Back
-            </a>
-            <a class="ml-4 button is-info is-outlined is-small" disabled>
-                Screen automatically
-            </a>
-            <a class="ml-4 button is-info is-outlined is-small" disabled>
-                Edit queries
-            </a>
-            <a href="{% url 'literature_review:add_seed_studies' review.id %}"
-               class="ml-4 button is-info is-outlined is-small">
-                Add seed study
-            </a>
-            <a class="ml-4 button is-info is-outlined is-small" disabled>
-                Update search
-            </a>
-            <a href="{% url 'literature_review:literature_review_home' %}"
-               class="button align-button-to-right is-small">
-                All Reviews
-            </a>
+            {% include 'literature_review/_review_header.html' %}
         </div>
         <div class="card-content" x-data="{ openAbstract: false, openReviewDescription: false}">
             <h1 class="title is-3">
