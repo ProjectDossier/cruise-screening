@@ -4,7 +4,7 @@ import datetime
 import os
 from typing import List, Any, Tuple
 
-from base import BaseClassifier
+from .base import BaseClassifier
 import fasttext
 
 
@@ -57,9 +57,3 @@ class FastTextClassifier(BaseClassifier):
 
     def save_model(self, file: str) -> None:
         self.model.save_model(file)
-
-
-if __name__ == "__main__":
-    ft = FastTextClassifier()
-    ft.train(["I am good", "I am very good", "You are bad"], [1, 1, 0])
-    print(ft.predict(["I am good", "She am good"]))
