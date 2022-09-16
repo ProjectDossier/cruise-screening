@@ -1,15 +1,9 @@
 <a href="{% url 'literature_review:literature_review_home' %}" class="button is-info is-small">
     All reviews
 </a>
-{% if request.resolver_match.view_name != 'literature_review:review_details' %}
-    <a href="{% url 'literature_review:review_details' review.id %}" class="button is-info is-small ml-4">
-        Review home
-    </a>
-{% else %}
-    <a class="button is-info is-small ml-4" disabled>
-        Review home
-    </a>
-{% endif %}
+<a href="{% url 'literature_review:review_details' review.id %}" class="button is-info is-small ml-4">
+    Review home
+</a>
 <a href="{% url 'literature_review:automatic_screening' review.id %}" class="ml-4 button is-info is-outlined is-small">
     Screen automatically
 </a>
