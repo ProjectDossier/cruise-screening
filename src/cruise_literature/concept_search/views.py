@@ -6,7 +6,7 @@ from .taxonomy import TaxonomyRDFCSO, TaxonomyRDFCCS
 cso_cls = CSOClassification()
 
 taxonomies = {
-    "CSO": TaxonomyRDFCSO("../../data/external/"),
+    # "CSO": TaxonomyRDFCSO("../../data/external/"),
     # "CCS": TaxonomyRDFCCS("../../data/external/"),
     # "Wikipedia": TaxonomyRDFCCS(
     #     "../../data/external/",
