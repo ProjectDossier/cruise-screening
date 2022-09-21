@@ -13,7 +13,7 @@ This is the citation screening project readme.
 
 [Install postgresql](https://www.postgresql.org/download/)
 
-On Mac:
+#### On Mac:
 
 `brew install postgresql@14`
 
@@ -28,6 +28,22 @@ Start psql and open database `postgres`, which is the database postgres uses its
 ```bash
 $ psql postgres
 ```
+
+#### Ubuntu
+
+`service postgresql start`
+
+Run server:
+
+`sudo systemctl start postgresql@14-main`
+
+Start psql and open database:
+
+`sudo -u postgres psql`
+
+
+
+### Next steps
 
 Create role for application, give login and `CREATEDB` permissions:
 
@@ -63,3 +79,26 @@ $ python manage.py migrate --database=literature_review
 $ python manage.py migrate
 $ python manage.py runserver
 ```
+
+
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+
+
+
+### GROBID
+
+#### server
+
+```bash
+docker pull lfoppiano/grobid:0.7.1
+docker run -t --rm -p 8070:8070 lfoppiano/grobid:0.7.1
+```
+
+
+#### Client 
+
+Just install 
+
+`pip install grobid_tei_xml`
