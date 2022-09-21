@@ -7,12 +7,12 @@ cso_cls = CSOClassification()
 
 taxonomies = {
     "CSO": TaxonomyRDFCSO("../../data/external/"),
-    "CCS": TaxonomyRDFCCS("../../data/external/"),
-    "Wikipedia": TaxonomyRDFCCS(
-        "../../data/external/",
-        filename="wikipedia_taxonomy.xml",
-        taxonomy_name="wikipedia",
-    ),
+    # "CCS": TaxonomyRDFCCS("../../data/external/"),
+    # "Wikipedia": TaxonomyRDFCCS(
+    #     "../../data/external/",
+    #     filename="wikipedia_taxonomy.xml",
+    #     taxonomy_name="wikipedia",
+    # ),
 }
 
 
