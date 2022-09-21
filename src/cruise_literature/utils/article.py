@@ -8,7 +8,7 @@ class Article:
 
     id: str
     title: str
-    url: str
+    url: str  # this could be a list
     pdf: str
     snippet: str
     abstract: str

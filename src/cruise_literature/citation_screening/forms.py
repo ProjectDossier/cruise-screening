@@ -1,5 +1,7 @@
+import copy
 from dataclasses import asdict
 import datetime
+from typing import Dict, Any
 
 from django import forms
 
@@ -53,6 +55,54 @@ class ArrayFieldStripWhitespaces(SimpleArrayField):
         if errors:
             raise ValidationError(errors)
         return values
+
+
+def merge_papers(paper_a: Dict[str, Any], paper_b: Dict[str, Any]) -> Dict[str, Any]:
+    outcome_paper = copy.deepcopy(paper_a)
+
+    keys_to_compare = ['abstract', 'snippet', 'authors', 'url', 'pdf', 'venue', 'n_citations', 'n_references', 'semantic_scholar_id', 'core_id',
+                       'publication_date']
+    for key in keys_to_compare:
+        item_1 = paper_a[key]
+        item_2 = paper_b[key]
+        if item_1 and not item_2:
+            outcome_paper[key] = item_1
+        elif item_2 and not item_1:
+            outcome_paper[key] = item_2
+        elif item_2 and item_1:
+            if isinstance(item_1, int):
+                if item_1 > item_2:
+                    outcome_paper[key] = item_1
+                else:
+                    outcome_paper[key] = item_2
+            elif isinstance(item_1, str):
+                if len(item_1) > len(item_2):
+                    outcome_paper[key] = item_1
+                else:
+                    outcome_paper[key] = item_2
+        else:
+            outcome_paper[key] = item_1
+
+    print(f"merged {paper_a}, {paper_b}")
+    outcome_paper["search_origin"] = paper_a["search_origin"] + paper_b["search_origin"]
+    return outcome_paper
+
+
+def deduplicate(results: Dict[str, Dict[str, Any]], how: str = "title") -> Dict[str, Dict[str, Any]]:
+    if how != "title":
+        return results
+    deduplicated = {}
+    title_lookup = {}
+    for key, paper in results.items():
+        paper_title = paper['title'].lower().strip()
+        if paper_title in title_lookup:
+            merged_paper = merge_papers(paper_a=deduplicated[title_lookup[paper_title]], paper_b=paper)
+
+            deduplicated[key] = merged_paper
+        else:
+            deduplicated[key] = paper
+            title_lookup[paper_title] = key
+    return deduplicated
 
 
 class NewLiteratureReviewForm(forms.ModelForm):
@@ -139,18 +189,26 @@ class NewLiteratureReviewForm(forms.ModelForm):
         search_engines = self.cleaned_data["search_engines"]
 
         queries = self.cleaned_data["search_queries"]
-        results = {}
+        results = {}  # TODO: change to list for convenience
         for query in queries:
             # TODO: add more search engines
             for search_engine_name in search_engines:
                 search_method = SEARCH_ENGINES_DICT[search_engine_name]
                 for paper in search_method(query=query, index=INDEX_NAME, top_k=top_k):
                     paper = asdict(paper)
+
+                    paper["n_citations"] = paper["citations"]  # TODO: change in Article class at some point
+                    paper["n_references"] = paper["references"]
+                    paper['search_origin'] = [{
+                        "search_engine":search_engine_name,
+                        "query": query,
+                        "added": str(datetime.datetime.now())
+                    }]  # TODO replaces query and search engine in future release
                     paper["query"] = query
                     paper["search_engine"] = search_engine_name
                     paper["decision"] = None
                     results[paper["id"]] = paper
-
+        results = deduplicate(results=results)
         instance.papers = list(results.values())
 
         if commit:
