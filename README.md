@@ -16,7 +16,7 @@ Activate the environment:
 $ source activate cruise-literature
 ```
 
-Use pip to install requirements:
+Use pip to install requirements (you will need `g++` to install fasttext):
 
 ```bash
 (cruise-literature)$ pip install -r requirements.txt
@@ -35,6 +35,61 @@ Checkout [the backend](src/backend/README.md)
 
 In order to use [CORE search API](https://core.ac.uk/services/api) create a file `data/core_api_key.txt` and insert your API key.
 Next, change `SEARCH_WITH_CORE` to  `True` in `src/cruise_literature/cruise_literature/settings.py`. 
+
+### 1.3 Postgres database
+
+#### Ubuntu
+
+```bash
+$ sudo apt install postgresql postgresql-contrib
+```
+
+```bash
+$ service postgresql start
+```
+
+Start postgres server
+
+```bash
+$ sudo systemctl start postgresql.service
+```
+
+##### Configuaration
+
+Start psql and open database:
+
+`sudo -u postgres psql`
+
+Create role for application, same as your `system_username`, give login, set `YOUR_PASSWORD` password and `CREATEDB` permissions:
+
+```postgres
+postgres-# CREATE ROLE <system_username> WITH LOGIN;
+postgres-# ALTER ROLE <system_username> CREATEDB;
+postgres-# ALTER  USER <system_username> WITH  PASSWORD 'YOUR_PASSWORD';
+postgres-# \q
+```
+
+On shell, open psql with `postgres` database with our new user.
+
+```bash 
+$ psql postgres
+```
+
+Note that the postgres prompt looks different, because we’re not logged in as a root user anymore. We’ll create a database and grant all privileges to our user:
+
+```postgres
+postgres-> CREATE DATABASE cruise_literature;
+postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO <system_username>;
+```
+
+Update the `DATABASES` entry  in `cruise_literature/settings.py`:
+```python
+...
+    "USER": <system_username>,
+    "PASSWORD": <YOUR_PASSWORD>,
+...
+```
+
 
 ## 2. Running
 
