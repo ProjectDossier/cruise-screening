@@ -78,6 +78,8 @@ Server should be available at http://127.0.0.1:8000/
 
 ### 2.2 Deployment on prod server
 
+Add `YOUR_IP` to `ALLOWED_HOSTS` in `cruise_literature/settings.py`
+
 ```bash
 (cruise-literature)$ python manage.py runserver YOUR_IP:YOUR_PORT
 ```
