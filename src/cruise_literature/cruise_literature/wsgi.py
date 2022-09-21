@@ -19,14 +19,14 @@ application = get_wsgi_application()
 
 
 
-from document_classification.registry import MLRegistry
-
-registry = MLRegistry()
-user = User.objects.all()[0]
-
-
-try:
-    registry = MLRegistry() # create ML registry
-
-except Exception as e:
-    print("Exception while loading the algorithms to the registry,", str(e))
+# from document_classification.registry import MLRegistry
+#
+# registry = MLRegistry()
+# user = User.objects.all()[0]
+#
+#
+# try:
+#     registry = MLRegistry() # create ML registry
+#
+# except Exception as e:
+#     print("Exception while loading the algorithms to the registry,", str(e))

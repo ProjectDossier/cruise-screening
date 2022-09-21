@@ -71,7 +71,7 @@ from numpy.random import rand
 from rest_framework import views, status
 from rest_framework.response import Response
 # from .registry import MLRegistry
-from cruise_literature.wsgi import registry
+# from cruise_literature.wsgi import registry
 
 
 class PredictView(views.APIView):
@@ -98,8 +98,8 @@ class PredictView(views.APIView):
         if algorithm_status == "ab_testing":
             alg_index = 0 if rand() < 0.5 else 1
 
-        algorithm_object = registry.endpoints[algs[alg_index].id] # TODO: bottleneck
-        prediction = algorithm_object.predict([request.data])
+        # algorithm_object = registry.endpoints[algs[alg_index].id] # TODO: bottleneck
+        prediction = None#algorithm_object.predict([request.data])
 
         label = prediction[0]["label"] if "label" in prediction else "error"
         ml_request = MLRequest(
