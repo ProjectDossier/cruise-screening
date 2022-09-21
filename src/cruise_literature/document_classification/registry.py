@@ -1,6 +1,6 @@
 from document_classification.models import Endpoint, MLAlgorithm, MLAlgorithmStatus
 
-from src.cruise_literature.document_classification.classifiers.dummy import DummyClassifier
+from document_classification.classifiers.dummy import DummyClassifier
 
 
 class MLRegistry:
