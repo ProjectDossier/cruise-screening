@@ -23,6 +23,7 @@ class Article:
 
     semantic_scholar_id: Optional[str] = None
     core_id: Optional[str] = None
+    doi: Optional[str] = None
 
 
 @dataclass()

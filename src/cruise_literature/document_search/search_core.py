@@ -74,6 +74,7 @@ def search_core(query: str, index: str, top_k: int) -> List[Article]:
                 else:
                     url = None
 
+                doi = candidate.get("doi")
                 citations_count = candidate.get("citationCount")
                 if not citations_count:
                     citations_count = 0
@@ -82,6 +83,7 @@ def search_core(query: str, index: str, top_k: int) -> List[Article]:
                     id=candidate["id"],
                     semantic_scholar_id=None,
                     core_id=candidate["id"],
+                    doi=doi,
                     title=candidate.get("title"),
                     url=url,
                     pdf=candidate.get("downloadUrl"),

@@ -68,6 +68,7 @@ def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
             venue = ""
 
         pdf = candidate["_source"].get("pdf")
+        doi = candidate["_source"].get("doi")
 
         url_candidates = candidate["_source"].get("url")
         url = ""
@@ -103,6 +104,7 @@ def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
             CSO_keywords=candidate["_source"].get("CSO_keywords")["union"],
             citations=citations,
             references=references,
+            doi=doi,
         )
         candidate_list.append(retrieved_art)
 

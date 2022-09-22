@@ -37,7 +37,12 @@
             {% else %}
                 <p class="is-5"><strong>Abstract:</strong> No abstract available</p>
             {% endif %}
-            <p class="is-italic p-2">{{ paper.authors }}</p>
+            <p class="is-italic p-2">
+                {{ paper.authors }}
+                {% if search_result.doi %}
+                    <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ search_result.doi }}">{{ search_result.doi }}</a></span>
+                {% endif %}
+            </p>
             <p class="has-text-grey p-2">
                 {{ paper.publication_date }} —
                 {% if paper.venue %}

@@ -13,7 +13,12 @@
             {% endif %}
         </p>
         <p class="subtitle mb-2">{{ search_result.authors }}</p>
-        <p class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</p>
+        <p>
+            <span class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</span>
+            {% if search_result.doi %}
+                <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ search_result.doi }}">{{ search_result.doi }}</a></span>
+            {% endif %}
+        </p>
     </div>
     <div class="card-content pt-1">
         <div class="content">

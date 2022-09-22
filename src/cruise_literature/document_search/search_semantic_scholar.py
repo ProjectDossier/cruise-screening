@@ -41,6 +41,11 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
             else:
                 pdf = None
 
+            if candidate.get("externalIds").get("DOI"):
+                doi = candidate.get("externalIds").get("DOI")
+            else:
+                doi = None
+
             authors = get_authors(candidate.get("authors"))
             authors = ", ".join([a.display_name for a in authors])
             date = candidate["publicationDate"]
@@ -53,6 +58,7 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
                 id=candidate["paperId"],
                 semantic_scholar_id=candidate["paperId"],
                 core_id=None,
+                doi=doi,
                 title=candidate.get("title"),
                 url=candidate["url"],
                 pdf=pdf,
