@@ -184,7 +184,8 @@ def screen_papers(request, review_id, paper_id=None):
         topic_relevance = request.POST["topic_relevance"]
         domain_relevance = request.POST["domain_relevance"]
         decision = request.POST["decision"]
-        prior_knowledge = request.POST["prior_knowledge"]
+        paper_prior_knowledge = request.POST["paper_prior_knowledge"]
+        authors_prior_knowledge = request.POST["authors_prior_knowledge"]
 
         edited_index = [
             index_i
@@ -204,7 +205,8 @@ def screen_papers(request, review_id, paper_id=None):
                 "stage": "title_abstract",
                 "domain_relevance": int(domain_relevance),
                 "topic_relevance": int(topic_relevance),
-                "prior_knowledge": int(prior_knowledge),
+                "paper_prior_knowledge": int(paper_prior_knowledge),
+                "authors_prior_knowledge": int(authors_prior_knowledge),
                 "screening_time": screening_time,
             }
         ]
