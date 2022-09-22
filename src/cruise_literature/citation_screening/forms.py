@@ -75,12 +75,12 @@ def merge_papers(paper_a: Dict[str, Any], paper_b: Dict[str, Any]) -> Dict[str, 
                     outcome_paper[key] = item_1
                 else:
                     outcome_paper[key] = item_2
-            elif isinstance(item_1, str) and  isinstance(item_2, str):
+            elif isinstance(item_1, str) and isinstance(item_2, str):
                 if len(item_1) > len(item_2):
                     outcome_paper[key] = item_1
                 else:
                     outcome_paper[key] = item_2
-            else: # todo cover rest
+            else:  # todo cover rest
                 outcome_paper[key] = item_1
         else:
             outcome_paper[key] = item_1

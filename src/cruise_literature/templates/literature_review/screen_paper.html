@@ -39,8 +39,8 @@
             {% endif %}
             <p class="is-italic p-2">
                 {{ paper.authors }}
-                {% if search_result.doi %}
-                    <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ search_result.doi }}">{{ search_result.doi }}</a></span>
+                {% if paper.doi %}
+                    <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ paper.doi }}">{{ paper.doi }}</a></span>
                 {% endif %}
             </p>
             <p class="has-text-grey p-2">
