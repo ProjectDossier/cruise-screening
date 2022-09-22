@@ -14,13 +14,13 @@ from django.contrib.postgres.forms import (
 from document_search.search_semantic_scholar import search_semantic_scholar
 from document_search.search_core import search_core
 from document_search.search_google_scholar import search_google_scholar
-from document_search.search_documents import search
+from document_search.search_documents import search_cruise
 from users.models import KnowledgeArea
 
 SEARCH_ENGINES_DICT = {
     "SemanticScholar": search_semantic_scholar,
     "CORE": search_core,
-    "CRUISE": search,
+    "CRUISE": search_cruise,
     "Google Scholar": search_google_scholar,
 }
 
