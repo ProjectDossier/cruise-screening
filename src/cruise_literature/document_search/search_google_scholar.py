@@ -57,8 +57,9 @@ def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
         publication_date = candidate["bib"].get("pub_year")
         try:
             publication_date = int(publication_date)
-        except TypeError:
-            publication_date = int(publication_date[:4])
+        except ValueError:
+            publication_date = None
+
 
         retrieved_art = Article(
             id=_id,
