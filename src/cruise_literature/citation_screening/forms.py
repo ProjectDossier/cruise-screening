@@ -99,6 +99,7 @@ def deduplicate(results: Dict[str, Dict[str, Any]], how: str = "title") -> Dict[
         paper_title = paper['title'].lower().strip()
         if paper_title in title_lookup:
             merged_paper = merge_papers(paper_a=deduplicated[title_lookup[paper_title]], paper_b=paper)
+            title_lookup.pop(paper_title, None)
             deduplicated.pop(title_lookup[paper_title], None)
 
             deduplicated[key] = merged_paper
