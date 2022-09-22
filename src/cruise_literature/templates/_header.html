@@ -38,9 +38,11 @@
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
         </a>
-        <a href="{% url 'literature_review:literature_review_home' %}" class="navbar-item">
-            My reviews
-        </a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'literature_review:literature_review_home' %}" class="navbar-item">
+                My reviews
+            </a>
+        {% endif %}
     </div>
     {% if request.resolver_match.view_name == 'search_results' %}
         <div class="navbar-menu is-active">
