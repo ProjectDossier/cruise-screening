@@ -61,6 +61,21 @@
                 </strong>
 
                 <div class="screen_paper_relevance control m-2 p-1 box">
+                    <span class="tag is-light is-size-6">Decision based on title and abstract</span>
+                    <label class="ml-4">
+                        <input type="radio" name="decision" value="1" required>
+                        <span class="button is-small">include</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="decision" value="-1">
+                        <span class="button is-small">not sure</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="decision" value="0">
+                        <span class="button is-small">exclude</span>
+                    </label>
+                </div>
+                <div class="screen_paper_relevance control m-2 p-1 box">
                     <span class="tag is-light is-size-6">Domain relevance</span>
                     <label class="ml-4">
                         <input type="radio" name="domain_relevance" value="2" required>
@@ -90,21 +105,6 @@
                         <span class="button is-small">not relevant</span>
                     </label>
                 </div>
-                <div class="screen_paper_relevance control m-2 p-1 box">
-                    <span class="tag is-light is-size-6">Decision based on title and abstract</span>
-                    <label class="ml-4">
-                        <input type="radio" name="decision" value="1" required>
-                        <span class="button is-small">include</span>
-                    </label>
-                    <label class="ml-4">
-                        <input type="radio" name="decision" value="-1">
-                        <span class="button is-small">not sure</span>
-                    </label>
-                    <label class="ml-4">
-                        <input type="radio" name="decision" value="0">
-                        <span class="button is-small">exclude</span>
-                    </label>
-                </div>
 
                 <hr/>
                 <div class="columns">
@@ -116,6 +116,10 @@
                                 <label class="ml-4">
                                     <input type="radio" name="inclusion_{{ forloop.counter }}" value="yes">
                                     <span class="button is-small">Yes</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="not_sure">
+                                    <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
                                     <input type="radio" name="inclusion_{{ forloop.counter }}" value="no">
@@ -132,6 +136,10 @@
                                 <label class="ml-4">
                                     <input type="radio" name="exclusion_{{ forloop.counter }}" value="yes" required>
                                     <span class="button is-small">Yes</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="not_sure">
+                                    <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
                                     <input type="radio" name="exclusion_{{ forloop.counter }}" value="no">
