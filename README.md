@@ -54,40 +54,51 @@ Start postgres server
 $ sudo systemctl start postgresql.service
 ```
 
-##### Configuaration
+##### Configuration
+
+Replace `SYSTEM_USERNAME` with your system username and `YOUR_PASSWORD` with your desired database password.
+
+You can check what is your `SYSTEM_USERNAME` with the following command:
+
+```bash
+$ whoami
+```
 
 Start psql and open database:
 
-`sudo -u postgres psql`
+```bash
+$ sudo -u postgres psql
+```
 
-Create role for application, same as your `system_username`, give login, set `YOUR_PASSWORD` password and `CREATEDB` permissions:
+Create new role for cruise application, set its name same as your `SYSTEM_USERNAME`, give `LOGIN` and `CREATEDB` permissions; set `YOUR_PASSWORD` password:
 
 ```postgres
-postgres-# CREATE ROLE <system_username> WITH LOGIN;
-postgres-# ALTER ROLE <system_username> CREATEDB;
-postgres-# ALTER  USER <system_username> WITH  PASSWORD 'YOUR_PASSWORD';
+postgres-# CREATE ROLE SYSTEM_USERNAME WITH LOGIN;
+postgres-# ALTER ROLE SYSTEM_USERNAME CREATEDB;
+postgres-# ALTER  USER SYSTEM_USERNAME WITH  PASSWORD 'YOUR_PASSWORD';
 postgres-# \q
 ```
 
 On shell, open psql with `postgres` database with our new user.
 
-```bash 
+```bash
 $ psql postgres
 ```
 
-Note that the postgres prompt looks different, because we’re not logged in as a root user anymore. We’ll create a database and grant all privileges to our user:
+Note that the postgres prompt looks different, because you’re not logged in as a root user anymore. Create a `cruise_literature` database and grant all privileges to our `SYSTEM_USERNAME` user:
 
 ```postgres
 postgres-> CREATE DATABASE cruise_literature;
-postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO <system_username>;
+postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO SYSTEM_USERNAME;
 ```
 
-Update the `DATABASES` entry  in `cruise_literature/settings.py`:
+Update the `DATABASES` entry  in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py):
+
 ```python
-...
-    "USER": <system_username>,
-    "PASSWORD": <YOUR_PASSWORD>,
-...
+    ...
+    "USER": "SYSTEM_USERNAME",
+    "PASSWORD": "YOUR_PASSWORD",
+    ...
 ```
 
 
