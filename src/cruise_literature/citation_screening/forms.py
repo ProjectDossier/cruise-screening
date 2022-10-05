@@ -58,6 +58,14 @@ class ArrayFieldStripWhitespaces(SimpleArrayField):
 
 
 def merge_papers(paper_a: Dict[str, Any], paper_b: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Merges two papers into one. If items exist in only one of the papers, they are added to the merged paper.
+    If items exist in both papers, longer (for strings) or higher (for numerical) items are added to the merged paper.
+
+    :param paper_a: first paper
+    :param paper_b: second paper
+    :return: merged paper
+    """
     outcome_paper = copy.deepcopy(paper_a)
 
     keys_to_compare = ['abstract', 'snippet', 'authors', 'url', 'pdf', 'venue', 'n_citations', 'n_references', 'semantic_scholar_id', 'core_id',
@@ -91,6 +99,16 @@ def merge_papers(paper_a: Dict[str, Any], paper_b: Dict[str, Any]) -> Dict[str, 
 
 
 def deduplicate(results: Dict[str, Dict[str, Any]], how: str = "title") -> Dict[str, Dict[str, Any]]:
+    """
+    Deduplicates results based on the title of the paper.
+    If there are multiple papers with the same title, runs merge_papers() on them.
+    Currently only "title" based matching is supported.
+    TODO: add more matching methods, e.g. based on DOI and other IDs.
+
+    :param results: dictionary of results
+    :param how: method for matching duplicates. 'title'
+    :return: deduplicated dictionary of results
+    """
     if how != "title":
         return results
     deduplicated = {}
