@@ -237,6 +237,7 @@ def export_review(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user in review.members.all():
         data = {
+            "review_id": review.id,
             "title": review.title,
             "description": review.description,
             "search_queries": review.search_queries,
