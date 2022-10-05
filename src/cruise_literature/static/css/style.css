@@ -242,3 +242,13 @@ search-results-one-column {
 .form_required {
   border-color: rgba(253, 113, 113, 0.76);
 }
+
+.eligibility_text_tag {
+  /* make sure that all criteria have the same length */
+  word-break: break-all;
+  white-space: normal !important;
+  width: 40ch;
+  text-align: left;
+  height: auto !important;
+  min-height: 2em !important;
+}
