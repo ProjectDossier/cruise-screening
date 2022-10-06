@@ -11,7 +11,9 @@ class DummyClassifier(BaseClassifier):
         pass
 
     def predict(self, input_data) -> Dict[str, Union[List[Dict[str, float]], str]]:
-        predictions = [{"probability": 1, "label": random.choice([0, 1])} for _ in input_data]
+        predictions = [
+            {"probability": 1, "label": random.choice([0, 1])} for _ in input_data
+        ]
         return {"predictions": predictions, "status": "OK"}
 
     def postprocessing(self, input_data):

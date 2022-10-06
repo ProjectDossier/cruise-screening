@@ -52,9 +52,16 @@ def search_results(request):
 
         # search_result = search_google_scholar(search_query, index_name, top_k)
         search_functions = [search_cruise, search_core, search_semantic_scholar]
-        with concurrent.futures.ThreadPoolExecutor(max_workers=len(search_functions)) as executor:
-            results = [executor.submit(search_function, search_query, index_name, top_k) for search_function in search_functions]
-            results = [future.result() for future in concurrent.futures.as_completed(results)]
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=len(search_functions)
+        ) as executor:
+            results = [
+                executor.submit(search_function, search_query, index_name, top_k)
+                for search_function in search_functions
+            ]
+            results = [
+                future.result() for future in concurrent.futures.as_completed(results)
+            ]
             search_result = merge_results(
                 internal_search_results=results[0],
                 core_search_results=results[1],

@@ -22,4 +22,4 @@ router.register(r"mlrequests", MLRequestViewSet, basename="mlrequests")
 
 urlpatterns = [
     path(r"api/v1/", include((router.urls, app_name))),
-    ]
+]

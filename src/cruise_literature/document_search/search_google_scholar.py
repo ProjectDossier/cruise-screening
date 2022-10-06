@@ -60,7 +60,6 @@ def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
         except ValueError:
             publication_date = None
 
-
         retrieved_art = Article(
             id=_id,
             semantic_scholar_id=None,

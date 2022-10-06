@@ -7,13 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('citation_screening', '0007_remove_literaturereview_first_screening_and_more'),
+        ("citation_screening", "0007_remove_literaturereview_first_screening_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='literaturereview',
-            name='tags',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, max_length=250), blank=True, null=True, size=None),
+            model_name="literaturereview",
+            name="tags",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(blank=True, max_length=250),
+                blank=True,
+                null=True,
+                size=None,
+            ),
         ),
     ]

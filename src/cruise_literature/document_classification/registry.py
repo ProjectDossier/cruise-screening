@@ -8,7 +8,9 @@ class MLRegistry:
         _endpoints = Endpoint.objects.all()
         ml_algorithms = MLAlgorithm.objects.all()
         # TODO: replace endpoints values from hardcoded DummyClassifier to a DB pickle
-        self.endpoints = {ml_algorithm.id: DummyClassifier() for ml_algorithm in ml_algorithms}
+        self.endpoints = {
+            ml_algorithm.id: DummyClassifier() for ml_algorithm in ml_algorithms
+        }
 
     def add_algorithm(
         self,

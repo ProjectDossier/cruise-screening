@@ -65,4 +65,3 @@ class MLRequestViewSet(
 ):
     serializer_class = MLRequestSerializer
     queryset = MLRequest.objects.all()
-

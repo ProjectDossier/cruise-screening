@@ -68,8 +68,19 @@ def merge_papers(paper_a: Dict[str, Any], paper_b: Dict[str, Any]) -> Dict[str, 
     """
     outcome_paper = copy.deepcopy(paper_a)
 
-    keys_to_compare = ['abstract', 'snippet', 'authors', 'url', 'pdf', 'venue', 'n_citations', 'n_references', 'semantic_scholar_id', 'core_id',
-                       'publication_date']
+    keys_to_compare = [
+        "abstract",
+        "snippet",
+        "authors",
+        "url",
+        "pdf",
+        "venue",
+        "n_citations",
+        "n_references",
+        "semantic_scholar_id",
+        "core_id",
+        "publication_date",
+    ]
     for key in keys_to_compare:
         item_1 = paper_a[key]
         item_2 = paper_b[key]
@@ -98,7 +109,9 @@ def merge_papers(paper_a: Dict[str, Any], paper_b: Dict[str, Any]) -> Dict[str, 
     return outcome_paper
 
 
-def deduplicate(results: Dict[str, Dict[str, Any]], how: str = "title") -> Dict[str, Dict[str, Any]]:
+def deduplicate(
+    results: Dict[str, Dict[str, Any]], how: str = "title"
+) -> Dict[str, Dict[str, Any]]:
     """
     Deduplicates results based on the title of the paper.
     If there are multiple papers with the same title, runs merge_papers() on them.
@@ -114,9 +127,11 @@ def deduplicate(results: Dict[str, Dict[str, Any]], how: str = "title") -> Dict[
     deduplicated = {}
     title_lookup = {}
     for key, paper in results.items():
-        paper_title = paper['title'].lower().strip()
+        paper_title = paper["title"].lower().strip()
         if paper_title in title_lookup:
-            merged_paper = merge_papers(paper_a=deduplicated[title_lookup[paper_title]], paper_b=paper)
+            merged_paper = merge_papers(
+                paper_a=deduplicated[title_lookup[paper_title]], paper_b=paper
+            )
             deduplicated.pop(title_lookup[paper_title], None)
             title_lookup.pop(paper_title, None)
 
@@ -174,17 +189,19 @@ class NewLiteratureReviewForm(forms.ModelForm):
     )
     search_engines = forms.MultipleChoiceField(
         label="Select search engines where you want to search for papers. By default it searches in first three.",
-        choices=[(k, ' '.join(k.split('_'))) for k in SEARCH_ENGINES_DICT.keys()],
-        initial=list(SEARCH_ENGINES_DICT.keys())[:3],  # only first three search engines by default
+        choices=[(k, " ".join(k.split("_"))) for k in SEARCH_ENGINES_DICT.keys()],
+        initial=list(SEARCH_ENGINES_DICT.keys())[
+            :3
+        ],  # only first three search engines by default
         widget=forms.SelectMultiple(attrs={"class": "select is-multiple is-medium"}),
-        help_text="Selecting Google Scholar will drastically increase the search time."
+        help_text="Selecting Google Scholar will drastically increase the search time.",
     )
     top_k = forms.IntegerField(
         initial=25,
         max_value=200,
         min_value=10,
         label="How many records do you want to retrieve?",
-        widget=forms.NumberInput(attrs={"class": "input"})
+        widget=forms.NumberInput(attrs={"class": "input"}),
     )
 
     class Meta:
@@ -206,7 +223,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
         super(NewLiteratureReviewForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        INDEX_NAME = 'papers'  # TODO: get rid of this parameter
+        INDEX_NAME = "papers"  # TODO: get rid of this parameter
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
         top_k = self.cleaned_data["top_k"]
         search_engines = self.cleaned_data["search_engines"]
@@ -220,13 +237,17 @@ class NewLiteratureReviewForm(forms.ModelForm):
                 for paper in search_method(query=query, index=INDEX_NAME, top_k=top_k):
                     paper = asdict(paper)
 
-                    paper["n_citations"] = paper["citations"]  # TODO: change in Article class at some point
+                    paper["n_citations"] = paper[
+                        "citations"
+                    ]  # TODO: change in Article class at some point
                     paper["n_references"] = paper["references"]
-                    paper['search_origin'] = [{
-                        "search_engine":search_engine_name,
-                        "query": query,
-                        "added": str(datetime.datetime.now())
-                    }]  # TODO replaces query and search engine in future release
+                    paper["search_origin"] = [
+                        {
+                            "search_engine": search_engine_name,
+                            "query": query,
+                            "added": str(datetime.datetime.now()),
+                        }
+                    ]  # TODO replaces query and search engine in future release
                     paper["query"] = query
                     paper["search_engine"] = search_engine_name
                     paper["decision"] = None

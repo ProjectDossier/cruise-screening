@@ -223,9 +223,11 @@ def screen_papers(request, review_id, paper_id=None):
                 return render(
                     request,
                     "literature_review/screen_paper.html",
-                    {"review": review, "paper": paper,
-                     "start_time": time.time(),
-                     }
+                    {
+                        "review": review,
+                        "paper": paper,
+                        "start_time": time.time(),
+                    },
                 )
 
 
@@ -348,8 +350,8 @@ def automatic_screening(request, review_id):
         for paper in review.papers:
             if paper.get("decisions") and paper.get("screened"):
                 decision = paper["decisions"][0]["decision"]
-                if decision == '-1':
-                    decision = '1'
+                if decision == "-1":
+                    decision = "1"
                 xy_train[paper["id"]] = {
                     "title": f'{paper["title"]} {paper["abstract"]}',
                     "decision": decision,

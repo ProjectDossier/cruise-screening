@@ -1,6 +1,11 @@
 from typing import Tuple
 
-from django.core.validators import MinLengthValidator, MaxLengthValidator, MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MinLengthValidator,
+    MaxLengthValidator,
+    MaxValueValidator,
+    MinValueValidator,
+)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
@@ -38,18 +43,23 @@ class LiteratureReview(models.Model):
         default="",
         help_text="Additional description field, for instance for topic narrative.",
     )
-    discipline = models.ForeignKey(KnowledgeArea, on_delete=models.SET_NULL, null=True, blank=True)
-    tags = ArrayField(models.CharField(max_length=250, blank=True), null=True, blank=True)
+    discipline = models.ForeignKey(
+        KnowledgeArea, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    tags = ArrayField(
+        models.CharField(max_length=250, blank=True), null=True, blank=True
+    )
     search_databases = models.CharField(max_length=250, blank=True, null=True)
 
     creation_date = models.DateField(auto_now_add=True)
     last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
 
-    annotations_per_paper = models.IntegerField(default=1,
-                                                help_text="How many reviewers need to screen every paper. Default is 1.",
-                                                validators=[MinValueValidator(1),
-                                                            MaxValueValidator(3)])
+    annotations_per_paper = models.IntegerField(
+        default=1,
+        help_text="How many reviewers need to screen every paper. Default is 1.",
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
+    )
 
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
     inclusion_criteria = ArrayField(
