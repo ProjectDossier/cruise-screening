@@ -37,7 +37,12 @@
             {% else %}
                 <p class="is-5"><strong>Abstract:</strong> No abstract available</p>
             {% endif %}
-            <p class="is-italic p-2">{{ paper.authors }}</p>
+            <p class="is-italic p-2">
+                {{ paper.authors }}
+                {% if paper.doi %}
+                    <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ paper.doi }}">{{ paper.doi }}</a></span>
+                {% endif %}
+            </p>
             <p class="has-text-grey p-2">
                 {{ paper.publication_date }} —
                 {% if paper.venue %}
@@ -51,10 +56,7 @@
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>
                 <input class="input mr-2" name="start_time" value="{{ start_time }}" type="hidden"/>
-                <strong class="has-background-orange-light">
-                    Relevance:
-                </strong>
-
+                <strong><span class="has-background-orange-light mb-2">1. Relevance</span><span class="has-text-danger"> *</span></strong>
                 <div class="screen_paper_relevance control m-2 p-1 box">
                     <span class="tag is-light is-size-6">Domain relevance</span>
                     <label class="ml-4">
@@ -85,32 +87,20 @@
                         <span class="button is-small">not relevant</span>
                     </label>
                 </div>
-                <div class="screen_paper_relevance control m-2 p-1 box">
-                    <span class="tag is-light is-size-6">Decision based on title and abstract</span>
-                    <label class="ml-4">
-                        <input type="radio" name="decision" value="1" required>
-                        <span class="button is-small">include</span>
-                    </label>
-                    <label class="ml-4">
-                        <input type="radio" name="decision" value="-1">
-                        <span class="button is-small">not sure</span>
-                    </label>
-                    <label class="ml-4">
-                        <input type="radio" name="decision" value="0">
-                        <span class="button is-small">exclude</span>
-                    </label>
-                </div>
-
                 <hr/>
                 <div class="columns">
                     <div class="column">
-                        <strong class="has-background-orange-light">Inclusion criteria:</strong>
+                        <strong><span class="has-background-orange-light mb-2">2. Inclusion criteria</span></strong>
                         {% for criterion in review.inclusion_criteria %}
-                            <div class="control m-3 p-1 box screen_paper_relevance">
-                                <span class="is-light tag is-size-6">{{ criterion }}</span>
-                                <label class="ml-4">
+                            <div class="control m-2 p-1 box screen_paper_relevance">
+                                <span class="is-light tag is-size-6 eligibility_text_tag">{{ criterion }}</span>
+                                <label class="ml-1">
                                     <input type="radio" name="inclusion_{{ forloop.counter }}" value="yes">
                                     <span class="button is-small">Yes</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="not_sure">
+                                    <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
                                     <input type="radio" name="inclusion_{{ forloop.counter }}" value="no">
@@ -120,13 +110,17 @@
                         {% endfor %}
                     </div>
                     <div class="column">
-                        <strong class="has-background-orange-light">Exclusion criteria:</strong>
+                        <strong><span class="has-background-orange-light mb-2">3. Exclusion criteria</span><span class="has-text-danger"> *</span></strong>
                         {% for criterion in review.exclusion_criteria %}
-                            <div class="control m-3 p-1 box screen_paper_relevance">
-                                <span class="tag is-light is-size-6">{{ criterion }}</span>
-                                <label class="ml-4">
+                            <div class="control m-2 p-1 box screen_paper_relevance">
+                                <span class="tag is-light is-size-6 eligibility_text_tag">{{ criterion }}</span>
+                                <label class="ml-1">
                                     <input type="radio" name="exclusion_{{ forloop.counter }}" value="yes" required>
                                     <span class="button is-small">Yes</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="exclusion_{{ forloop.counter }}" value="not_sure">
+                                    <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
                                     <input type="radio" name="exclusion_{{ forloop.counter }}" value="no">
@@ -136,34 +130,50 @@
                         {% endfor %}
                     </div>
                 </div>
-                <strong class="has-background-orange-light">
-                    Descriptive reason:
-                </strong>
-                <input class="input mr-2" name="reason" value=""/>
+                <strong><span class="has-background-orange-light mb-2">
+                    4. Descriptive reason
+                </span></strong>
+                <input class="input mr-2 mt-2" name="reason" value=""/>
+                <div class="screen_paper_relevance control mt-4">
+                    <strong><span class="has-background-orange-light mb-2">5. Decision based on title and abstract</span><span class="has-text-danger"> *</span></strong>
+                    <label class="ml-4">
+                        <input type="radio" name="decision" value="1" required>
+                        <span class="button is-small">Include</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="decision" value="-1">
+                        <span class="button is-small">Not sure</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="decision" value="0">
+                        <span class="button is-small">Exclude</span>
+                    </label>
+                </div>
+
                 <hr/>
-                <div class="control p-1 screen_paper_relevance">
-                    <strong class="has-background-orange-light mb-2">Did you know this paper before?</strong>
+                <div class="control pb-1 screen_paper_relevance">
+                    <strong><span class="has-background-orange-light mb-2">6. Did you know this paper before?</span><span class="has-text-danger"> *</span></strong>
                     <label class="m-3">
-                        <input type="radio" name="prior_knowledge" value="2" required>
+                        <input type="radio" name="paper_prior_knowledge" value="2" required>
                         <span class="button is-small">I knew and read the full paper before</span>
                     </label>
                     <label>
-                        <input type="radio" name="prior_knowledge" value="1">
+                        <input type="radio" name="paper_prior_knowledge" value="1">
                         <span class="button is-small">I knew the paper but not read the full paper before</span>
                     </label>
                     <label>
-                        <input type="radio" name="prior_knowledge" value="0">
+                        <input type="radio" name="paper_prior_knowledge" value="0">
                         <span class="button is-small">I did not know it before</span>
                     </label>
                 </div>
-                <div class="control p-1 screen_paper_relevance">
-                    <strong class="has-background-orange-light mb-2">Did you know the authors before?</strong>
+                <div class="control pb-1 screen_paper_relevance">
+                    <strong><span class="has-background-orange-light mb-2">7. Did you know any of the authors before?</span><span class="has-text-danger"> *</span></strong>
                     <label class="m-3">
-                        <input type="radio" name="prior_knowledge" value="1" required>
+                        <input type="radio" name="authors_prior_knowledge" value="1" required>
                         <span class="button is-small">Yes, I knew at least one of the authors</span>
                     </label>
                     <label>
-                        <input type="radio" name="prior_knowledge" value="0">
+                        <input type="radio" name="authors_prior_knowledge" value="0">
                         <span class="button is-small">No, I did not know any of the authors</span>
                     </label>
                 </div>

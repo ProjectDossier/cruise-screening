@@ -139,9 +139,9 @@
                     </td>
                 {% endif %}
                 {% if paper.automatic_decisions.decision == 1 %}
-                    <td class="has-text-success">Include</td>
+                    <td class="has-text-success">Include ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
                 {% elif paper.automatic_decisions.decision == 0 %}
-                    <td class="has-text-grey-lighter">Exclude</td>
+                    <td class="has-text-grey-lighter">Exclude ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
                 {% else %}
                     <td></td>
                 {% endif %}

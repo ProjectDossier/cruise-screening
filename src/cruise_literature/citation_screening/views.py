@@ -184,7 +184,8 @@ def screen_papers(request, review_id, paper_id=None):
         topic_relevance = request.POST["topic_relevance"]
         domain_relevance = request.POST["domain_relevance"]
         decision = request.POST["decision"]
-        prior_knowledge = request.POST["prior_knowledge"]
+        paper_prior_knowledge = request.POST["paper_prior_knowledge"]
+        authors_prior_knowledge = request.POST["authors_prior_knowledge"]
 
         edited_index = [
             index_i
@@ -204,7 +205,8 @@ def screen_papers(request, review_id, paper_id=None):
                 "stage": "title_abstract",
                 "domain_relevance": int(domain_relevance),
                 "topic_relevance": int(topic_relevance),
-                "prior_knowledge": int(prior_knowledge),
+                "paper_prior_knowledge": int(paper_prior_knowledge),
+                "authors_prior_knowledge": int(authors_prior_knowledge),
                 "screening_time": screening_time,
             }
         ]
@@ -221,9 +223,11 @@ def screen_papers(request, review_id, paper_id=None):
                 return render(
                     request,
                     "literature_review/screen_paper.html",
-                    {"review": review, "paper": paper,
-                     "start_time": time.time(),
-                     }
+                    {
+                        "review": review,
+                        "paper": paper,
+                        "start_time": time.time(),
+                    },
                 )
 
 
@@ -235,6 +239,7 @@ def export_review(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user in review.members.all():
         data = {
+            "review_id": review.id,
             "title": review.title,
             "description": review.description,
             "search_queries": review.search_queries,
@@ -344,12 +349,15 @@ def automatic_screening(request, review_id):
         x_pred = {}
         for paper in review.papers:
             if paper.get("decisions") and paper.get("screened"):
+                decision = paper["decisions"][0]["decision"]
+                if decision == "-1":
+                    decision = "1"
                 xy_train[paper["id"]] = {
-                    "title": paper["title"],
-                    "decision": paper["decisions"][0]["decision"],
+                    "title": f'{paper["title"]} {paper["abstract"]}',
+                    "decision": decision,
                 }  # TODO: convert -1 (maybe) to 1
             else:
-                x_pred[paper["id"]] = {"title": paper["title"]}
+                x_pred[paper["id"]] = {"title": f'{paper["title"]} {paper["abstract"]}'}
         algorithm_object = FastTextClassifier()
         # algorithm_object = DummyClassifier()
         algorithm_object.train(

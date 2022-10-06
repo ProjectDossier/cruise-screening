@@ -1,6 +1,11 @@
 from typing import Tuple
 
-from django.core.validators import MinLengthValidator, MaxLengthValidator, MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MinLengthValidator,
+    MaxLengthValidator,
+    MaxValueValidator,
+    MinValueValidator,
+)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
@@ -38,18 +43,23 @@ class LiteratureReview(models.Model):
         default="",
         help_text="Additional description field, for instance for topic narrative.",
     )
-    discipline = models.ForeignKey(KnowledgeArea, on_delete=models.SET_NULL, null=True, blank=True)
-    tags = ArrayField(models.CharField(max_length=250, blank=True), null=True, blank=True)
+    discipline = models.ForeignKey(
+        KnowledgeArea, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    tags = ArrayField(
+        models.CharField(max_length=250, blank=True), null=True, blank=True
+    )
     search_databases = models.CharField(max_length=250, blank=True, null=True)
 
     creation_date = models.DateField(auto_now_add=True)
     last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
 
-    annotations_per_paper = models.IntegerField(default=1,
-                                                help_text="How many reviewers need to screen every paper. Default is 1.",
-                                                validators=[MinValueValidator(1),
-                                                            MaxValueValidator(3)])
+    annotations_per_paper = models.IntegerField(
+        default=1,
+        help_text="How many reviewers need to screen every paper. Default is 1.",
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
+    )
 
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
     inclusion_criteria = ArrayField(
@@ -108,6 +118,22 @@ class LiteratureReview(models.Model):
             else:
                 no_decision += 1
         return includes, not_sures, excludes, no_decision
+
+    @property
+    def can_screen_automatically(self) -> bool:
+        """This is used to determine if the literature review can be screened automatically.
+        Automatic screening requires at least 8 manual annotations out of which at least 3 are includes and not sures
+        and additional three are excludes.
+
+        :return: Returns True if the literature review has enough annotations.
+        """
+        if self.number_of_screened < 8:
+            return False
+        else:
+            includes, not_sures, excludes, _ = self.decisions_count
+            if (includes + not_sures) >= 3 and excludes >= 3:
+                return True
+        return False
 
 
 class LiteratureReviewMember(models.Model):

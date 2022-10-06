@@ -4,9 +4,15 @@
 <a href="{% url 'literature_review:review_details' review.id %}" class="button is-info is-small ml-4">
     Review home
 </a>
-<a href="{% url 'literature_review:automatic_screening' review.id %}" class="ml-4 button is-info is-outlined is-small">
-    Screen automatically
-</a>
+{% if review.can_screen_automatically %}
+    <a href="{% url 'literature_review:automatic_screening' review.id %}" class="ml-4 button is-info is-outlined is-small">
+        Screen automatically
+    </a>
+{% else %}
+    <a class="ml-4 button is-info is-outlined is-small" disabled>
+        Screen automatically
+    </a>
+{% endif %}
 <a href="{% url 'literature_review:edit_review' review.id %}" class="ml-4 button is-info is-outlined is-small">
     Edit review
 </a>

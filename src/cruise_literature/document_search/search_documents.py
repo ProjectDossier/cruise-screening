@@ -26,7 +26,7 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
-def search(query: str, index: str, top_k: int) -> List[Article]:
+def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
     """Search internal elasticsearch database."""
     headers = {"Content-type": "application/json"}
     res = requests.post(
@@ -56,7 +56,7 @@ def search(query: str, index: str, top_k: int) -> List[Article]:
 
         citations = len(candidate["_source"].get("n_citations"))
         if citations == 0:  # TODO: learn why citation is equal to 0
-            citations = "?"
+            citations = "-"
         references = len(candidate["_source"].get("references"))
 
         venue_raw = candidate["_source"].get("venue")
@@ -68,6 +68,7 @@ def search(query: str, index: str, top_k: int) -> List[Article]:
             venue = ""
 
         pdf = candidate["_source"].get("pdf")
+        doi = candidate["_source"].get("doi")
 
         url_candidates = candidate["_source"].get("url")
         url = ""
@@ -103,6 +104,7 @@ def search(query: str, index: str, top_k: int) -> List[Article]:
             CSO_keywords=candidate["_source"].get("CSO_keywords")["union"],
             citations=citations,
             references=references,
+            doi=doi,
         )
         candidate_list.append(retrieved_art)
 

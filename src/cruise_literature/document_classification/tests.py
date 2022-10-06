@@ -5,9 +5,11 @@ from django.test import TestCase
 from .classifiers.dummy import DummyClassifier
 from .registry import MLRegistry
 from users.models import User
+from django.test import TestCase
+from rest_framework.test import APIClient
 
 
-class DocumentClassificationTests(TestCase):
+class MLRegistryTests(TestCase):
     def test_registry(self):
         user = User.objects.create_user("myuser", "myemail@test.com", "test_password")
         registry = MLRegistry()

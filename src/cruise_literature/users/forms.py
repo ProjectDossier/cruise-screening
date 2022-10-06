@@ -28,7 +28,7 @@ class NewUserForm(UserCreationForm):
     )
     date_of_birth = forms.DateField(
         widget=forms.SelectDateWidget(years=range(1900, 2010)),
-        initial=datetime.date.today
+        initial=datetime.date.today,
     )
     email = forms.EmailField(required=True)
 

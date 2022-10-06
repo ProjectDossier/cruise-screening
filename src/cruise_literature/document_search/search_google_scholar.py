@@ -54,6 +54,11 @@ def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
             names=candidate["bib"].get("author"), scholar_ids=candidate.get("author_id")
         )
         authors = ", ".join([a.display_name for a in authors])
+        publication_date = candidate["bib"].get("pub_year")
+        try:
+            publication_date = int(publication_date)
+        except ValueError:
+            publication_date = None
 
         retrieved_art = Article(
             id=_id,
@@ -65,7 +70,7 @@ def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
             snippet=snippet,
             abstract=abstract,
             authors=authors,
-            publication_date=candidate["bib"].get("pub_year"),
+            publication_date=publication_date,
             venue=candidate["bib"].get("venue"),
             keywords_snippet=None,
             keywords_rest=None,
