@@ -119,6 +119,22 @@ class LiteratureReview(models.Model):
                 no_decision += 1
         return includes, not_sures, excludes, no_decision
 
+    @property
+    def can_screen_automatically(self) -> bool:
+        """This is used to determine if the literature review can be screened automatically.
+        Automatic screening requires at least 8 manual annotations out of which at least 3 are includes and not sures
+        and additional three are excludes.
+
+        :return: Returns True if the literature review has enough annotations.
+        """
+        if self.number_of_screened < 8:
+            return False
+        else:
+            includes, not_sures, excludes, _ = self.decisions_count
+            if (includes + not_sures) >= 3 and excludes >= 3:
+                return True
+        return False
+
 
 class LiteratureReviewMember(models.Model):
     member = models.ForeignKey(
