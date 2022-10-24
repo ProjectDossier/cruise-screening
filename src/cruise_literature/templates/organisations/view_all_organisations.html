@@ -20,29 +20,16 @@
                     <th>Number</th>
                     <th>Title</th>
                     <th>Description</th>
-{#                    <th>Discipline</th>#}
-{#                    <th>Search queries</th>#}
-{#                    <th>#PDFs / #papers</th>#}
-{#                    <th>#Screened (%)</th>#}
-{#                    <th>Decisions (I / ? / E)</th>#}
+                    <th>Members</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for organisation in organisations %}
                     <tr>
                         <th>{{ forloop.counter }}</th>
-                        <td>{{ organisation.title }}</td>
+                        <td><a href="{% url 'organisations:view_organisation' organisation.id %}">{{ organisation.title }}</a></td>
                         <td>{{ organisation.description }}</td>
-{#                        <td>{{ review.discipline }}</td>#}
-{#                        <td>#}
-{#                            {% for query in review.search_queries %}#}
-{#                                <span class="tag is-light">{{ query }}</span>#}
-{#                            {% endfor %}#}
-{#                        </td>#}
-{#                        <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>#}
-{#                        <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>#}
-{#                        <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }}#}
-{#                            / {{ review.decisions_count.2 }}</td>#}
+                        <td>{{ organisation.number_of_members }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

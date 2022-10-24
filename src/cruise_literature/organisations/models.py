@@ -41,6 +41,22 @@ class Organisation(models.Model):
 
             return om
 
+    def remove_user(self, user):
+        if not self.members.filter(pk=user.pk).exists():
+            logger.debug("User does not exist in organisation.")
+            return
+
+        with transaction.atomic():
+            om = OrganisationMember.objects.get(user=user, organisation=self)
+            om.delete()
+
+            return om
+
+    @property
+    def number_of_members(self):
+        """Return the number of members in the organisation."""
+        return self.members.count()
+
 
 class OrganisationMember(models.Model):
     """A member of an organisation."""
