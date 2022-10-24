@@ -74,6 +74,9 @@ class LiteratureReview(models.Model):
         through_fields=("literature_review", "member"),
     )
 
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
     papers = models.JSONField(null=True)
 
     @property
@@ -137,14 +140,20 @@ class LiteratureReview(models.Model):
 
 
 class LiteratureReviewMember(models.Model):
+    """A user can be a member of a literature review."""
+
     member = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name="lrm_through",
         help_text="User ID",
     )
     literature_review = models.ForeignKey(
         LiteratureReview, on_delete=models.CASCADE, help_text="Literature Review ID"
     )
+
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
     roles_choices = [
         ("AD", "Admin"),
