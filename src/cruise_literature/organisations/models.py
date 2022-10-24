@@ -19,7 +19,7 @@ class Organisation(models.Model):
         through="OrganisationMember",
     )
 
-    created_by = models.OneToOneField(
+    created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
@@ -45,7 +45,7 @@ class Organisation(models.Model):
 class OrganisationMember(models.Model):
     """A member of an organisation."""
 
-    user = models.ForeignKey(
+    member = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="om_through",

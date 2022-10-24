@@ -43,6 +43,11 @@
                 My reviews
             </a>
         {% endif %}
+        {% if user.is_superuser %}
+            <a href="{% url 'organisations:view_organisations' %}" class="navbar-item">
+                Organisations
+            </a>
+        {% endif %}
     </div>
     {% if request.resolver_match.view_name == 'search_results' %}
         <div class="navbar-menu is-active">
