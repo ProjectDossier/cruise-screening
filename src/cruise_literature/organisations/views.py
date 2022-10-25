@@ -28,7 +28,11 @@ def create_organisation(request):
 def view_all_organisations(request):
     """View all organisations."""
     organisations = Organisation.objects.all()
-    return render(request, "organisations/view_all_organisations.html", {"organisations": organisations})
+    return render(
+        request,
+        "organisations/view_all_organisations.html",
+        {"organisations": organisations},
+    )
 
 
 @login_required
@@ -36,7 +40,11 @@ def view_organisation(request, organisation_id):
     """View all people in an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     members = OrganisationMember.objects.filter(organisation=organisation)
-    return render(request, 'organisations/view_organisation.html', {"organisation": organisation, "members": members})
+    return render(
+        request,
+        "organisations/view_organisation.html",
+        {"organisation": organisation, "members": members},
+    )
 
 
 @login_required
@@ -47,10 +55,16 @@ def add_member(request, organisation_id):
         form = OrganisationMemberForm(request.POST, organisation=organisation)
         if form.is_valid():
             form.save()
-            return redirect("organisations:view_organisation", organisation_id=organisation_id)
+            return redirect(
+                "organisations:view_organisation", organisation_id=organisation_id
+            )
     else:
         form = OrganisationMemberForm(organisation=organisation)
-    return render(request, "organisations/add_member.html", {"form": form, "organisation": organisation})
+    return render(
+        request,
+        "organisations/add_member.html",
+        {"form": form, "organisation": organisation},
+    )
 
 
 @login_required
@@ -60,8 +74,10 @@ def remove_member(request, organisation_id, user_id):
     if request.method == "GET":
         user = get_object_or_404(User, pk=user_id)
         organisation.remove_user(user=user)
-        return redirect('organisations:view_organisation', organisation_id=organisation_id)
-    return redirect('organisations:view_organisation', organisation_id=organisation_id)
+        return redirect(
+            "organisations:view_organisation", organisation_id=organisation_id
+        )
+    return redirect("organisations:view_organisation", organisation_id=organisation_id)
 
 
 def delete_organisation(request, organisation_id):
@@ -69,5 +85,5 @@ def delete_organisation(request, organisation_id):
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     if request.method == "GET":
         organisation.delete()
-        return redirect('organisations:view_all_organisations')
-    return redirect('organisations:view_all_organisations')
+        return redirect("organisations:view_all_organisations")
+    return redirect("organisations:view_all_organisations")
