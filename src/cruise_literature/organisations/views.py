@@ -60,6 +60,9 @@ def add_member(request, organisation_id):
             )
     else:
         form = OrganisationMemberForm(organisation=organisation)
+        form.fields["member"].queryset = User.objects.exclude(
+            om_through__organisation=organisation
+        )
     return render(
         request,
         "organisations/add_member.html",

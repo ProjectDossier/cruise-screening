@@ -33,16 +33,16 @@
                         <td>{{ member.role }}</td>
                         <td>
                             <button class="js-modal-trigger button is-danger is-small"
-                                    data-target="modal-remove-member">
+                                    data-target="modal-remove-member-{{ member.member.id }}">
                                 Remove member
                             </button>
                         </td>
                     </tr>
-                    <div id="modal-remove-member" class="modal">
+                    <div id="modal-remove-member-{{ member.member.id }}" class="modal">
                         <div class="modal-background"></div>
                         <div class="modal-content">
                             <div class="box">
-                                <p>Are you sure that you want to remove the user?</p>
+                                <p>Are you sure that you want to remove the user {{ member.member.username }}?</p>
                                 <a href="{% url 'organisations:remove_member' organisation.id member.member.id %}"
                                    class="button is-danger is-small">Yes</a>
                             </div>
@@ -65,7 +65,7 @@
                 <div class="modal-background"></div>
                 <div class="modal-content">
                     <div class="box">
-                        <p>Are you sure that you want to remove the organisation?</p>
+                        <p>Are you sure that you want to remove the organisation {{ organisation.title }}?</p>
                         <a href="{% url 'organisations:delete_organisation' organisation.id %}"
                            class="button is-danger is-small">Yes</a>
                     </div>
