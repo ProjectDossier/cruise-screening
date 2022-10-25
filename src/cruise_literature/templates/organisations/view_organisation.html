@@ -4,10 +4,47 @@
     <div class="card">
         <div class="card-content">
             <h1 class="title is-1">
-                Organisations: {{ organisation.title }}
+                Organisation: {{ organisation.title }}
             </h1>
         </div>
     </div>
+    <div class="card">
+        <div class="card-content">
+            <table class="table is-striped table is-fullwidth is-hoverable">
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    <th>Role</th>
+                    <th>Remove user</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for member in members %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ member.member.username }}</td>
+                        <td>{{ member.member.email }}</td>
+                        <td>{{ member.member.first_name }}</td>
+                        <td>{{ member.member.last_name }}</td>
+                        <td>{{ member.role }}</td>
+                        <td><a href="{% url 'organisations:remove_member' organisation.id member.member.id %}" class="button is-danger is-small">Remove</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-content">
+            <a href="{% url 'organisations:add_member' organisation.id %}" class="button is-primary">Add member</a>
+            <a href="{% url 'organisations:edit_organisation' organisation.id %}" class="button">Edit</a>
+            <a href="{% url 'organisations:delete_organisation' organisation.id %}" class="button is-danger">Delete</a>
+            <a href="{% url 'organisations:view_all_organisations' %}" class="button is-link">Back</a>
+        </div>
+    </div>
+
     TODO: display organisation details
     and list of members. add a button to add a new member and remove existing.
     {% include "_footer.html" %}

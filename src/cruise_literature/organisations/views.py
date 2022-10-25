@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.admin.views.decorators import staff_member_required
 
 from organisations.forms import OrganisationForm
-from organisations.models import Organisation
+from organisations.models import Organisation, OrganisationMember
+from users.models import User
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -34,16 +35,28 @@ def view_all_organisations(request):
 def view_organisation(request, organisation_id):
     """View all people in an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
+    members = OrganisationMember.objects.filter(organisation=organisation)
+    return render(request, 'organisations/view_organisation.html', {"organisation": organisation, "members": members})
+
+
+@login_required
+def add_member(request, organisation_id):
+    """Add a member to an organisation."""
+    organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if request.method == "POST":
+        form = OrganisationMemberForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("organisations:view_organisation", organisation_id=organisation_id)
     return render(request, 'organisations/view_organisation.html', {"organisation": organisation})
 
 
 @login_required
-def add_member(request):
-    """Add a member to an organisation."""
-    return render(request, 'organisations/view_organisation.html')
-
-
-@login_required
-def remove_member(request):
+def remove_member(request, organisation_id, user_id):
     """Remove a member from an organisation."""
-    return render(request, 'organisations/view_organisation.html')
+    organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if request.method == "GET":
+        user = get_object_or_404(User, pk=user_id)
+        organisation.remove_user(user=user)
+        return redirect('organisations:view_organisation', organisation_id=organisation_id)
+    return redirect('organisations:view_organisation', organisation_id=organisation_id)

@@ -47,7 +47,7 @@ class Organisation(models.Model):
             return
 
         with transaction.atomic():
-            om = OrganisationMember.objects.get(user=user, organisation=self)
+            om = OrganisationMember.objects.get(member=user, organisation=self)
             om.delete()
 
             return om
