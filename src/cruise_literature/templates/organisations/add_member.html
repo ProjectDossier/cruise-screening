@@ -1,13 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends '_base.html' %}
 
-</body>
-</html>
+{% block content %}
+    <div class="register">
+        <h1 class="title is-1">Create new organisation</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
 
+            <div>
+                <button type="submit" class="button is-link">Add member</button>
+            </div>
+        </form>
 
-{#add member by email address#}
+    </div>
+    {% include "_footer.html" %}
+{% endblock %}

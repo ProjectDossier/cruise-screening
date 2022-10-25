@@ -38,3 +38,25 @@ class OrganisationForm(ModelForm):
                 member.save()
 
         return organisation
+
+
+class OrganisationMemberForm(ModelForm):
+    """Form for adding a member to an organisation."""
+    class Meta:
+        model = OrganisationMember
+        fields = ["member", "role"]
+        widgets = {
+            "member": Select(attrs={"class": "form-control"}),
+            "role": Select(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.organisation = kwargs.pop("organisation", None)
+        super(OrganisationMemberForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        org_member = super(OrganisationMemberForm, self).save(commit=False)
+        org_member.organisation = self.organisation
+        if commit:
+            org_member.save()
+        return org_member

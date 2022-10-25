@@ -31,21 +31,96 @@
                         <td>{{ member.member.first_name }}</td>
                         <td>{{ member.member.last_name }}</td>
                         <td>{{ member.role }}</td>
-                        <td><a href="{% url 'organisations:remove_member' organisation.id member.member.id %}" class="button is-danger is-small">Remove</a></td>
+                        <td>
+                            <button class="js-modal-trigger button is-danger is-small"
+                                    data-target="modal-remove-member">
+                                Remove member
+                            </button>
+                        </td>
                     </tr>
+                    <div id="modal-remove-member" class="modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-content">
+                            <div class="box">
+                                <p>Are you sure that you want to remove the user?</p>
+                                <a href="{% url 'organisations:remove_member' organisation.id member.member.id %}"
+                                   class="button is-danger is-small">Yes</a>
+                            </div>
+                        </div>
+                        <button class="modal-close is-large" aria-label="close"></button>
+                    </div>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
         <div class="card-content">
             <a href="{% url 'organisations:add_member' organisation.id %}" class="button is-primary">Add member</a>
-            <a href="{% url 'organisations:edit_organisation' organisation.id %}" class="button">Edit</a>
-            <a href="{% url 'organisations:delete_organisation' organisation.id %}" class="button is-danger">Delete</a>
+            <a href="{% url 'organisations:edit_organisation' organisation.id %}" class="button" disabled>Edit</a>
+            <button class="js-modal-trigger button is-danger" data-target="modal-delete-organisation">
+                Delete organisation
+            </button>
             <a href="{% url 'organisations:view_all_organisations' %}" class="button is-link">Back</a>
+
+            <div id="modal-delete-organisation" class="modal">
+                <div class="modal-background"></div>
+                <div class="modal-content">
+                    <div class="box">
+                        <p>Are you sure that you want to remove the organisation?</p>
+                        <a href="{% url 'organisations:delete_organisation' organisation.id %}"
+                           class="button is-danger is-small">Yes</a>
+                    </div>
+                </div>
+                <button class="modal-close is-large" aria-label="close"></button>
+            </div>
+
         </div>
     </div>
 
-    TODO: display organisation details
-    and list of members. add a button to add a new member and remove existing.
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Functions to open and close a modal
+            function openModal($el) {
+                $el.classList.add('is-active');
+            }
+
+            function closeModal($el) {
+                $el.classList.remove('is-active');
+            }
+
+            function closeAllModals() {
+                (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+                    closeModal($modal);
+                });
+            }
+
+            // Add a click event on buttons to open a specific modal
+            (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+                const modal = $trigger.dataset.target;
+                const $target = document.getElementById(modal);
+
+                $trigger.addEventListener('click', () => {
+                    openModal($target);
+                });
+            });
+
+            // Add a click event on various child elements to close the parent modal
+            (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+                const $target = $close.closest('.modal');
+
+                $close.addEventListener('click', () => {
+                    closeModal($target);
+                });
+            });
+
+            // Add a keyboard event to close all modals
+            document.addEventListener('keydown', (event) => {
+                const e = event || window.event;
+
+                if (e.keyCode === 27) { // Escape key
+                    closeAllModals();
+                }
+            });
+        });
+    </script>
     {% include "_footer.html" %}
 {% endblock %}

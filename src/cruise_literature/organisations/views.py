@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.admin.views.decorators import staff_member_required
 
-from organisations.forms import OrganisationForm
+from organisations.forms import OrganisationForm, OrganisationMemberForm
 from organisations.models import Organisation, OrganisationMember
 from users.models import User
 
@@ -44,11 +44,13 @@ def add_member(request, organisation_id):
     """Add a member to an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     if request.method == "POST":
-        form = OrganisationMemberForm(request.POST, user=request.user)
+        form = OrganisationMemberForm(request.POST, organisation=organisation)
         if form.is_valid():
             form.save()
             return redirect("organisations:view_organisation", organisation_id=organisation_id)
-    return render(request, 'organisations/view_organisation.html', {"organisation": organisation})
+    else:
+        form = OrganisationMemberForm(organisation=organisation)
+    return render(request, "organisations/add_member.html", {"form": form, "organisation": organisation})
 
 
 @login_required
@@ -60,3 +62,12 @@ def remove_member(request, organisation_id, user_id):
         organisation.remove_user(user=user)
         return redirect('organisations:view_organisation', organisation_id=organisation_id)
     return redirect('organisations:view_organisation', organisation_id=organisation_id)
+
+
+def delete_organisation(request, organisation_id):
+    """Delete an organisation."""
+    organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if request.method == "GET":
+        organisation.delete()
+        return redirect('organisations:view_all_organisations')
+    return redirect('organisations:view_all_organisations')

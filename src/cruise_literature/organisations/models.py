@@ -30,17 +30,6 @@ class Organisation(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    def add_user(self, user):
-        if self.members.filter(pk=user.pk).exists():
-            logger.debug("User already exists in organisation.")
-            return
-
-        with transaction.atomic():
-            om = OrganisationMember(user=user, organisation=self)
-            om.save()
-
-            return om
-
     def remove_user(self, user):
         if not self.members.filter(pk=user.pk).exists():
             logger.debug("User does not exist in organisation.")
