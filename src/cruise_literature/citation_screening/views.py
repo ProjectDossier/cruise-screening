@@ -48,7 +48,8 @@ def create_new_review(request):
 
     form = NewLiteratureReviewForm(user=request.user, initial=initial)
     form.fields["organisation"].queryset = form.fields["organisation"].queryset.filter(
-        members=request.user)
+        members=request.user
+    )
     return render(
         request=request,
         template_name="literature_review/create_literature_review.html",
@@ -99,8 +100,9 @@ def edit_review(request, review_id):
                 "organisation": review.organisation,
             },
         )
-        form.fields["organisation"].queryset = form.fields["organisation"].queryset.filter(
-            members=request.user)
+        form.fields["organisation"].queryset = form.fields[
+            "organisation"
+        ].queryset.filter(members=request.user)
         return render(
             request=request,
             template_name="literature_review/edit_literature_review.html",

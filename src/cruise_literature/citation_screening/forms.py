@@ -222,7 +222,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
             "tags",
             "discipline",
             "annotations_per_paper",
-            "organisation"
+            "organisation",
         )
 
     def __init__(self, *args, **kwargs):
@@ -316,5 +316,5 @@ class EditLiteratureReviewForm(forms.ModelForm):
             "inclusion_criteria",
             "exclusion_criteria",
             "tags",
-            "organisation"
+            "organisation",
         )

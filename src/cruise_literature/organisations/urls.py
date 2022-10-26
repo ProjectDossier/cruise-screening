@@ -35,5 +35,9 @@ urlpatterns = [
         name="remove_member",
     ),
     path("create_organisation/", views.create_organisation, name="create_organisation"),
-    path("find_organisations/<int:user_id>", views.find_organisations, name="find_organisation"),
+    path(
+        "find_organisations/<int:user_id>",
+        views.find_organisations,
+        name="find_organisation",
+    ),
 ]

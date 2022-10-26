@@ -31,7 +31,9 @@ def view_all_organisations(request):
     """View all organisations."""
     organisations = Organisation.objects.all()
     for organisation in organisations:
-        organisation.n_reviews = len(LiteratureReview.objects.filter(organisation=organisation))
+        organisation.n_reviews = len(
+            LiteratureReview.objects.filter(organisation=organisation)
+        )
 
     return render(
         request,
@@ -63,7 +65,12 @@ def view_organisation(request, organisation_id):
     return render(
         request,
         "organisations/view_organisation.html",
-        {"organisation": organisation, "members": members, "current_user_role":current_user_role, "literature_reviews": literature_reviews},
+        {
+            "organisation": organisation,
+            "members": members,
+            "current_user_role": current_user_role,
+            "literature_reviews": literature_reviews,
+        },
     )
 
 
@@ -72,8 +79,8 @@ def add_member(request, organisation_id):
     """Add a member to an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     if not request.user.is_superuser and "AD" not in OrganisationMember.objects.filter(
-            member=request.user, organisation=organisation
-        ).values_list("role", flat=True):
+        member=request.user, organisation=organisation
+    ).values_list("role", flat=True):
         return redirect("home")
 
     if request.method == "POST":
@@ -100,8 +107,8 @@ def remove_member(request, organisation_id, user_id):
     """Remove a member from an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     if not request.user.is_superuser and "AD" not in OrganisationMember.objects.filter(
-            member=request.user, organisation=organisation
-        ).values_list("role", flat=True):
+        member=request.user, organisation=organisation
+    ).values_list("role", flat=True):
         return redirect("home")
 
     if request.method == "GET":
@@ -117,8 +124,8 @@ def delete_organisation(request, organisation_id):
     """Delete an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     if not request.user.is_superuser and "AD" not in OrganisationMember.objects.filter(
-            member=request.user, organisation=organisation
-        ).values_list("role", flat=True):
+        member=request.user, organisation=organisation
+    ).values_list("role", flat=True):
         return redirect("home")
 
     if request.method == "GET":
@@ -135,5 +142,6 @@ def find_organisations(request, user_id):
         [
             {"id": organisation.id, "title": organisation.title}
             for organisation in organisations
-        ], safe=False
+        ],
+        safe=False,
     )

@@ -56,7 +56,10 @@ class LiteratureReview(models.Model):
     last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
     organisation = models.ForeignKey(
-        Organisation, on_delete=models.CASCADE, null=True, blank=True,
+        Organisation,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="organisation",
     )
 
