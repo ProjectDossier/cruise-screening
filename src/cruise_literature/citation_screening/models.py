@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
 from cruise_literature import settings
+from organisations.models import Organisation
 from users.models import KnowledgeArea
 
 REVIEW_TITLE_MAX_LEN = 100
@@ -54,6 +55,13 @@ class LiteratureReview(models.Model):
     creation_date = models.DateField(auto_now_add=True)
     last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
+    organisation = models.ForeignKey(
+        Organisation,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="organisation",
+    )
 
     annotations_per_paper = models.IntegerField(
         default=1,
@@ -73,6 +81,9 @@ class LiteratureReview(models.Model):
         through="LiteratureReviewMember",
         through_fields=("literature_review", "member"),
     )
+
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
     papers = models.JSONField(null=True)
 
@@ -137,14 +148,20 @@ class LiteratureReview(models.Model):
 
 
 class LiteratureReviewMember(models.Model):
+    """A user can be a member of a literature review."""
+
     member = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name="lrm_through",
         help_text="User ID",
     )
     literature_review = models.ForeignKey(
         LiteratureReview, on_delete=models.CASCADE, help_text="Literature Review ID"
     )
+
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
     roles_choices = [
         ("AD", "Admin"),

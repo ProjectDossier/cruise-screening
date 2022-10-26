@@ -1,0 +1,172 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-content">
+            <h1 class="title is-1">
+                Organisation: {{ organisation.title }}
+            </h1>
+        </div>
+    </div>
+    <div class="card">
+        <h2>Members</h2>
+        <div class="card-content">
+            <table class="table is-striped table is-fullwidth is-hoverable">
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    {% if current_user_role == 'AD' or current_user_role == 'ME' %}
+                        <th>Role</th>
+                    {% endif %}
+                    {% if current_user_role == "AD" %}
+                        <th></th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for member in members %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ member.member.username }}</td>
+                        <td>{{ member.member.email }}</td>
+                        <td>{{ member.member.first_name }}</td>
+                        <td>{{ member.member.last_name }}</td>
+                        {% if current_user_role == 'AD' or current_user_role == 'ME' %}
+
+                            <td>{{ member.role }}</td>
+                        {% endif %}
+                        {% if current_user_role == "AD" %}
+                            <td>
+                                <button class="js-modal-trigger button is-danger is-small"
+                                        data-target="modal-remove-member-{{ member.member.id }}">
+                                    Remove member
+                                </button>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    <div id="modal-remove-member-{{ member.member.id }}" class="modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-content">
+                            <div class="box">
+                                <p>Are you sure that you want to remove the user {{ member.member.username }}?</p>
+                                <a href="{% url 'organisations:remove_member' organisation.id member.member.id %}"
+                                   class="button is-danger is-small">Yes</a>
+                            </div>
+                        </div>
+                        <button class="modal-close is-large" aria-label="close"></button>
+                    </div>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h2>Reviews</h2>
+            <div class="card-content">
+                <table class="table is-striped table is-fullwidth is-hoverable">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Discipline</th>
+                        <th>#PDFs / #papers</th>
+                        <th>#Screened (%)</th>
+                        <th>Decisions (I / ? / E)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for review in literature_reviews %}
+                        <tr>
+                            <th>{{ forloop.counter }}</th>
+                            <td><a href="{% url 'literature_review:review_details' review.id %}">{{ review.title }}</a>
+                            </td>
+                            <td>{{ review.description }}</td>
+                            <td>{{ review.discipline }}</td>
+                            <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
+                            <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
+                            <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }}
+                                / {{ review.decisions_count.2 }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-content">
+            {% if current_user_role == "AD" %}
+                <a href="{% url 'organisations:add_member' organisation.id %}" class="button is-primary">Add member</a>
+                <a class="button" disabled>Edit</a>
+                <button class="js-modal-trigger button is-danger" data-target="modal-delete-organisation">
+                    Delete organisation
+                </button>
+                <a href="{% url 'organisations:view_all_organisations' %}" class="button is-link">Back</a>
+            {% endif %}
+
+            <div id="modal-delete-organisation" class="modal">
+                <div class="modal-background"></div>
+                <div class="modal-content">
+                    <div class="box">
+                        <p>Are you sure that you want to remove the organisation {{ organisation.title }}?</p>
+                        <a href="{% url 'organisations:delete_organisation' organisation.id %}"
+                           class="button is-danger is-small">Yes</a>
+                    </div>
+                </div>
+                <button class="modal-close is-large" aria-label="close"></button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Functions to open and close a modal
+            function openModal($el) {
+                $el.classList.add('is-active');
+            }
+
+            function closeModal($el) {
+                $el.classList.remove('is-active');
+            }
+
+            function closeAllModals() {
+                (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+                    closeModal($modal);
+                });
+            }
+
+            // Add a click event on buttons to open a specific modal
+            (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+                const modal = $trigger.dataset.target;
+                const $target = document.getElementById(modal);
+
+                $trigger.addEventListener('click', () => {
+                    openModal($target);
+                });
+            });
+
+            // Add a click event on various child elements to close the parent modal
+            (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+                const $target = $close.closest('.modal');
+
+                $close.addEventListener('click', () => {
+                    closeModal($target);
+                });
+            });
+
+            // Add a keyboard event to close all modals
+            document.addEventListener('keydown', (event) => {
+                const e = event || window.event;
+
+                if (e.keyCode === 27) { // Escape key
+                    closeAllModals();
+                }
+            });
+        });
+    </script>
+    {% include "_footer.html" %}
+{% endblock %}

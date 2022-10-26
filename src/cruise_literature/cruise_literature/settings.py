@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "users",
     "citation_screening",
     "document_classification",
+    "organisations",
 ]
 
 MIDDLEWARE = [

@@ -12,12 +12,19 @@
             <p>Location: {{ user.location }}</p>
             <p>Languages: {{ user.user_languages }}</p>
             <p>Knowledge areas: {{ user.user_knowledge_areas }}</p>
-            <hr />
+            <hr/>
             <p>System preferences</p>
             <p>Allow personalised logging: {{ user.allow_logging }}</p>
             <p>Preferred taxonomies: {{ user.preferred_taxonomies }}</p>
+            <div x-data="{user_organisations: []}"
+                 x-init="user_organisations = await (await fetch('find_organisations/{{ user.id }}')).json()">
+                <span>User organisations:</span>
+                <template x-for="organisation in user_organisations">
+                    <a class="tag m-2" :href="'/view_organisation/' + organisation.id" x-text="organisation.title"></a>
+                </template>
+            </div>
+            <a class="button is-info is-small" href="{% url 'edit_user_profile' %}">Edit user</a>
         </div>
-        <a class="button is-info is-small" href="{% url 'edit_user_profile' %}">Edit user</a>
     </div>
 
     {% include "_footer.html" %}

@@ -47,6 +47,9 @@ def create_new_review(request):
         return redirect("home")
 
     form = NewLiteratureReviewForm(user=request.user, initial=initial)
+    form.fields["organisation"].queryset = form.fields["organisation"].queryset.filter(
+        members=request.user
+    )
     return render(
         request=request,
         template_name="literature_review/create_literature_review.html",
@@ -72,6 +75,7 @@ def edit_review(request, review_id):
             review.inclusion_criteria = form.cleaned_data.get("inclusion_criteria")
             review.exclusion_criteria = form.cleaned_data.get("exclusion_criteria")
             review.tags = form.cleaned_data.get("tags")
+            review.organisation = form.cleaned_data.get("organisation")
             review.save()
             messages.success(request, f"Review successfully edited: {title}")
             return render(
@@ -93,8 +97,12 @@ def edit_review(request, review_id):
                 "inclusion_criteria": review.inclusion_criteria,
                 "exclusion_criteria": review.exclusion_criteria,
                 "tags": review.tags,
+                "organisation": review.organisation,
             },
         )
+        form.fields["organisation"].queryset = form.fields[
+            "organisation"
+        ].queryset.filter(members=request.user)
         return render(
             request=request,
             template_name="literature_review/edit_literature_review.html",
