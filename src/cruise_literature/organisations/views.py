@@ -1,9 +1,9 @@
-from django.http import JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
 
 # Create your views here.
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 
 from citation_screening.models import LiteratureReview
 from organisations.forms import OrganisationForm, OrganisationMemberForm

@@ -1,18 +1,13 @@
-from django.forms import ModelForm
-from .models import Organisation, OrganisationMember
-
 from django import forms
+from django.contrib.auth import get_user_model
 from django.forms import (
     Textarea,
     ModelForm,
     TextInput,
-    Form,
-    FileField,
     Select,
-    HiddenInput,
-    CharField,
 )
-from django.contrib.auth import get_user_model
+
+from .models import Organisation, OrganisationMember
 
 
 class OrganisationForm(ModelForm):
