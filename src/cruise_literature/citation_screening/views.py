@@ -74,6 +74,7 @@ def edit_review(request, review_id):
             review.inclusion_criteria = form.cleaned_data.get("inclusion_criteria")
             review.exclusion_criteria = form.cleaned_data.get("exclusion_criteria")
             review.tags = form.cleaned_data.get("tags")
+            review.organisation = form.cleaned_data.get("organisation")
             review.save()
             messages.success(request, f"Review successfully edited: {title}")
             return render(

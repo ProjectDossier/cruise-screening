@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.admin.views.decorators import staff_member_required
 
+from citation_screening.models import LiteratureReview
 from organisations.forms import OrganisationForm, OrganisationMemberForm
 from organisations.models import Organisation, OrganisationMember
 from users.models import User
@@ -29,6 +30,9 @@ def create_organisation(request):
 def view_all_organisations(request):
     """View all organisations."""
     organisations = Organisation.objects.all()
+    for organisation in organisations:
+        organisation.n_reviews = len(LiteratureReview.objects.filter(organisation=organisation))
+
     return render(
         request,
         "organisations/view_all_organisations.html",
@@ -51,10 +55,15 @@ def view_organisation(request, organisation_id):
             member=request.user, organisation=organisation
         ).values_list("role", flat=True)[0]
 
+    if current_user_role in ["AD", "ME"]:
+        literature_reviews = LiteratureReview.objects.filter(organisation=organisation)
+    else:
+        literature_reviews = []
+
     return render(
         request,
         "organisations/view_organisation.html",
-        {"organisation": organisation, "members": members, "current_user_role":current_user_role},
+        {"organisation": organisation, "members": members, "current_user_role":current_user_role, "literature_reviews": literature_reviews},
     )
 
 

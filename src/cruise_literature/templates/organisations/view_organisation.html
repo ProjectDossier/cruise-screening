@@ -9,6 +9,7 @@
         </div>
     </div>
     <div class="card">
+        <h2>Members</h2>
         <div class="card-content">
             <table class="table is-striped table is-fullwidth is-hoverable">
                 <thead>
@@ -62,6 +63,40 @@
                 </tbody>
             </table>
         </div>
+        <div class="card">
+            <h2>Reviews</h2>
+            <div class="card-content">
+                <table class="table is-striped table is-fullwidth is-hoverable">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Discipline</th>
+                        <th>#PDFs / #papers</th>
+                        <th>#Screened (%)</th>
+                        <th>Decisions (I / ? / E)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for review in literature_reviews %}
+                        <tr>
+                            <th>{{ forloop.counter }}</th>
+                            <td><a href="{% url 'literature_review:review_details' review.id %}">{{ review.title }}</a>
+                            </td>
+                            <td>{{ review.description }}</td>
+                            <td>{{ review.discipline }}</td>
+                            <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
+                            <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
+                            <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }}
+                                / {{ review.decisions_count.2 }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="card-content">
             {% if current_user_role == "AD" %}
                 <a href="{% url 'organisations:add_member' organisation.id %}" class="button is-primary">Add member</a>

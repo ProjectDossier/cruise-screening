@@ -21,6 +21,7 @@
                     <th>Title</th>
                     <th>Description</th>
                     <th>Members</th>
+                    <th>Reviews</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,6 +31,7 @@
                         <td><a href="{% url 'organisations:view_organisation' organisation.id %}">{{ organisation.title }}</a></td>
                         <td>{{ organisation.description }}</td>
                         <td>{{ organisation.number_of_members }}</td>
+                        <td>{{ organisation.n_reviews }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
