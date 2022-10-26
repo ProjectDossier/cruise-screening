@@ -41,10 +41,20 @@ def view_organisation(request, organisation_id):
     """View all people in an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
     members = OrganisationMember.objects.filter(organisation=organisation)
+    if not request.user.is_superuser and request.user not in organisation.members.all():
+        return redirect("home")
+
+    if request.user.is_superuser:
+        current_user_role = "AD"
+    else:
+        current_user_role = OrganisationMember.objects.filter(
+            member=request.user, organisation=organisation
+        ).values_list("role", flat=True)[0]
+
     return render(
         request,
         "organisations/view_organisation.html",
-        {"organisation": organisation, "members": members},
+        {"organisation": organisation, "members": members, "current_user_role":current_user_role},
     )
 
 

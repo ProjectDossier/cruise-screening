@@ -18,8 +18,12 @@
                     <th>Email</th>
                     <th>First name</th>
                     <th>Last name</th>
-                    <th>Role</th>
-                    <th>Remove user</th>
+                    {% if current_user_role == 'AD' or current_user_role == 'ME' %}
+                        <th>Role</th>
+                    {% endif %}
+                    {% if current_user_role == "AD" %}
+                        <th></th>
+                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>
@@ -30,13 +34,18 @@
                         <td>{{ member.member.email }}</td>
                         <td>{{ member.member.first_name }}</td>
                         <td>{{ member.member.last_name }}</td>
-                        <td>{{ member.role }}</td>
-                        <td>
-                            <button class="js-modal-trigger button is-danger is-small"
-                                    data-target="modal-remove-member-{{ member.member.id }}">
-                                Remove member
-                            </button>
-                        </td>
+                        {% if current_user_role == 'AD' or current_user_role == 'ME' %}
+
+                            <td>{{ member.role }}</td>
+                        {% endif %}
+                        {% if current_user_role == "AD" %}
+                            <td>
+                                <button class="js-modal-trigger button is-danger is-small"
+                                        data-target="modal-remove-member-{{ member.member.id }}">
+                                    Remove member
+                                </button>
+                            </td>
+                        {% endif %}
                     </tr>
                     <div id="modal-remove-member-{{ member.member.id }}" class="modal">
                         <div class="modal-background"></div>
@@ -54,12 +63,14 @@
             </table>
         </div>
         <div class="card-content">
-            <a href="{% url 'organisations:add_member' organisation.id %}" class="button is-primary">Add member</a>
-            <a class="button" disabled>Edit</a>
-            <button class="js-modal-trigger button is-danger" data-target="modal-delete-organisation">
-                Delete organisation
-            </button>
-            <a href="{% url 'organisations:view_all_organisations' %}" class="button is-link">Back</a>
+            {% if current_user_role == "AD" %}
+                <a href="{% url 'organisations:add_member' organisation.id %}" class="button is-primary">Add member</a>
+                <a class="button" disabled>Edit</a>
+                <button class="js-modal-trigger button is-danger" data-target="modal-delete-organisation">
+                    Delete organisation
+                </button>
+                <a href="{% url 'organisations:view_all_organisations' %}" class="button is-link">Back</a>
+            {% endif %}
 
             <div id="modal-delete-organisation" class="modal">
                 <div class="modal-background"></div>
