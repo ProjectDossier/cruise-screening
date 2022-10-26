@@ -5,6 +5,7 @@ from typing import Dict, Any
 
 from django import forms
 
+from organisations.models import Organisation
 from .models import LiteratureReview, LiteratureReviewMember
 from django.contrib.postgres.forms import (
     SimpleArrayField,
@@ -184,6 +185,11 @@ class NewLiteratureReviewForm(forms.ModelForm):
         widget=forms.Select(attrs={"class": "select"}),
         required=False,
     )
+    organisation = forms.ModelChoiceField(
+        queryset=Organisation.objects.all(),
+        widget=forms.Select(attrs={"class": "select"}),
+        required=False,
+    )
     annotations_per_paper = forms.ChoiceField(
         choices=[(1, 1), (2, 2), (3, 3)], widget=forms.Select(attrs={"class": "select"})
     )
@@ -216,6 +222,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
             "tags",
             "discipline",
             "annotations_per_paper",
+            "organisation"
         )
 
     def __init__(self, *args, **kwargs):
@@ -295,6 +302,11 @@ class EditLiteratureReviewForm(forms.ModelForm):
         label="Add optional tags, coma separated",
         required=False,
     )
+    organisation = forms.ModelChoiceField(
+        queryset=Organisation.objects.all(),
+        widget=forms.Select(attrs={"class": "select"}),
+        required=False,
+    )
 
     class Meta:
         model = LiteratureReview
@@ -304,4 +316,5 @@ class EditLiteratureReviewForm(forms.ModelForm):
             "inclusion_criteria",
             "exclusion_criteria",
             "tags",
+            "organisation"
         )

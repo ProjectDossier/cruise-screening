@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
 from cruise_literature import settings
+from organisations.models import Organisation
 from users.models import KnowledgeArea
 
 REVIEW_TITLE_MAX_LEN = 100
@@ -54,6 +55,10 @@ class LiteratureReview(models.Model):
     creation_date = models.DateField(auto_now_add=True)
     last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
+    organisation = models.ForeignKey(
+        Organisation, on_delete=models.CASCADE, null=True, blank=True,
+        related_name="organisation",
+    )
 
     annotations_per_paper = models.IntegerField(
         default=1,

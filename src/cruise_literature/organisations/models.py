@@ -46,6 +46,9 @@ class Organisation(models.Model):
         """Return the number of members in the organisation."""
         return self.members.count()
 
+    def __str__(self):
+        return self.title
+
 
 class OrganisationMember(models.Model):
     """A member of an organisation."""
