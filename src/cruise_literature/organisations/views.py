@@ -62,6 +62,11 @@ def view_organisation(request, organisation_id):
 def add_member(request, organisation_id):
     """Add a member to an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if not request.user.is_superuser and "AD" not in OrganisationMember.objects.filter(
+            member=request.user, organisation=organisation
+        ).values_list("role", flat=True):
+        return redirect("home")
+
     if request.method == "POST":
         form = OrganisationMemberForm(request.POST, organisation=organisation)
         if form.is_valid():
@@ -85,6 +90,11 @@ def add_member(request, organisation_id):
 def remove_member(request, organisation_id, user_id):
     """Remove a member from an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if not request.user.is_superuser and "AD" not in OrganisationMember.objects.filter(
+            member=request.user, organisation=organisation
+        ).values_list("role", flat=True):
+        return redirect("home")
+
     if request.method == "GET":
         user = get_object_or_404(User, pk=user_id)
         organisation.remove_user(user=user)
@@ -97,6 +107,11 @@ def remove_member(request, organisation_id, user_id):
 def delete_organisation(request, organisation_id):
     """Delete an organisation."""
     organisation = get_object_or_404(Organisation, pk=organisation_id)
+    if not request.user.is_superuser and "AD" not in OrganisationMember.objects.filter(
+            member=request.user, organisation=organisation
+        ).values_list("role", flat=True):
+        return redirect("home")
+
     if request.method == "GET":
         organisation.delete()
         return redirect("organisations:view_all_organisations")
