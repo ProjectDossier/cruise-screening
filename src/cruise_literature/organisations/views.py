@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
 # Create your views here.
@@ -90,3 +91,15 @@ def delete_organisation(request, organisation_id):
         organisation.delete()
         return redirect("organisations:view_all_organisations")
     return redirect("organisations:view_all_organisations")
+
+
+def find_organisations(request, user_id):
+    """Find organisations for a user and returns json."""
+    user = get_object_or_404(User, pk=user_id)
+    organisations = Organisation.objects.filter(members=user)
+    return JsonResponse(
+        [
+            {"id": organisation.id, "title": organisation.title}
+            for organisation in organisations
+        ], safe=False
+    )
