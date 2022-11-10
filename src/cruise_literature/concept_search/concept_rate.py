@@ -126,7 +126,9 @@ class ConceptRate:
 
     def request_score(self, search_result: List[object]):
         concepts = [article.keywords for article in search_result]
-        documents = [article.title + ' ' + article.abstract for article in search_result]
+        documents = [
+            article.title + " " + article.abstract for article in search_result
+        ]
         lengths = [len(i) for i in concepts]
         concept_scores = self.concept_score(concepts, documents, lengths)
 

@@ -1,3 +1,4 @@
+import concurrent.futures
 import time
 
 from concept_search.views import taxonomies
@@ -6,7 +7,9 @@ from django.shortcuts import render
 from django.template.defaulttags import register
 
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
-from .search_documents import search, paginate_results
+from .search_core import search_core
+from .search_documents import search, paginate_results, merge_results
+from .search_semantic_scholar import search_semantic_scholar
 from .search_wikipedia import search_wikipedia
 
 engine_logger = EngineLogger()
@@ -44,9 +47,17 @@ def search_results(request):
         s_time = time.time()
 
         index_name = "papers"
-        top_k = 10
-        search_result = search(query=search_query, index=index_name, top_k=top_k)
+        top_k = 50
 
+        search_functions = [search, search_core, search_semantic_scholar]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            results = [executor.submit(search_function, search_query, index_name, top_k) for search_function in search_functions]
+            results = [future.result() for future in concurrent.futures.as_completed(results)]
+            search_result = merge_results(
+                internal_search_results=results[0],
+                core_search_results=results[1],
+                semantic_scholar_results=results[2],
+            )
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 

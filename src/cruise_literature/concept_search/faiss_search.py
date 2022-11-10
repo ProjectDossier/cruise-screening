@@ -45,7 +45,9 @@ class SemanticSearch:
         if mount_gpu:
             try:
                 res = faiss.StandardGpuResources()
-                self.taxonomy_index = faiss.index_cpu_to_gpu(res, 0, self.taxonomy_index)
+                self.taxonomy_index = faiss.index_cpu_to_gpu(
+                    res, 0, self.taxonomy_index
+                )
             except AttributeError:
                 pass
 

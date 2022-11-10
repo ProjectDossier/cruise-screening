@@ -21,4 +21,3 @@ def about(request):
             request,
             "interfaces/about.html",
         )
-

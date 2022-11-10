@@ -33,6 +33,8 @@ If you have a GPU-enabled device:
 
 Checkout [the backend](src/backend/README.md)
 
+In order to use [CORE search API](https://core.ac.uk/services/api) create a file `data/core_api_key.txt` and insert your API key.
+Next, change `SEARCH_WITH_CORE` to  `True` in `src/cruise_literature/cruise_literature/settings.py`. 
 
 ## 2. Running
 
