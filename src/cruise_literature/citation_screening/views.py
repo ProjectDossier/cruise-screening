@@ -123,9 +123,6 @@ def literature_review_home(request):
 
 @login_required
 def review_details(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user in review.members.all():
         return render(request, "literature_review/view_review.html", {"review": review})
