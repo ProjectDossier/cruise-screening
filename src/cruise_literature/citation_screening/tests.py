@@ -100,3 +100,32 @@ class ViewTests(TestCase):
     def test_review_details_GET_not_exist(self):
         response = self.client.get(reverse("literature_review:review_details", args=[2]))
         self.assertEqual(response.status_code, 404)
+
+    def test_create_new_review_GET(self):
+        response = self.client.get(reverse("literature_review:create_new_review"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/create_literature_review.html")
+        for template in base_templates:
+            self.assertTemplateUsed(response, template)
+
+    def test_create_new_review_GET_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(reverse("literature_review:create_new_review"))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/accounts/login/?next=/create_review/")
+
+    def test_create_new_review_POST(self):
+        response = self.client.post(reverse("literature_review:create_new_review"), {
+            "title": "Test Literature Review",
+            "description": "Test Description",
+            "project_deadline": "2020-01-01",
+            "search_queries": "test",
+            "inclusion_criteria": "test",
+            "exclusion_criteria": "test",
+            "top_k": 10,
+            "search_engines": ["SemanticScholar"],
+            "annotations_per_paper": 1,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/")
+
