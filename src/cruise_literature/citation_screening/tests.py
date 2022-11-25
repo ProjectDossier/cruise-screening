@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -129,3 +131,20 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
 
+        self.assertEqual(LiteratureReview.objects.count(), 2)
+        self.assertEqual(LiteratureReviewMember.objects.count(), 2)
+        self.assertEqual(LiteratureReviewMember.objects.get(pk=2).member, self.user)
+
+        self.assertEqual(LiteratureReview.objects.get(pk=2).title, "Test Literature Review")
+        self.assertEqual(LiteratureReview.objects.get(pk=2).description, "Test Description")
+        # self.assertEqual(LiteratureReview.objects.get(pk=2).project_deadline, datetime.date.(2020,1,1))
+        self.assertEqual(LiteratureReview.objects.get(pk=2).search_queries, ["test"])
+        self.assertEqual(LiteratureReview.objects.get(pk=2).inclusion_criteria, ["test"])
+        self.assertEqual(LiteratureReview.objects.get(pk=2).exclusion_criteria, ["test"])
+        # self.assertEqual(LiteratureReview.objects.get(pk=2).top_k, 10)
+        # self.assertEqual(LiteratureReview.objects.get(pk=2).search_engines, ["SemanticScholar"])
+        self.assertEqual(LiteratureReview.objects.get(pk=2).annotations_per_paper, 1)
+
+        _papers = LiteratureReview.objects.get(pk=2).papers
+        self.assertEqual(len(_papers), 10)
+        self.assertEqual(_papers[0]["title"], "A Simple Sequentially Rejective Multiple Test Procedure")
