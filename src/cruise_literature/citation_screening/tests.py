@@ -95,8 +95,7 @@ class ViewTests(TestCase):
         usr2.save()
         self.client.login(username="testuser2", password="testpassword")
         response = self.client.get(self.review_details_url)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/")
+        self.assertEqual(response.status_code, 404)
 
     def test_review_details_GET_not_exist(self):
         response = self.client.get(reverse("literature_review:review_details", args=[2]))
