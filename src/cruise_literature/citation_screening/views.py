@@ -2,7 +2,7 @@ import json
 import time
 
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 from django.contrib.auth.decorators import login_required
@@ -127,7 +127,7 @@ def review_details(request, review_id):
     if request.user in review.members.all():
         return render(request, "literature_review/view_review.html", {"review": review})
     else:
-        return redirect("home")
+        raise Http404("Review not found")
 
 
 def make_decision(exclusions, inclusions):
