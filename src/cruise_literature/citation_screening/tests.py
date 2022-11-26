@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
+import time
 
+from django.utils.datastructures import MultiValueDictKeyError
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -28,8 +30,18 @@ _fake_paper = {
     "url": "https://www.fake.com",
     "pdf": "https://www.fake.com/fake.pdf",
     "screened": False,
-    "decision": [
-    ]
+    "decision": [],
+}
+
+paper_screening_POST_params = {
+    "paper_id": "1",
+    "start_time": time.time(),
+    "topic_relevance": "1",
+    "domain_relevance": "1",
+    "decision": "1",
+    "reason": "Fake reason",
+    "paper_prior_knowledge": "1",
+    "authors_prior_knowledge": "2",
 }
 
 base_templates = ["_base.html", "_header.html", "_footer.html"]
@@ -330,21 +342,19 @@ class ViewTests(TestCase):
         self.assertEqual(response["Content-Type"], "application/json")
 
         lit_rev = json.loads(response.content)
-        self.assertEqual(lit_rev['title'], "Test Literature Review 1")
-        self.assertEqual(lit_rev['description'], "Test Description")
-        self.assertEqual(lit_rev['search_queries'], None)
-        self.assertEqual(lit_rev['inclusion_criteria'], ["test inclusion criterion"])
-        self.assertEqual(lit_rev['exclusion_criteria'], ["test exclusion criterion"])
-        self.assertEqual(len(lit_rev['papers']), 1)
-        self.assertEqual(lit_rev['papers'][0], _fake_paper)
+        self.assertEqual(lit_rev["title"], "Test Literature Review 1")
+        self.assertEqual(lit_rev["description"], "Test Description")
+        self.assertEqual(lit_rev["search_queries"], None)
+        self.assertEqual(lit_rev["inclusion_criteria"], ["test inclusion criterion"])
+        self.assertEqual(lit_rev["exclusion_criteria"], ["test exclusion criterion"])
+        self.assertEqual(len(lit_rev["papers"]), 1)
+        self.assertEqual(lit_rev["papers"][0], _fake_paper)
 
     def test_export_review_GET_unauthenticated(self):
         self.client.logout()
         response = self.client.get(self.export_review_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(
-            response, "/accounts/login/?next=/export_review/1/"
-        )
+        self.assertRedirects(response, "/accounts/login/?next=/export_review/1/")
 
     def test_export_review_GET_not_member(self):
         self.client.logout()
@@ -390,11 +400,15 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_add_seed_studies_GET_not_exist(self):
-        response = self.client.get(reverse("literature_review:add_seed_studies", args=[2]))
+        response = self.client.get(
+            reverse("literature_review:add_seed_studies", args=[2])
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_add_seed_studies_POST(self):
-        new_seed_studies = {"seed_studies_urls": ["https://arxiv.org/pdf/2211.04623.pdf"]}
+        new_seed_studies = {
+            "seed_studies_urls": ["https://arxiv.org/pdf/2211.04623.pdf"]
+        }
         response = self.client.post(self.add_seed_studies_url, new_seed_studies)
         self.assertTemplateUsed(response, "literature_review/add_seed_studies.html")
         self.assertEqual(response.status_code, 200)
@@ -406,7 +420,9 @@ class ViewTests(TestCase):
         self.assertEqual(len(test_lit_review.papers), 2)
         papers = test_lit_review.papers
         self.assertEqual(papers[0], _fake_paper)
-        self.assertEqual(papers[1]["title"], "Neural network concatenation for Polar Codes")
+        self.assertEqual(
+            papers[1]["title"], "Neural network concatenation for Polar Codes"
+        )
         self.assertEqual(papers[1]["authors"], "Evgeny Stupachenko")
         self.assertEqual(papers[1]["seed_study"], True)
         self.assertEqual(papers[1]["search_engine"], "Seed Study")
@@ -415,7 +431,9 @@ class ViewTests(TestCase):
 
     def test_add_seed_studies_POST_unauthenticated(self):
         self.client.logout()
-        new_seed_studies = {"seed_studies_urls": ["https://arxiv.org/pdf/2211.12583.pdf"]}
+        new_seed_studies = {
+            "seed_studies_urls": ["https://arxiv.org/pdf/2211.12583.pdf"]
+        }
         response = self.client.post(self.add_seed_studies_url, new_seed_studies)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
@@ -446,7 +464,9 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_automatic_screening_GET_not_exist(self):
-        response = self.client.get(reverse("literature_review:automatic_screening", args=[2]))
+        response = self.client.get(
+            reverse("literature_review:automatic_screening", args=[2])
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_screen_papers_GET(self):
@@ -460,9 +480,7 @@ class ViewTests(TestCase):
         self.client.logout()
         response = self.client.get(self.screen_papers_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(
-            response, "/accounts/login/?next=/screen_papers/1/"
-        )
+        self.assertRedirects(response, "/accounts/login/?next=/screen_papers/1/")
 
     def test_screen_papers_GET_not_member(self):
         self.client.logout()
@@ -479,3 +497,82 @@ class ViewTests(TestCase):
     def test_screen_papers_GET_not_exist(self):
         response = self.client.get(reverse("literature_review:screen_papers", args=[2]))
         self.assertEqual(response.status_code, 404)
+
+    def test_screen_papers_POST(self):
+        response = self.client.post(self.screen_papers_url, paper_screening_POST_params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/view_review.html")
+
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        _papers = test_lit_review.papers
+        self.assertEqual(len(_papers), 1)
+        self.assertEqual(_papers[0]['id'], _fake_paper['id'])
+        self.assertEqual(_papers[0]['title'], _fake_paper['title'])
+        self.assertEqual(_papers[0]['abstract'], _fake_paper['abstract'])
+
+        _decisions = _papers[0]["decisions"]
+        self.assertEqual(_decisions[0]["domain_relevance"], 1)
+        self.assertEqual(_decisions[0]["topic_relevance"], 1)
+        self.assertEqual(_decisions[0]["decision"], 1)
+        self.assertEqual(_decisions[0]["reason"], "Fake reason")
+        self.assertEqual(_decisions[0]["paper_prior_knowledge"], 1)
+        self.assertEqual(_decisions[0]["authors_prior_knowledge"], 2)
+
+    def test_screen_papers_POST_unauthenticated(self):
+        self.client.logout()
+        response = self.client.post(self.screen_papers_url, paper_screening_POST_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/accounts/login/?next=/screen_papers/1/")
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        self.assertEqual(len(test_lit_review.papers), 1)
+        papers = test_lit_review.papers
+        self.assertEqual(papers[0], _fake_paper)
+
+    def test_screen_papers_POST_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        response = self.client.post(self.screen_papers_url, paper_screening_POST_params)
+        self.assertEqual(response.status_code, 404)
+
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        self.assertEqual(len(test_lit_review.papers), 1)
+        papers = test_lit_review.papers
+        self.assertEqual(papers[0], _fake_paper)
+
+    def test_screen_papers_POST_not_exist(self):
+        # screening_params = {"screening": "1"}
+        response = self.client.post(
+            reverse("literature_review:screen_papers", args=[2]),
+            paper_screening_POST_params,
+        )
+        self.assertEqual(response.status_code, 404)
+
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        self.assertEqual(len(test_lit_review.papers), 1)
+        papers = test_lit_review.papers
+        self.assertEqual(papers[0], _fake_paper)
+
+    def test_screen_papers_POST_invalid(self):
+        screening_params = {"bad_key": "1"}  # and missing keys
+        self.assertRaises(
+            MultiValueDictKeyError,
+            self.client.post,
+            self.screen_papers_url,
+            screening_params,
+        )
+
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        self.assertEqual(len(test_lit_review.papers), 1)
+        papers = test_lit_review.papers
+        self.assertEqual(papers[0], _fake_paper)

@@ -205,7 +205,7 @@ def screen_papers(request, review_id, paper_id=None):
         review.papers[edited_index]["decisions"] = [
             {
                 "reviewer_id": request.user.pk,
-                "decision": decision,
+                "decision": int(decision),
                 "eligibility_decision": eligibility_decision,
                 "reason": reason,
                 "inclusions": inclusions,
@@ -237,6 +237,8 @@ def screen_papers(request, review_id, paper_id=None):
                         "start_time": time.time(),
                     },
                 )
+            else:
+                return render(request, "literature_review/view_review.html", {"review": review})
 
 
 @login_required
