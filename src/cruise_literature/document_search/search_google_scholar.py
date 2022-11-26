@@ -37,7 +37,7 @@ def revert_snippet(snippet):
     return new_snippet
 
 
-def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
+def search_google_scholar(query: str, top_k: int) -> List[Article]:
     pubs = scholarly.search_pubs(query, patents=False)
 
     candidate_list = []

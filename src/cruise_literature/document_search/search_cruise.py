@@ -26,12 +26,13 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
-def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
+def search_cruise(query: str, top_k: int) -> List[Article]:
     """Search internal elasticsearch database."""
+    index_name = "papers"
     headers = {"Content-type": "application/json"}
     res = requests.post(
         "http://localhost:9880" + "/search",
-        data=json.dumps({"query": query, "es_index": index, "es_top_k": top_k}),
+        data=json.dumps({"query": query, "es_index": index_name, "es_top_k": top_k}),
         headers=headers,
     )
     results = res.json()["results"]

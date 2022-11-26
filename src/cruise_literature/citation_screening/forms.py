@@ -241,7 +241,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
             # TODO: add more search engines
             for search_engine_name in search_engines:
                 search_method = SEARCH_ENGINES_DICT[search_engine_name]
-                for paper in search_method(query=query, index=INDEX_NAME, top_k=top_k):
+                for paper in search_method(query=query, top_k=top_k):
                     paper = asdict(paper)
 
                     paper["n_citations"] = paper[

@@ -49,17 +49,15 @@ def search_results(request):
 
         s_time = time.time()
 
-        index_name = "papers"
         top_k = 50
 
-        # search_result = search_google_scholar(search_query, index_name, top_k)
-        search_functions = [search_cruise, search_core, search_semantic_scholar]
+        search_engines = SearchEngine.objects.filter(is_available=True).all()
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=len(search_functions)
+            max_workers=len(search_engines)
         ) as executor:
             results = [
-                executor.submit(search_function, search_query, index_name, top_k)
-                for search_function in search_functions
+                executor.submit(eval(search_engine.search_method.split(".")[-1]), search_query, top_k)
+                for search_engine in search_engines
             ]
             results = [
                 future.result() for future in concurrent.futures.as_completed(results)
@@ -69,6 +67,7 @@ def search_results(request):
                 core_search_results=results[1],
                 semantic_scholar_results=results[2],
             )
+
         matched_wiki_page = search_wikipedia(query=search_query)
         search_time = time.time() - s_time
 

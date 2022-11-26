@@ -5,7 +5,7 @@ from requests import ConnectionError
 from utils.article import WikipediaArticle
 
 
-def search_wikipedia(query: str) -> Union[Dict[str, str], None]:
+def search_wikipedia(query: str, top_k: int = 1) -> Union[Dict[str, str], None]:
     """If there exist a wikipedia page with the title equal to the query it returns
     dictionary with the content of wikipedia page."""
     wikipedia.set_lang("en")

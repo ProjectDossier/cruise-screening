@@ -35,7 +35,7 @@ def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
     return _authors
 
 
-def search_core(query: str, index: str, top_k: int) -> List[Article]:
+def search_core(query: str, top_k: int) -> List[Article]:
     if SEARCH_WITH_CORE:
         data = {
             "q": query,

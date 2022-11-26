@@ -21,7 +21,7 @@ def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
     return _authors
 
 
-def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]:
+def search_semantic_scholar(query: str, top_k: int) -> List[Article]:
     response = requests.get(
         f"{API_ENDPOINT}{'+'.join(query.split())}&limit={top_k}&fields={FIELDS}"
     )
