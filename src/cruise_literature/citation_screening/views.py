@@ -64,7 +64,7 @@ def edit_review(request, review_id):
 
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "POST":
         form = EditLiteratureReviewForm(request.POST, user=request.user)
