@@ -48,6 +48,9 @@ base_templates = ["_base.html", "_header.html", "_footer.html"]
 
 
 class ViewTests(TestCase):
+    user = None
+    lit_rev = None
+
     @classmethod
     def setUpClass(cls):
         super(ViewTests, cls).setUpClass()
@@ -138,18 +141,6 @@ class ViewTests(TestCase):
         response = self.client.get(self.review_details_url)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/accounts/login/?next=/literature_review/1/")
-
-    def test_review_details_GET_not_member(self):
-        self.client.logout()
-        usr2 = User.objects.create_user(
-            username="testuser2",
-            email="",
-        )
-        usr2.set_password("testpassword")
-        usr2.save()
-        self.client.login(username="testuser2", password="testpassword")
-        response = self.client.get(self.review_details_url)
-        self.assertEqual(response.status_code, 404)
 
     def test_review_details_GET_not_exist(self):
         response = self.client.get(
@@ -243,18 +234,6 @@ class ViewTests(TestCase):
         self.assertRedirects(
             response, "/accounts/login/?next=/literature_review/1/edit"
         )
-
-    def test_edit_review_GET_not_member(self):
-        self.client.logout()
-        usr2 = User.objects.create_user(
-            username="testuser2",
-            email="",
-        )
-        usr2.set_password("testpassword")
-        usr2.save()
-        self.client.login(username="testuser2", password="testpassword")
-        response = self.client.get(self.edit_review_url)
-        self.assertEqual(response.status_code, 404)
 
     def test_edit_review_GET_not_exist(self):
         response = self.client.get(reverse("literature_review:edit_review", args=[2]))
@@ -356,7 +335,7 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/accounts/login/?next=/export_review/1/")
 
-    def test_export_review_GET_not_member(self):
+    def test_views_GET_not_member(self):
         self.client.logout()
         usr2 = User.objects.create_user(
             username="testuser2",
@@ -365,8 +344,17 @@ class ViewTests(TestCase):
         usr2.set_password("testpassword")
         usr2.save()
         self.client.login(username="testuser2", password="testpassword")
-        response = self.client.get(self.export_review_url)
-        self.assertEqual(response.status_code, 404)
+
+        for testing_url in [
+            self.screen_papers_url,
+            self.export_review_url,
+            self.automatic_screening_url,
+            self.edit_review_url,
+            self.review_details_url,
+            self.add_seed_studies_url,
+        ]:
+            response = self.client.get(testing_url)
+            self.assertEqual(response.status_code, 404)
 
     def test_export_review_GET_not_exist(self):
         response = self.client.get(reverse("literature_review:export_review", args=[2]))
@@ -386,18 +374,6 @@ class ViewTests(TestCase):
         self.assertRedirects(
             response, "/accounts/login/?next=/literature_review/1/add_seed_studies"
         )
-
-    def test_add_seed_studies_GET_not_member(self):
-        self.client.logout()
-        usr2 = User.objects.create_user(
-            username="testuser2",
-            email="",
-        )
-        usr2.set_password("testpassword")
-        usr2.save()
-        self.client.login(username="testuser2", password="testpassword")
-        response = self.client.get(self.add_seed_studies_url)
-        self.assertEqual(response.status_code, 404)
 
     def test_add_seed_studies_GET_not_exist(self):
         response = self.client.get(
@@ -451,18 +427,6 @@ class ViewTests(TestCase):
             response, "/accounts/login/?next=/literature_review/1/automatic_screening"
         )
 
-    def test_automatic_screening_GET_not_member(self):
-        self.client.logout()
-        usr2 = User.objects.create_user(
-            username="testuser2",
-            email="",
-        )
-        usr2.set_password("testpassword")
-        usr2.save()
-        self.client.login(username="testuser2", password="testpassword")
-        response = self.client.get(self.automatic_screening_url)
-        self.assertEqual(response.status_code, 404)
-
     def test_automatic_screening_GET_not_exist(self):
         response = self.client.get(
             reverse("literature_review:automatic_screening", args=[2])
@@ -482,18 +446,6 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/accounts/login/?next=/screen_papers/1/")
 
-    def test_screen_papers_GET_not_member(self):
-        self.client.logout()
-        usr2 = User.objects.create_user(
-            username="testuser2",
-            email="",
-        )
-        usr2.set_password("testpassword")
-        usr2.save()
-        self.client.login(username="testuser2", password="testpassword")
-        response = self.client.get(self.screen_papers_url)
-        self.assertEqual(response.status_code, 404)
-
     def test_screen_papers_GET_not_exist(self):
         response = self.client.get(reverse("literature_review:screen_papers", args=[2]))
         self.assertEqual(response.status_code, 404)
@@ -507,9 +459,9 @@ class ViewTests(TestCase):
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         _papers = test_lit_review.papers
         self.assertEqual(len(_papers), 1)
-        self.assertEqual(_papers[0]['id'], _fake_paper['id'])
-        self.assertEqual(_papers[0]['title'], _fake_paper['title'])
-        self.assertEqual(_papers[0]['abstract'], _fake_paper['abstract'])
+        self.assertEqual(_papers[0]["id"], _fake_paper["id"])
+        self.assertEqual(_papers[0]["title"], _fake_paper["title"])
+        self.assertEqual(_papers[0]["abstract"], _fake_paper["abstract"])
 
         _decisions = _papers[0]["decisions"]
         self.assertEqual(_decisions[0]["domain_relevance"], 1)
