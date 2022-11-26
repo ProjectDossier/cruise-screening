@@ -143,14 +143,13 @@ def make_decision(exclusions, inclusions):
     return True
 
 
+# split into two methods - one when user clicks on specific paper, one when just 'screens'
+# one screen_paper method, one screen_papers
 @login_required
 def screen_papers(request, review_id, paper_id=None):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "GET":
         if paper_id:
@@ -259,12 +258,9 @@ def export_review(request, review_id):
 
 @login_required
 def add_seed_studies(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "GET":
         return render(
@@ -333,7 +329,7 @@ def add_seed_studies(request, review_id):
 def automatic_screening(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "GET":
         try:

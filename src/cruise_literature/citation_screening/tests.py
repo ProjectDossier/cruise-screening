@@ -29,10 +29,6 @@ _fake_paper = {
     "pdf": "https://www.fake.com/fake.pdf",
     "screened": False,
     "decision": [
-        {
-            "decision": "Include",
-            "reason": "Fake reason",
-        }
     ]
 }
 
@@ -366,3 +362,120 @@ class ViewTests(TestCase):
         response = self.client.get(reverse("literature_review:export_review", args=[2]))
         self.assertEqual(response.status_code, 404)
 
+    def test_add_seed_studies_GET(self):
+        response = self.client.get(self.add_seed_studies_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/add_seed_studies.html")
+        for template in base_templates:
+            self.assertTemplateUsed(response, template)
+
+    def test_add_seed_studies_GET_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.add_seed_studies_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, "/accounts/login/?next=/literature_review/1/add_seed_studies"
+        )
+
+    def test_add_seed_studies_GET_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        response = self.client.get(self.add_seed_studies_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_seed_studies_GET_not_exist(self):
+        response = self.client.get(reverse("literature_review:add_seed_studies", args=[2]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_add_seed_studies_POST(self):
+        new_seed_studies = {"seed_studies_urls": ["https://arxiv.org/pdf/2211.04623.pdf"]}
+        response = self.client.post(self.add_seed_studies_url, new_seed_studies)
+        self.assertTemplateUsed(response, "literature_review/add_seed_studies.html")
+        self.assertEqual(response.status_code, 200)
+        for template in base_templates:
+            self.assertTemplateUsed(response, template)
+
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        self.assertEqual(len(test_lit_review.papers), 2)
+        papers = test_lit_review.papers
+        self.assertEqual(papers[0], _fake_paper)
+        self.assertEqual(papers[1]["title"], "Neural network concatenation for Polar Codes")
+        self.assertEqual(papers[1]["authors"], "Evgeny Stupachenko")
+        self.assertEqual(papers[1]["seed_study"], True)
+        self.assertEqual(papers[1]["search_engine"], "Seed Study")
+        self.assertEqual(papers[1]["pdf"], "https://arxiv.org/pdf/2211.04623.pdf")
+        self.assertEqual(papers[1]["decision"], None)
+
+    def test_add_seed_studies_POST_unauthenticated(self):
+        self.client.logout()
+        new_seed_studies = {"seed_studies_urls": ["https://arxiv.org/pdf/2211.12583.pdf"]}
+        response = self.client.post(self.add_seed_studies_url, new_seed_studies)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, "/accounts/login/?next=/literature_review/1/add_seed_studies"
+        )
+
+    def test_automatic_screening_GET(self):
+        self.assertRaises(ValueError, self.client.get, self.automatic_screening_url)
+
+    def test_automatic_screening_GET_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.automatic_screening_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, "/accounts/login/?next=/literature_review/1/automatic_screening"
+        )
+
+    def test_automatic_screening_GET_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        response = self.client.get(self.automatic_screening_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_automatic_screening_GET_not_exist(self):
+        response = self.client.get(reverse("literature_review:automatic_screening", args=[2]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_screen_papers_GET(self):
+        response = self.client.get(self.screen_papers_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/screen_paper.html")
+        for template in base_templates:
+            self.assertTemplateUsed(response, template)
+
+    def test_screen_papers_GET_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.screen_papers_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, "/accounts/login/?next=/screen_papers/1/"
+        )
+
+    def test_screen_papers_GET_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        response = self.client.get(self.screen_papers_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_screen_papers_GET_not_exist(self):
+        response = self.client.get(reverse("literature_review:screen_papers", args=[2]))
+        self.assertEqual(response.status_code, 404)
