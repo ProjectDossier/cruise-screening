@@ -6,7 +6,7 @@
       "name": "CRUISE",
       "description": "internal search engine of the CRUISE project",
       "url": "http://www.citation-screening.ec.tuwien.ac.at/",
-      "search_method": "document_search.search_documents.search_cruise",
+      "search_method": "document_search.search_cruise.search_cruise",
       "is_available": true,
       "created_at": "2015-03-23T14:00:00Z",
       "updated_at": "2015-03-23T14:00:00Z"

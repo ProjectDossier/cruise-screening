@@ -8,10 +8,12 @@ from django.template.defaulttags import register
 
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 from .search_core import search_core
-from .search_documents import search_cruise, paginate_results, merge_results
+from .search_cruise import search_cruise, paginate_results, merge_results
 from .search_google_scholar import search_google_scholar
 from .search_semantic_scholar import search_semantic_scholar
 from .search_wikipedia import search_wikipedia
+from .models import SearchEngine
+
 
 engine_logger = EngineLogger()
 
