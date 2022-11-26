@@ -1,0 +1,54 @@
+[
+  {
+    "model": "document_search.SearchEngine",
+    "pk": 1,
+    "fields": {
+      "name": "CRUISE",
+      "description": "internal search engine of the CRUISE project",
+      "url": "http://www.citation-screening.ec.tuwien.ac.at/",
+      "search_method": "document_search.search_documents.search_cruise",
+      "is_available": true,
+      "created_at": "2015-03-23T14:00:00Z",
+      "updated_at": "2015-03-23T14:00:00Z"
+    }
+  },
+  {
+    "model": "document_search.SearchEngine",
+    "pk": 2,
+    "fields": {
+      "name": "SemanticScholar",
+      "description": "Semantic Scholar search API",
+      "url": "https://www.semanticscholar.org/",
+      "search_method": "document_search.search_semantic_scholar.search_semantic_scholar",
+      "is_available": true,
+      "created_at": "2015-03-23T14:00:00Z",
+      "updated_at": "2015-03-23T14:00:00Z"
+    }
+  },
+  {
+    "model": "document_search.SearchEngine",
+    "pk": 3,
+    "fields": {
+      "name": "CORE",
+      "description": "CORE search API",
+      "url": "https://core.ac.uk/",
+      "search_method": "document_search.search_core.search_core",
+      "is_available": true,
+      "created_at": "2015-03-23T14:00:00Z",
+      "updated_at": "2015-03-23T14:00:00Z"
+    }
+  },
+  {
+    "model": "document_search.SearchEngine",
+    "pk": 4,
+    "fields": {
+      "name": "Google Scholar",
+      "description": "Google Scholar search with scholarly",
+      "url": "https://scholar.google.com/",
+      "search_method": "document_search.search_google_scholar.search_google_scholar",
+      "is_available": true,
+      "created_at": "2015-03-23T14:00:00Z",
+      "updated_at": "2015-03-23T14:00:00Z"
+    }
+  }
+]
