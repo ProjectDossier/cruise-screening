@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from django.test import TestCase, Client
@@ -305,3 +306,41 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
         self.assertions_failed_edit_review()
+
+    def test_export_review_GET(self):
+        response = self.client.get(self.export_review_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+
+        lit_rev = json.loads(response.content)
+        self.assertEqual(lit_rev['title'], "Test Literature Review 1")
+        self.assertEqual(lit_rev['description'], "Test Description")
+        self.assertEqual(lit_rev['search_queries'], None)
+        self.assertEqual(lit_rev['inclusion_criteria'], None)
+        self.assertEqual(lit_rev['exclusion_criteria'], None)
+        self.assertEqual(lit_rev['papers'], None)
+
+    def test_export_review_GET_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.export_review_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+            response, "/accounts/login/?next=/export_review/1/"
+        )
+
+    def test_export_review_GET_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        response = self.client.get(self.export_review_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_export_review_GET_not_exist(self):
+        response = self.client.get(reverse("literature_review:export_review", args=[2]))
+        self.assertEqual(response.status_code, 404)
+

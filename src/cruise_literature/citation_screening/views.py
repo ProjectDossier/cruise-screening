@@ -242,21 +242,19 @@ def screen_papers(request, review_id, paper_id=None):
 
 @login_required
 def export_review(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user in review.members.all():
-        data = {
-            "review_id": review.id,
-            "title": review.title,
-            "description": review.description,
-            "search_queries": review.search_queries,
-            "inclusion_criteria": review.inclusion_criteria,
-            "exclusion_criteria": review.exclusion_criteria,
-            "papers": review.papers,
-        }
-        return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+    data = {
+        "review_id": review.id,
+        "title": review.title,
+        "description": review.description,
+        "search_queries": review.search_queries,
+        "inclusion_criteria": review.inclusion_criteria,
+        "exclusion_criteria": review.exclusion_criteria,
+        "papers": review.papers,
+    }
+    return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
 
 
 @login_required
