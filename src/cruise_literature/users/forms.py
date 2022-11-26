@@ -24,7 +24,9 @@ class NewUserForm(UserCreationForm):
         )
 
     languages = forms.ModelMultipleChoiceField(
-        queryset=Language.objects.all(), widget=forms.CheckboxSelectMultiple
+        queryset=Language.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
     )
     date_of_birth = forms.DateField(
         widget=forms.SelectDateWidget(years=range(1900, 2010)),

@@ -44,9 +44,6 @@ def create_new_review(request):
                 context={"form": form},
             )
 
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     form = NewLiteratureReviewForm(user=request.user, initial=initial)
     form.fields["organisation"].queryset = form.fields["organisation"].queryset.filter(
         members=request.user
@@ -60,9 +57,6 @@ def create_new_review(request):
 
 @login_required
 def edit_review(request, review_id):
-    # if not request.user.is_authenticated:
-    #     return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
         raise Http404("Review not found")
