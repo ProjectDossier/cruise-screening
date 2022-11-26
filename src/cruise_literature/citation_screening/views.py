@@ -34,8 +34,10 @@ def create_new_review(request):
             messages.success(request, f"New review created: {title}")
             return redirect("home")
         else:
-            for msg in form.error_messages:
-                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+            print(form.errors)
+            if "error_messages" in form:
+                for msg in form.error_messages:
+                    messages.error(request, f"{msg}: {form.error_messages[msg]}")
 
             return render(
                 request=request,
@@ -84,8 +86,10 @@ def edit_review(request, review_id):
                 context={"review": review},
             )
         else:
-            for msg in form.error_messages:
-                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+            print(form.errors)
+            if "error_messages" in form:
+                for msg in form.error_messages:
+                    messages.error(request, f"{msg}: {form.error_messages[msg]}")
             return redirect("home")
 
     elif request.method == "GET":

@@ -169,25 +169,13 @@ class ViewTests(TestCase):
             _papers[0]["title"],
             "Collateral ASIC Test",
         )
-        self.assertEqual(
-            _papers[0]["authors"],
-            "Al Bailey, Tim Lada, Jim Preston")
-        self.assertEqual(
-            _papers[0]["url"],
-            "http://dx.doi.org/10.1109/54.573368")
-        self.assertEqual(
-            _papers[0]["decision"],
-            None)
-        self.assertEqual(
-            _papers[0]["search_origin"][0]["query"],
-            "test")
-        self.assertEqual(
-            _papers[0]["search_origin"][0]["search_engine"],
-            "CRUISE")
+        self.assertEqual(_papers[0]["authors"], "Al Bailey, Tim Lada, Jim Preston")
+        self.assertEqual(_papers[0]["url"], "http://dx.doi.org/10.1109/54.573368")
+        self.assertEqual(_papers[0]["decision"], None)
+        self.assertEqual(_papers[0]["search_origin"][0]["query"], "test")
+        self.assertEqual(_papers[0]["search_origin"][0]["search_engine"], "CRUISE")
 
-        self.assertEqual(
-            _papers[1]["title"],
-            "Agile Test Composition")
+        self.assertEqual(_papers[1]["title"], "Agile Test Composition")
 
     def test_create_new_review_POST_unauthenticated(self):
         self.client.logout()
@@ -212,7 +200,9 @@ class ViewTests(TestCase):
     def test_edit_review_GET(self):
         response = self.client.get(self.edit_review_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "literature_review/edit_literature_review.html")
+        self.assertTemplateUsed(
+            response, "literature_review/edit_literature_review.html"
+        )
         for template in base_templates:
             self.assertTemplateUsed(response, template)
 
@@ -220,7 +210,9 @@ class ViewTests(TestCase):
         self.client.logout()
         response = self.client.get(self.edit_review_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/accounts/login/?next=/literature_review/1/edit")
+        self.assertRedirects(
+            response, "/accounts/login/?next=/literature_review/1/edit"
+        )
 
     def test_edit_review_GET_not_member(self):
         self.client.logout()
@@ -235,21 +227,31 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_edit_review_GET_not_exist(self):
-        response = self.client.get(
-            reverse("literature_review:edit_review", args=[2])
-        )
+        response = self.client.get(reverse("literature_review:edit_review", args=[2]))
         self.assertEqual(response.status_code, 404)
 
     def test_edit_review_POST(self):
-        new_review_params = {"title": "Updated Literature Review"}
+        new_review_params = {
+            "title": "Updated Literature Review",
+            "description": "Updated Description",
+            "inclusion_criteria": ["new inclusion"],
+            "exclusion_criteria": ["new exclusion"],
+        }
         response = self.client.post(self.edit_review_url, new_review_params)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/literature_review/1/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/view_review.html")
+        self.assertTemplateUsed(response, "literature_review/_review_header.html")
+        for template in base_templates:
+            self.assertTemplateUsed(response, template)
+
         self.assertEqual(LiteratureReview.objects.count(), 1)
-        test_lit_review = LiteratureReview.objects.get(title="Updated Literature Review")
+        test_lit_review = LiteratureReview.objects.get(
+            title="Updated Literature Review"
+        )
         self.assertEqual(test_lit_review.title, "Updated Literature Review")
-        self.assertEqual(test_lit_review.description, "Test Description")
-        self.assertEqual(test_lit_review.project_deadline, datetime(2020, 1, 1).date())
+        self.assertEqual(test_lit_review.description, "Updated Description")
+        self.assertEqual(test_lit_review.inclusion_criteria, ["new inclusion"])
+        self.assertEqual(test_lit_review.exclusion_criteria, ["new exclusion"])
 
     def assertions_failed_edit_review(self):
         """Bulk assertions for
@@ -270,7 +272,9 @@ class ViewTests(TestCase):
         new_review_params = {"title": "Updated Literature Review"}
         response = self.client.post(self.edit_review_url, new_review_params)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/accounts/login/?next=/literature_review/1/edit")
+        self.assertRedirects(
+            response, "/accounts/login/?next=/literature_review/1/edit"
+        )
         self.assertions_failed_edit_review()
 
     def test_edit_review_POST_not_member(self):
@@ -290,8 +294,7 @@ class ViewTests(TestCase):
     def test_edit_review_POST_not_exist(self):
         new_review_params = {"title": "Updated Literature Review"}
         response = self.client.post(
-            reverse("literature_review:edit_review", args=[2]),
-            new_review_params
+            reverse("literature_review:edit_review", args=[2]), new_review_params
         )
         self.assertEqual(response.status_code, 404)
         self.assertions_failed_edit_review()
@@ -299,7 +302,6 @@ class ViewTests(TestCase):
     def test_edit_review_POST_invalid(self):
         new_review_params = {"title": ""}
         response = self.client.post(self.edit_review_url, new_review_params)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "literature_review/edit_review.html")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/")
         self.assertions_failed_edit_review()
-
