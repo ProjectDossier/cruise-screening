@@ -18,6 +18,24 @@ from .views import (
     add_seed_studies,
 )
 
+_fake_paper = {
+    "id": "1",
+    "title": "Fake paper",
+    "authors": "Fake author",
+    "year": "2020",
+    "abstract": "Fake abstract",
+    "doi": "10.1234/5678",
+    "url": "https://www.fake.com",
+    "pdf": "https://www.fake.com/fake.pdf",
+    "screened": False,
+    "decision": [
+        {
+            "decision": "Include",
+            "reason": "Fake reason",
+        }
+    ]
+}
+
 base_templates = ["_base.html", "_header.html", "_footer.html"]
 
 
@@ -46,6 +64,9 @@ class ViewTests(TestCase):
             title="Test Literature Review 1",
             description="Test Description",
             project_deadline="2020-01-01",
+            inclusion_criteria=["test inclusion criterion"],
+            exclusion_criteria=["test exclusion criterion"],
+            papers=[_fake_paper],
         )
         cls.member = LiteratureReviewMember.objects.create(
             member=cls.user, literature_review=cls.lit_rev
@@ -316,9 +337,10 @@ class ViewTests(TestCase):
         self.assertEqual(lit_rev['title'], "Test Literature Review 1")
         self.assertEqual(lit_rev['description'], "Test Description")
         self.assertEqual(lit_rev['search_queries'], None)
-        self.assertEqual(lit_rev['inclusion_criteria'], None)
-        self.assertEqual(lit_rev['exclusion_criteria'], None)
-        self.assertEqual(lit_rev['papers'], None)
+        self.assertEqual(lit_rev['inclusion_criteria'], ["test inclusion criterion"])
+        self.assertEqual(lit_rev['exclusion_criteria'], ["test exclusion criterion"])
+        self.assertEqual(len(lit_rev['papers']), 1)
+        self.assertEqual(lit_rev['papers'][0], _fake_paper)
 
     def test_export_review_GET_unauthenticated(self):
         self.client.logout()
