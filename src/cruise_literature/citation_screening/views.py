@@ -2,7 +2,7 @@ import json
 import time
 
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 from django.contrib.auth.decorators import login_required
@@ -34,8 +34,9 @@ def create_new_review(request):
             messages.success(request, f"New review created: {title}")
             return redirect("home")
         else:
-            for msg in form.error_messages:
-                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+            if "error_messages" in form:
+                for msg in form.error_messages:
+                    messages.error(request, f"{msg}: {form.error_messages[msg]}")
 
             return render(
                 request=request,
@@ -64,7 +65,7 @@ def edit_review(request, review_id):
 
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "POST":
         form = EditLiteratureReviewForm(request.POST, user=request.user)
@@ -84,8 +85,9 @@ def edit_review(request, review_id):
                 context={"review": review},
             )
         else:
-            for msg in form.error_messages:
-                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+            if "error_messages" in form:
+                for msg in form.error_messages:
+                    messages.error(request, f"{msg}: {form.error_messages[msg]}")
             return redirect("home")
 
     elif request.method == "GET":
@@ -123,14 +125,11 @@ def literature_review_home(request):
 
 @login_required
 def review_details(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user in review.members.all():
         return render(request, "literature_review/view_review.html", {"review": review})
     else:
-        return redirect("home")
+        raise Http404("Review not found")
 
 
 def make_decision(exclusions, inclusions):
@@ -142,14 +141,13 @@ def make_decision(exclusions, inclusions):
     return True
 
 
+# split into two methods - one when user clicks on specific paper, one when just 'screens'
+# one screen_paper method, one screen_papers
 @login_required
 def screen_papers(request, review_id, paper_id=None):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "GET":
         if paper_id:
@@ -205,7 +203,7 @@ def screen_papers(request, review_id, paper_id=None):
         review.papers[edited_index]["decisions"] = [
             {
                 "reviewer_id": request.user.pk,
-                "decision": decision,
+                "decision": int(decision),
                 "eligibility_decision": eligibility_decision,
                 "reason": reason,
                 "inclusions": inclusions,
@@ -237,35 +235,32 @@ def screen_papers(request, review_id, paper_id=None):
                         "start_time": time.time(),
                     },
                 )
+            else:
+                return render(request, "literature_review/view_review.html", {"review": review})
 
 
 @login_required
 def export_review(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user in review.members.all():
-        data = {
-            "review_id": review.id,
-            "title": review.title,
-            "description": review.description,
-            "search_queries": review.search_queries,
-            "inclusion_criteria": review.inclusion_criteria,
-            "exclusion_criteria": review.exclusion_criteria,
-            "papers": review.papers,
-        }
-        return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+    data = {
+        "review_id": review.id,
+        "title": review.title,
+        "description": review.description,
+        "search_queries": review.search_queries,
+        "inclusion_criteria": review.inclusion_criteria,
+        "exclusion_criteria": review.exclusion_criteria,
+        "papers": review.papers,
+    }
+    return HttpResponse(json.dumps(data, indent=2), content_type="application/json")
 
 
 @login_required
 def add_seed_studies(request, review_id):
-    if not request.user.is_authenticated:
-        return redirect("home")
-
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "GET":
         return render(
@@ -334,7 +329,7 @@ def add_seed_studies(request, review_id):
 def automatic_screening(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
-        return redirect("home")
+        raise Http404("Review not found")
 
     if request.method == "GET":
         try:

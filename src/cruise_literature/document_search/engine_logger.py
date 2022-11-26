@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Optional
 
 import wikipedia
@@ -35,7 +36,8 @@ class EngineLogger:
 
     def __init__(self):
         self._logger = logging.getLogger("user_queries")
-        hdlr = logging.FileHandler("../../data/user_queries.log")
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        hdlr = logging.FileHandler(f"{dir_path}../../../../data/user_queries.log")
         formatter = logging.Formatter("%(asctime)s %(message)s")
         hdlr.setFormatter(formatter)
         self._logger.addHandler(hdlr)
