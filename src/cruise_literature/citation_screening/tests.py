@@ -59,6 +59,15 @@ class ViewTests(TestCase):
         )
         self.review_details_url = reverse("literature_review:review_details", args=[1])
         self.create_new_review_url = reverse("literature_review:create_new_review")
+        self.edit_review_url = reverse("literature_review:edit_review", args=[1])
+        self.export_review_url = reverse("literature_review:export_review", args=[1])
+        self.screen_papers_url = reverse("literature_review:screen_papers", args=[1])
+        self.automatic_screening_url = reverse(
+            "literature_review:automatic_screening", args=[1]
+        )
+        self.add_seed_studies_url = reverse(
+            "literature_review:add_seed_studies", args=[1]
+        )
 
         self.new_review_params = {
             "title": "Test Literature Review 2",
@@ -152,8 +161,6 @@ class ViewTests(TestCase):
         self.assertEqual(test_lit_review.search_queries, ["test"])
         self.assertEqual(test_lit_review.inclusion_criteria, ["test"])
         self.assertEqual(test_lit_review.exclusion_criteria, ["test"])
-        # self.assertEqual(test_lit_review.top_k, 10)
-        # self.assertEqual(test_lit_review.search_engines, ["SemanticScholar"])
         self.assertEqual(test_lit_review.annotations_per_paper, 1)
 
         _papers = test_lit_review.papers
@@ -162,6 +169,25 @@ class ViewTests(TestCase):
             _papers[0]["title"],
             "Collateral ASIC Test",
         )
+        self.assertEqual(
+            _papers[0]["authors"],
+            "Al Bailey, Tim Lada, Jim Preston")
+        self.assertEqual(
+            _papers[0]["url"],
+            "http://dx.doi.org/10.1109/54.573368")
+        self.assertEqual(
+            _papers[0]["decision"],
+            None)
+        self.assertEqual(
+            _papers[0]["search_origin"][0]["query"],
+            "test")
+        self.assertEqual(
+            _papers[0]["search_origin"][0]["search_engine"],
+            "CRUISE")
+
+        self.assertEqual(
+            _papers[1]["title"],
+            "Agile Test Composition")
 
     def test_create_new_review_POST_unauthenticated(self):
         self.client.logout()
@@ -171,3 +197,109 @@ class ViewTests(TestCase):
 
         self.assertEqual(LiteratureReview.objects.count(), 1)
         self.assertEqual(LiteratureReviewMember.objects.count(), 1)
+
+    def test_create_new_review_POST_invalid(self):
+        self.new_review_params["title"] = ""
+        response = self.client.post(self.create_new_review_url, self.new_review_params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "literature_review/create_literature_review.html"
+        )
+
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        self.assertEqual(LiteratureReviewMember.objects.count(), 1)
+
+    def test_edit_review_GET(self):
+        response = self.client.get(self.edit_review_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/edit_literature_review.html")
+        for template in base_templates:
+            self.assertTemplateUsed(response, template)
+
+    def test_edit_review_GET_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.edit_review_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/accounts/login/?next=/literature_review/1/edit")
+
+    def test_edit_review_GET_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        response = self.client.get(self.edit_review_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_edit_review_GET_not_exist(self):
+        response = self.client.get(
+            reverse("literature_review:edit_review", args=[2])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_edit_review_POST(self):
+        new_review_params = {"title": "Updated Literature Review"}
+        response = self.client.post(self.edit_review_url, new_review_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/literature_review/1/")
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Updated Literature Review")
+        self.assertEqual(test_lit_review.title, "Updated Literature Review")
+        self.assertEqual(test_lit_review.description, "Test Description")
+        self.assertEqual(test_lit_review.project_deadline, datetime(2020, 1, 1).date())
+
+    def assertions_failed_edit_review(self):
+        """Bulk assertions for
+        - test_edit_review_POST_unauthenticated
+        - test_edit_review_POST_not_member
+        - test_edit_review_POST_not_exist
+        - test_edit_review_POST_invalid
+        checking if the literature review was not updated.
+        """
+        self.assertEqual(LiteratureReview.objects.count(), 1)
+        test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
+        self.assertEqual(test_lit_review.title, "Test Literature Review 1")
+        self.assertEqual(test_lit_review.description, "Test Description")
+        self.assertEqual(test_lit_review.project_deadline, datetime(2020, 1, 1).date())
+
+    def test_edit_review_POST_unauthenticated(self):
+        self.client.logout()
+        new_review_params = {"title": "Updated Literature Review"}
+        response = self.client.post(self.edit_review_url, new_review_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/accounts/login/?next=/literature_review/1/edit")
+        self.assertions_failed_edit_review()
+
+    def test_edit_review_POST_not_member(self):
+        self.client.logout()
+        usr2 = User.objects.create_user(
+            username="testuser2",
+            email="",
+        )
+        usr2.set_password("testpassword")
+        usr2.save()
+        self.client.login(username="testuser2", password="testpassword")
+        new_review_params = {"title": "Updated Literature Review"}
+        response = self.client.post(self.edit_review_url, new_review_params)
+        self.assertEqual(response.status_code, 404)
+        self.assertions_failed_edit_review()
+
+    def test_edit_review_POST_not_exist(self):
+        new_review_params = {"title": "Updated Literature Review"}
+        response = self.client.post(
+            reverse("literature_review:edit_review", args=[2]),
+            new_review_params
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertions_failed_edit_review()
+
+    def test_edit_review_POST_invalid(self):
+        new_review_params = {"title": ""}
+        response = self.client.post(self.edit_review_url, new_review_params)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "literature_review/edit_review.html")
+        self.assertions_failed_edit_review()
+
