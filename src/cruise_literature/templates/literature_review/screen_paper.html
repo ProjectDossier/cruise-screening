@@ -91,42 +91,46 @@
                 <div class="columns">
                     <div class="column">
                         <strong><span class="has-background-orange-light mb-2">2. Inclusion criteria</span></strong>
-                        {% for criterion in review.inclusion_criteria %}
+                        {% for criterion in review.criteria.inclusion %}
+                            {%  if criterion.is_active %}
                             <div class="control m-2 p-1 box screen_paper_relevance">
-                                <span class="is-light tag is-size-6 eligibility_text_tag">{{ criterion }}</span>
+                                <span class="is-light tag is-size-6 eligibility_text_tag">{{ criterion.text }}</span>
                                 <label class="ml-1">
-                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="yes">
+                                    <input type="radio" name="{{ criterion.id }}" value="yes">
                                     <span class="button is-small">Yes</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="not_sure">
+                                    <input type="radio" name="{{ criterion.id }}" value="not_sure">
                                     <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="inclusion_{{ forloop.counter }}" value="no">
+                                    <input type="radio" name="{{ criterion.id }}" value="no">
                                     <span class="button is-small">No</span>
                                 </label>
                             </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                     <div class="column">
                         <strong><span class="has-background-orange-light mb-2">3. Exclusion criteria</span><span class="has-text-danger"> *</span></strong>
-                        {% for criterion in review.exclusion_criteria %}
+                        {% for criterion in review.criteria.exclusion %}
+                            {%  if criterion.is_active %}
                             <div class="control m-2 p-1 box screen_paper_relevance">
-                                <span class="tag is-light is-size-6 eligibility_text_tag">{{ criterion }}</span>
+                                <span class="tag is-light is-size-6 eligibility_text_tag">{{ criterion.text }}</span>
                                 <label class="ml-1">
-                                    <input type="radio" name="exclusion_{{ forloop.counter }}" value="yes" required>
+                                    <input type="radio" name="{{ criterion.id }}" value="yes" required>
                                     <span class="button is-small">Yes</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="exclusion_{{ forloop.counter }}" value="not_sure">
+                                    <input type="radio" name="{{ criterion.id }}" value="not_sure">
                                     <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="exclusion_{{ forloop.counter }}" value="no">
+                                    <input type="radio" name="{{ criterion.id }}" value="no">
                                     <span class="button is-small">No</span>
                                 </label>
                             </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
