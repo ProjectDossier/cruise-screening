@@ -257,6 +257,16 @@ def export_review(request, review_id):
 
 
 @login_required
+def delete_review(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    # if user is not member of the review and its review role is not "AD":
+    if request.user not in review.members.all().filter(role="AD"):
+        raise Http404("Review not found")
+    review.delete()
+    return redirect("literature_review:home")
+
+
+@login_required
 def add_seed_studies(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
