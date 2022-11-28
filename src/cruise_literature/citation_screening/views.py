@@ -288,10 +288,10 @@ def add_seed_studies(request, review_id):
                         "authors": ", ".join([a.full_name for a in doc.header.authors]),
                         "venue": doc.header.journal,
                         "publication_date": doc.header.date,
-                        "references": len(
+                        "n_references": len(
                             doc.citations
                         ),  # TODO: change to n_references
-                        "citations": None,
+                        "n_citations": None,
                         "core_id": None,
                         "semantic_scholar_id": None,
                         "query": None,

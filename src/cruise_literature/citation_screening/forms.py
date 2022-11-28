@@ -15,7 +15,7 @@ from django.contrib.postgres.forms import (
 from document_search.search_semantic_scholar import search_semantic_scholar
 from document_search.search_core import search_core
 from document_search.search_google_scholar import search_google_scholar
-from document_search.search_documents import search_cruise
+from document_search.search_cruise import search_cruise
 from users.models import KnowledgeArea
 
 SEARCH_ENGINES_DICT = {
@@ -241,13 +241,13 @@ class NewLiteratureReviewForm(forms.ModelForm):
             # TODO: add more search engines
             for search_engine_name in search_engines:
                 search_method = SEARCH_ENGINES_DICT[search_engine_name]
-                for paper in search_method(query=query, index=INDEX_NAME, top_k=top_k):
+                for paper in search_method(query=query, top_k=top_k):
                     paper = asdict(paper)
 
                     paper["n_citations"] = paper[
-                        "citations"
+                        "n_citations"
                     ]  # TODO: change in Article class at some point
-                    paper["n_references"] = paper["references"]
+                    paper["n_references"] = paper["n_references"]
                     paper["search_origin"] = [
                         {
                             "search_engine": search_engine_name,
