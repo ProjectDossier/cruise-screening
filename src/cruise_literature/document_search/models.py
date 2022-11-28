@@ -12,7 +12,8 @@ class SearchEngine(models.Model):
 
     search_method = models.CharField(max_length=255, blank=True, null=True)
 
-    is_available = models.BooleanField(default=True)
+    is_available_for_search = models.BooleanField(default=True, verbose_name=_("Is available for search"))
+    is_available_for_review = models.BooleanField(default=True, verbose_name=_("Available for literature review"))
 
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)

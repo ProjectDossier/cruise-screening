@@ -52,7 +52,7 @@ def search_results(request):
 
         top_k = 50
 
-        search_engines = SearchEngine.objects.filter(is_available=True).all()
+        search_engines = SearchEngine.objects.filter(is_available_for_search=True).all()
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=len(search_engines)
         ) as executor:
