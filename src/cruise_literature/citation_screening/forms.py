@@ -7,6 +7,7 @@ from django import forms
 
 from organisations.models import Organisation
 from .models import LiteratureReview, LiteratureReviewMember
+from document_search.models import SearchEngine
 from django.contrib.postgres.forms import (
     SimpleArrayField,
     ValidationError,
@@ -195,10 +196,14 @@ class NewLiteratureReviewForm(forms.ModelForm):
     )
     search_engines = forms.MultipleChoiceField(
         label="Select search engines where you want to search for papers. By default it searches in first three.",
-        choices=[(k, " ".join(k.split("_"))) for k in SEARCH_ENGINES_DICT.keys()],
-        initial=list(SEARCH_ENGINES_DICT.keys())[
-            :3
-        ],  # only first three search engines by default
+        choices=SearchEngine.objects.filter(is_available_for_review=True).values_list(
+            "id", "name"
+        ),
+        initial=list(
+            SearchEngine.objects.filter(
+                name__in=["CRUISE", "SemanticScholar", "CORE"]
+            ).values_list("id", flat=True)
+        ),
         widget=forms.SelectMultiple(attrs={"class": "select is-multiple is-medium"}),
         help_text="Selecting Google Scholar will drastically increase the search time.",
     )
@@ -230,37 +235,37 @@ class NewLiteratureReviewForm(forms.ModelForm):
         super(NewLiteratureReviewForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        INDEX_NAME = "papers"  # TODO: get rid of this parameter
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
         top_k = self.cleaned_data["top_k"]
         search_engines = self.cleaned_data["search_engines"]
-
+        print(search_engines)
         queries = self.cleaned_data["search_queries"]
-        results = {}  # TODO: change to list for convenience
+        results: Dict[str, Dict[str, Any]] = {}
         for query in queries:
             # TODO: add more search engines
             for search_engine_name in search_engines:
-                search_method = SEARCH_ENGINES_DICT[search_engine_name]
-                for paper in search_method(query=query, top_k=top_k):
+                search_engine = SearchEngine.objects.filter(
+                    id=int(search_engine_name)
+                ).first()
+                search_method = eval(search_engine.search_method.split(".")[-1])
+
+                for paper in search_method(query=query, top_k=top_k)["results"]:
                     paper = asdict(paper)
 
-                    paper["n_citations"] = paper[
-                        "n_citations"
-                    ]  # TODO: change in Article class at some point
-                    paper["n_references"] = paper["n_references"]
                     paper["search_origin"] = [
                         {
-                            "search_engine": search_engine_name,
+                            "search_engine": search_engine.name,
                             "query": query,
-                            "added": str(datetime.datetime.now()),
+                            "added_at": str(datetime.datetime.now()),
+                            "added_by": self.user.username,
+                            "origin": "search",
                         }
-                    ]  # TODO replaces query and search engine in future release
-                    paper["query"] = query
-                    paper["search_engine"] = search_engine_name
+                    ]
                     paper["decision"] = None
+                    paper["outcome"] = None
                     results[paper["id"]] = paper
         results = deduplicate(results=results)
-        instance.papers = list(results.values())
+        instance.papers = results
 
         if commit:
             instance.save()
