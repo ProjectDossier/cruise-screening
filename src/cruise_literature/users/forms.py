@@ -1,3 +1,5 @@
+import datetime
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
@@ -25,7 +27,8 @@ class NewUserForm(UserCreationForm):
         queryset=Language.objects.all(), widget=forms.CheckboxSelectMultiple
     )
     date_of_birth = forms.DateField(
-        widget=forms.SelectDateWidget(years=range(1900, 2010))
+        widget=forms.SelectDateWidget(years=range(1900, 2010)),
+        initial=datetime.date.today,
     )
     email = forms.EmailField(required=True)
 

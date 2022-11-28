@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-content">
+            <h1 class="title is-1">
+                Organisations
+                <a href="{% url 'organisations:create_organisation' %}" class="button is-link ml-5 mt-3">
+                    Create new organisation
+                </a>
+            </h1>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content">
+            <table class="table is-striped table is-fullwidth is-hoverable">
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Members</th>
+                    <th>Reviews</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for organisation in organisations %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td><a href="{% url 'organisations:view_organisation' organisation.id %}">{{ organisation.title }}</a></td>
+                        <td>{{ organisation.description }}</td>
+                        <td>{{ organisation.number_of_members }}</td>
+                        <td>{{ organisation.n_reviews }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include "_footer.html" %}
+{% endblock %}
