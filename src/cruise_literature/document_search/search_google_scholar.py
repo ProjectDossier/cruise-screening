@@ -1,6 +1,7 @@
 from typing import List
 from scholarly import scholarly
 
+from document_search.utils import SearchResultWithStatus
 from utils.article import Article
 from utils.article import Author
 import re
@@ -37,7 +38,7 @@ def revert_snippet(snippet: str) -> str:
     return new_snippet
 
 
-def search_google_scholar(query: str, top_k: int) -> List[Article]:
+def search_google_scholar(query: str, top_k: int) -> SearchResultWithStatus:
     pubs = scholarly.search_pubs(query, patents=False)
 
     candidate_list = []
@@ -80,4 +81,17 @@ def search_google_scholar(query: str, top_k: int) -> List[Article]:
         )
         candidate_list.append(retrieved_art)
 
-    return candidate_list
+    if candidate_list:
+        _status = "OK"
+        _status_code = 200
+    else:
+        _status = "ERROR"
+        _status_code = 503
+
+    return {
+        "results": candidate_list,
+        "status": _status,
+        "status_code": _status_code,
+        "search_engine": "Google Scholar",
+        "search_query": query,
+    }

@@ -1,5 +1,7 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple, Union
 import requests
+
+from document_search.utils import SearchResultWithStatus
 from utils.article import Article, Author
 
 API_ENDPOINT = "https://api.semanticscholar.org/graph/v1/paper/search?query="
@@ -18,7 +20,7 @@ def _get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
     ]
 
 
-def search_semantic_scholar(query: str, top_k: int) -> List[Article]:
+def search_semantic_scholar(query: str, top_k: int) -> SearchResultWithStatus:
     response = requests.get(
         f"{API_ENDPOINT}{'+'.join(query.split())}&limit={top_k}&fields={FIELDS}"
     )
@@ -63,4 +65,11 @@ def search_semantic_scholar(query: str, top_k: int) -> List[Article]:
             )
             candidate_list.append(retrieved_art)
 
-    return candidate_list
+    _status = "OK" if response.status_code == 200 else "ERROR"
+    return {
+        "results": candidate_list,
+        "status": _status,
+        "status_code": response.status_code,
+        "search_engine": "Semantic Scholar",
+        "search_query": query,
+    }

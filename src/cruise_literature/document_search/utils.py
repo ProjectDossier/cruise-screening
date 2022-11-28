@@ -1,8 +1,11 @@
-from typing import List
+from typing import List, Union, Dict
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from utils.article import Article
+
+Articles = List[Article]
+SearchResultWithStatus = Dict[str, Union[Articles, int, str]]
 
 
 def paginate_results(search_result: list, page: int, results_per_page: int = 19):

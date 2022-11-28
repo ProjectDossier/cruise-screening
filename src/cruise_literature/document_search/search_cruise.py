@@ -3,6 +3,8 @@ import re
 from typing import List
 
 import requests
+
+from document_search.utils import SearchResultWithStatus
 from utils.article import Article
 
 
@@ -15,8 +17,8 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     highlighted_abstract = ""
     highlighted_snippet = ""
     for term in doc.split():
-        if re.sub(r"[^\w]", "", term) in highlight_terms:
-            term = "<em>" + term + "</em>"
+        if re.sub(r"\W", "", term) in highlight_terms:
+            term = f"<em>{term}</em>"
         term += " "
         highlighted_abstract += term
         if len(highlighted_snippet) < 160:
@@ -25,15 +27,27 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
-def search_cruise(query: str, top_k: int) -> List[Article]:
+def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
     """Search internal elasticsearch database."""
     index_name = "papers"
     headers = {"Content-type": "application/json"}
-    res = requests.post(
-        "http://localhost:9880" + "/search",
-        data=json.dumps({"query": query, "es_index": index_name, "es_top_k": top_k}),
-        headers=headers,
-    )
+    try:
+        res = requests.post(
+            "http://localhost:9880" + "/search",
+            data=json.dumps(
+                {"query": query, "es_index": index_name, "es_top_k": top_k}
+            ),
+            headers=headers,
+        )
+    except requests.exceptions.ConnectionError:
+        return {
+            "results": [],
+            "status": "ERROR",
+            "status_code": 503,
+            "search_engine": "CRUISE",
+            "search_query": query,
+        }
+
     results = res.json()["results"]
     candidate_list = []
     for candidate in results["hits"]["hits"]:
@@ -76,11 +90,13 @@ def search_cruise(query: str, top_k: int) -> List[Article]:
 
         keywords_snippet = {}
         keywords_rest = {}
-        for index_i, (k, v) in enumerate(sorted(
-            candidate["_source"].get("keywords").items(),
-            key=lambda item: item[1],
-            reverse=True,
-        )):
+        for index_i, (k, v) in enumerate(
+            sorted(
+                candidate["_source"].get("keywords").items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )
+        ):
             if index_i < 6:
                 keywords_snippet[k] = v
             else:
@@ -104,5 +120,10 @@ def search_cruise(query: str, top_k: int) -> List[Article]:
             doi=doi,
         )
         candidate_list.append(retrieved_art)
-
-    return candidate_list
+    return {
+        "results": candidate_list,
+        "status": "OK",
+        "status_code": 200,
+        "search_engine": "CRUISE",
+        "search_query": query,
+    }

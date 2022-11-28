@@ -9,10 +9,10 @@ from django.template.defaulttags import register
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
 from .search_core import search_core
 from .search_cruise import search_cruise
-from .utils import paginate_results, merge_results
 from .search_google_scholar import search_google_scholar
 from .search_semantic_scholar import search_semantic_scholar
 from .search_wikipedia import search_wikipedia
+from .utils import paginate_results, merge_results
 from .models import SearchEngine
 
 
@@ -63,10 +63,15 @@ def search_results(request):
             results = [
                 future.result() for future in concurrent.futures.as_completed(results)
             ]
+
+            internal_results = [result["results"] for result in results if result["search_engine"] == "CRUISE"][0]
+            core_results = [result["results"] for result in results if result["search_engine"] == "CORE"][0]
+            semantic_scholar_results = [result["results"] for result in results if result["search_engine"] == "Semantic Scholar"][0]
+
             search_result = merge_results(
-                internal_search_results=results[0],
-                core_search_results=results[1],
-                semantic_scholar_results=results[2],
+                internal_search_results=internal_results,
+                core_search_results=core_results,
+                semantic_scholar_results=semantic_scholar_results,
             )
 
         matched_wiki_page = search_wikipedia(query=search_query)

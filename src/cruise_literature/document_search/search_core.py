@@ -1,9 +1,9 @@
 from typing import List, Dict
 
 import requests
-import json
 import os
 from cruise_literature.settings import SEARCH_WITH_CORE
+from document_search.utils import SearchResultWithStatus
 
 from utils.article import Article
 
@@ -32,15 +32,20 @@ def _get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
     ]
 
 
-def search_core(query: str, top_k: int) -> List[Article]:
+def search_core(query: str, top_k: int) -> SearchResultWithStatus:
     if not SEARCH_WITH_CORE:
-        return []
+        return {
+            "results": [],
+            "status": "ERROR",
+            "status_code": 501,
+            "search_engine": "CORE",
+            "search_query": query,
+        }
     data = {
         "q": query,
         "limit": str(top_k),
     }
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
-
     response = requests.post(url=api_endpoint, headers=headers, json=data)
     candidate_list = []
     if response.status_code == 200:
@@ -96,4 +101,11 @@ def search_core(query: str, top_k: int) -> List[Article]:
             )
             candidate_list.append(retrieved_art)
 
-    return candidate_list
+    _status = "OK" if response.status_code == 200 else "ERROR"
+    return {
+        "results": candidate_list,
+        "status": _status,
+        "status_code": response.status_code,
+        "search_engine": "CORE",
+        "search_query": query,
+    }
