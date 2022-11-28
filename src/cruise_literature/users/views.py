@@ -64,6 +64,7 @@ def login_request(request):
     )
 
 
+@login_required
 def user_profile(request):
     """
     User profile page

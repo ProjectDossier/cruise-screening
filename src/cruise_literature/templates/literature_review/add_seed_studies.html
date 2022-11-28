@@ -1,0 +1,64 @@
+{% extends '_base.html' %}
+{% block content %}
+    <div class="card">
+        <div class="card-header pl-4">
+            {% include 'literature_review/_review_header.html' %}
+        </div>
+        <div class="card-content" x-data="{ openAbstract: false, openReviewDescription: false}">
+            <h1 class="title is-3">
+                Review: {{ review.title }}
+            </h1>
+            <h5 class="is-5">Add new seed studies to your review</h5>
+            <hr/>
+            <form method="POST" action="{% url 'literature_review:add_seed_studies' review.id %}">
+                {% csrf_token %}
+                <textarea class="textarea is-small m-2" name="seed_studies_urls"
+                          placeholder="Add URLs to your seed studies, one item per line..."></textarea>
+                <hr/>
+                <div id="file-js-example" class="file has-name m-2">
+                    <label class="file-label">
+                        <input class="file-input" type="file" name="seed_study_file" disabled>
+                        <span class="file-cta">
+                      <span class="file-icon">
+                        <i class="fas fa-upload"></i>
+                      </span>
+                      <span class="file-label">
+                        Choose additional PDF file (currently not supported)
+                      </span>
+                    </span>
+                        <span class="file-name">
+                      No file uploaded
+                    </span>
+                    </label>
+                </div>
+                <hr/>
+                <div class="screen_paper_relevance control m-2 p-1 box">
+                    <span class="is-size-6">Do you want to snowball references? (currently not supported)</span>
+                    <label class="ml-4">
+                        <input type="radio" name="domain_relevance" value="Yes" disabled>
+                        <span class="button is-small">Yes</span>
+                    </label>
+                    <label class="ml-4">
+                        <input type="radio" name="domain_relevance" value="No" disabled>
+                        <span class="button is-small">No</span>
+                    </label>
+                </div>
+                <button class="button is-info is-light is-fullwidth mt-5">Submit</button>
+            </form>
+
+            <script>
+                const fileInput = document.querySelector('#file-js-example input[type=file]');
+                fileInput.onchange = () => {
+                    if (fileInput.files.length > 0) {
+                        const fileName = document.querySelector('#file-js-example .file-name');
+                        fileName.textContent = fileInput.files[0].name;
+                    }
+                }
+            </script>
+
+        </div>
+    </div>
+
+
+    {% include "_footer.html" %}
+{% endblock %}

@@ -40,10 +40,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    # apps
     "home",
     "document_search",
     "concept_search",
     "users",
+    "citation_screening",
+    "document_classification",
+    "organisations",
 ]
 
 MIDDLEWARE = [
@@ -93,11 +98,13 @@ WSGI_APPLICATION = "cruise_literature.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "cruise_literature",
+        "USER": "cruise_literature_user",
+        "HOST": "localhost",
+        "PORT": 5432,  # default postgres port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -148,4 +155,4 @@ M1_CHIP = False
 AUTH_USER_MODEL = "users.User"
 
 # if True then also search inside CORE publications aggregator
-SEARCH_WITH_CORE = False
+SEARCH_WITH_CORE = True

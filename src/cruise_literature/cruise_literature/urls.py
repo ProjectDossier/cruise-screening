@@ -22,4 +22,7 @@ urlpatterns = [
     path("", include("document_search.urls")),
     path("", include("concept_search.urls")),
     path("", include("users.urls")),
+    path("", include("citation_screening.urls")),
+    path("", include("document_classification.urls")),
+    path("", include("organisations.urls")),
 ]

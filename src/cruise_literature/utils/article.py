@@ -8,7 +8,7 @@ class Article:
 
     id: str
     title: str
-    url: str
+    url: str  # this could be a list
     pdf: str
     snippet: str
     abstract: str
@@ -23,6 +23,7 @@ class Article:
 
     semantic_scholar_id: Optional[str] = None
     core_id: Optional[str] = None
+    doi: Optional[str] = None
 
 
 @dataclass()
@@ -49,3 +50,4 @@ class Author:
     id: Optional[str] = None
     aminer_id: Optional[str] = None
     semantic_scholar_id: Optional[str] = None
+    google_scholar_id: Optional[str] = None

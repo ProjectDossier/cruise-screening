@@ -1,6 +1,6 @@
 from cso_classifier import CSOClassifier
 
-from src.cruise_literature.utils.article import Article
+from utils.article import Article
 
 
 class CSOClassification:

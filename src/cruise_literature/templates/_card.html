@@ -13,16 +13,25 @@
             {% endif %}
         </p>
         <p class="subtitle mb-2">{{ search_result.authors }}</p>
-        <p class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</p>
+        <p>
+            <span class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</span>
+            {% if search_result.doi %}
+                <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ search_result.doi }}">{{ search_result.doi }}</a></span>
+            {% endif %}
+        </p>
     </div>
     <div class="card-content pt-1">
         <div class="content">
-            <template x-if="openAbstract">
-                <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
-            </template>
-            <template x-if="!openAbstract" x-cloak>
-                <p class="card__text">{{ search_result.snippet | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
-            </template>
+            {% if search_result.abstract|length > search_result.snippet|length %}
+                <template x-if="openAbstract">
+                    <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
+                </template>
+                <template x-if="!openAbstract" x-cloak>
+                    <p class="card__text">{{ search_result.snippet | safe }}... <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
+                </template>
+            {% else %}
+                <p class="card__text">{{ search_result.snippet | safe }}...</p>
+            {% endif %}
             <p>
                 {% for keyword, score in search_result.keywords_snippet.items %}
                     <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
