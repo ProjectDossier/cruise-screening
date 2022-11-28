@@ -106,7 +106,7 @@ class LiteratureReview(models.Model):
     )
 
     data_format_version = models.IntegerField(
-        default=2,
+        default=3,
         help_text="Version of the data format. This is used to migrate data between versions.",
     )
 
