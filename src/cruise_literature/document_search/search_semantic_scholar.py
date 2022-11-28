@@ -8,17 +8,14 @@ FIELDS = "externalIds,url,title,abstract,venue,year,referenceCount,citationCount
 fieldsOfStudy,s2FieldsOfStudy,publicationTypes,publicationDate,journal,authors"
 
 
-def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
-    _authors = []
-    for _author in authors_list:
-        _authors.append(
-            Author(
-                display_name=_author.get("name"),
-                semantic_scholar_id=_author.get("authorId"),
-            )
+def _get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
+    return [
+        Author(
+            display_name=_author.get("name"),
+            semantic_scholar_id=_author.get("authorId"),
         )
-
-    return _authors
+        for _author in authors_list
+    ]
 
 
 def search_semantic_scholar(query: str, top_k: int) -> List[Article]:
@@ -41,19 +38,10 @@ def search_semantic_scholar(query: str, top_k: int) -> List[Article]:
             else:
                 pdf = None
 
-            if candidate.get("externalIds").get("DOI"):
-                doi = candidate.get("externalIds").get("DOI")
-            else:
-                doi = None
-
-            authors = get_authors(candidate.get("authors"))
+            doi = candidate.get("externalIds").get("DOI") or None
+            authors = _get_authors(candidate.get("authors"))
             authors = ", ".join([a.display_name for a in authors])
-            date = candidate["publicationDate"]
-            if date:
-                year = date[:4]
-            else:
-                year = "   "
-
+            year = date[:4] if (date := candidate["publicationDate"]) else "   "
             retrieved_art = Article(
                 id=candidate["paperId"],
                 semantic_scholar_id=candidate["paperId"],

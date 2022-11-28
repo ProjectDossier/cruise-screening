@@ -46,8 +46,7 @@ def search_cruise(query: str, top_k: int) -> List[Article]:
             abstract = candidate["_source"].get("abstract")
             snippet = candidate["_source"].get("abstract")[:300]
 
-        authors_raw = candidate["_source"].get("authors")
-        if authors_raw:
+        if authors_raw := candidate["_source"].get("authors"):
             author_details = [
                 author["name"] for author in authors_raw if "name" in author
             ]
@@ -77,14 +76,12 @@ def search_cruise(query: str, top_k: int) -> List[Article]:
 
         keywords_snippet = {}
         keywords_rest = {}
-        index_i = 0
-        for k, v in sorted(
+        for index_i, (k, v) in enumerate(sorted(
             candidate["_source"].get("keywords").items(),
             key=lambda item: item[1],
             reverse=True,
-        ):
-            index_i += 1
-            if index_i < 5:
+        )):
+            if index_i < 6:
                 keywords_snippet[k] = v
             else:
                 keywords_rest[k] = v
@@ -109,5 +106,3 @@ def search_cruise(query: str, top_k: int) -> List[Article]:
         candidate_list.append(retrieved_art)
 
     return candidate_list
-
-

@@ -6,7 +6,7 @@ from utils.article import Author
 import re
 
 
-def get_authors(names: List[str], scholar_ids: List[str] = None) -> List[Author]:
+def _get_authors(names: List[str], scholar_ids: List[str] = None) -> List[Author]:
     _authors = []
     for index_i, _author_name in enumerate(names):
         scholar_id = None
@@ -17,11 +17,11 @@ def get_authors(names: List[str], scholar_ids: List[str] = None) -> List[Author]
     return _authors
 
 
-def revert_snippet(snippet):
+def revert_snippet(snippet: str) -> str:
     """snippet returned by scholarly contains double whitespaces both for newlines and
-    for parts when google scholar merged two results. This method reverts this process by trying
+    for parts when Google Scholar merged two results. This method reverts this process by trying
     to find the double whitespace in the middle and replace it with one space char, and after replaces
-    all other double spaces as elipsis."""
+    all other double spaces as ellipsis."""
     lower_bound = len(snippet) // 2 - 5
     upper_bound = len(snippet) // 2 + 5
     new_snippet = next(
@@ -50,7 +50,7 @@ def search_google_scholar(query: str, top_k: int) -> List[Article]:
 
         _id = f"id_{hash(candidate['url_scholarbib'])}"  # no IDs in google scholar
 
-        authors = get_authors(
+        authors = _get_authors(
             names=candidate["bib"].get("author"), scholar_ids=candidate.get("author_id")
         )
         authors = ", ".join([a.display_name for a in authors])
