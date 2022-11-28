@@ -6,22 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('document_search', '0001_initial'),
+        ("document_search", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='searchengine',
-            name='is_available',
+            model_name="searchengine",
+            name="is_available",
         ),
         migrations.AddField(
-            model_name='searchengine',
-            name='is_available_for_review',
-            field=models.BooleanField(default=True, verbose_name='Available for literature review'),
+            model_name="searchengine",
+            name="is_available_for_review",
+            field=models.BooleanField(
+                default=True, verbose_name="Available for literature review"
+            ),
         ),
         migrations.AddField(
-            model_name='searchengine',
-            name='is_available_for_search',
-            field=models.BooleanField(default=True, verbose_name='Is available for search'),
+            model_name="searchengine",
+            name="is_available_for_search",
+            field=models.BooleanField(
+                default=True, verbose_name="Is available for search"
+            ),
         ),
     ]
