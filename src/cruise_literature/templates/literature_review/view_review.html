@@ -111,7 +111,7 @@
                     {% endif %}
                 <th>{{ forloop.counter }}</th>
                 <td>
-                    <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
+                    <a href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
                 </td>
                 <td>{{ paper.authors }}</td>
                 {% if paper.publication_date %}
@@ -144,11 +144,11 @@
                 {% if review.data_format_version > 2 %}
                     {% if paper.screened %}
                         <td>Yes, <a
-                                href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a>
+                                href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper.id %}">edit</a>
                         </td>
                     {% else %}
                         <td>
-                            <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a>
+                            <a href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper.id %}">No</a>
                         </td>
                     {% endif %}
                 {% else %}
