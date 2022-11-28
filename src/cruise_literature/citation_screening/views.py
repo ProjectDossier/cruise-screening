@@ -261,6 +261,7 @@ def export_review(request, review_id):
         "search_queries": review.search_queries,
         "inclusion_criteria": review.inclusion_criteria,
         "exclusion_criteria": review.exclusion_criteria,
+        "criteria": review.criteria,
         "papers": review.papers,
     }
     return HttpResponse(json.dumps(data, indent=2), content_type="application/json")

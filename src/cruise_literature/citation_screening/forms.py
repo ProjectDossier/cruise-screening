@@ -1,7 +1,7 @@
 import copy
 from dataclasses import asdict
 import datetime
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from django import forms
 
@@ -145,6 +145,51 @@ def deduplicate(
     return deduplicated
 
 
+def create_criteria(
+    inclusion_criteria: List[str],
+    exclusion_criteria: List[str],
+    user_id: int,
+    timestamp: str,
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Creates a dictionary of criteria to be used for screening.
+    :param inclusion_criteria: list of inclusion criteria
+    :param exclusion_criteria: list of exclusion criteria
+    :param user_id: id of the user who created the review
+    :param timestamp:
+    :return: dictionary of criteria
+    """
+    criteria = {
+        "inclusion": {},
+        "exclusion": {}
+    }
+    for index_i, criterion in enumerate(inclusion_criteria):
+        _id = f"in_{index_i}"
+        if criterion:
+            criteria["inclusion"][_id] = {
+                "id": _id,
+                "text": criterion,
+                "is_active": True,
+                "added_at": timestamp,
+                "added_by": user_id,
+                "updated_at": timestamp,
+                "updated_by": user_id,
+            }
+    for index_e, criterion in enumerate(exclusion_criteria):
+        _id = f"ex_{index_e}"
+        if criterion:
+            criteria["exclusion"][_id] = {
+                "id": _id,
+                "text": criterion,
+                "is_active": True,
+                "added_at": timestamp,
+                "added_by": user_id,
+                "updated_at": timestamp,
+                "updated_by": user_id,
+            }
+    return criteria
+
+
 class NewLiteratureReviewForm(forms.ModelForm):
     title = forms.CharField(
         widget=forms.TextInput(attrs={"class": "input form_required"})
@@ -238,7 +283,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
         top_k = self.cleaned_data["top_k"]
         search_engines = self.cleaned_data["search_engines"]
-        print(search_engines)
+
         queries = self.cleaned_data["search_queries"]
         results: Dict[str, Dict[str, Any]] = {}
         for query in queries:
@@ -267,6 +312,14 @@ class NewLiteratureReviewForm(forms.ModelForm):
                     results[paper["id"]] = paper
         results = deduplicate(results=results)
         instance.papers = results
+
+        eligibility_criteria = create_criteria(
+            self.cleaned_data["inclusion_criteria"],
+            self.cleaned_data["exclusion_criteria"],
+            user_id=self.user.id,
+            timestamp=str(datetime.datetime.now()),
+        )
+        instance.criteria = eligibility_criteria
 
         if commit:
             instance.save()
