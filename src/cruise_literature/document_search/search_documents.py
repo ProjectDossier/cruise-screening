@@ -57,6 +57,7 @@ def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
         citations = len(candidate["_source"].get("n_citations"))
         if citations == 0:  # TODO: learn why citation is equal to 0
             citations = "-"
+
         references = len(candidate["_source"].get("references"))
 
         venue_raw = candidate["_source"].get("venue")
