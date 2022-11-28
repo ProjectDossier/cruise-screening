@@ -1,5 +1,7 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple, Union
 import requests
+
+from document_search.utils import SearchResultWithStatus
 from utils.article import Article, Author
 
 API_ENDPOINT = "https://api.semanticscholar.org/graph/v1/paper/search?query="
@@ -8,20 +10,17 @@ FIELDS = "externalIds,url,title,abstract,venue,year,referenceCount,citationCount
 fieldsOfStudy,s2FieldsOfStudy,publicationTypes,publicationDate,journal,authors"
 
 
-def get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
-    _authors = []
-    for _author in authors_list:
-        _authors.append(
-            Author(
-                display_name=_author.get("name"),
-                semantic_scholar_id=_author.get("authorId"),
-            )
+def _get_authors(authors_list: List[Dict[str, str]]) -> List[Author]:
+    return [
+        Author(
+            display_name=_author.get("name"),
+            semantic_scholar_id=_author.get("authorId"),
         )
+        for _author in authors_list
+    ]
 
-    return _authors
 
-
-def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]:
+def search_semantic_scholar(query: str, top_k: int) -> SearchResultWithStatus:
     response = requests.get(
         f"{API_ENDPOINT}{'+'.join(query.split())}&limit={top_k}&fields={FIELDS}"
     )
@@ -41,19 +40,10 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
             else:
                 pdf = None
 
-            if candidate.get("externalIds").get("DOI"):
-                doi = candidate.get("externalIds").get("DOI")
-            else:
-                doi = None
-
-            authors = get_authors(candidate.get("authors"))
+            doi = candidate.get("externalIds").get("DOI") or None
+            authors = _get_authors(candidate.get("authors"))
             authors = ", ".join([a.display_name for a in authors])
-            date = candidate["publicationDate"]
-            if date:
-                year = date[:4]
-            else:
-                year = "   "
-
+            year = date[:4] if (date := candidate["publicationDate"]) else "   "
             retrieved_art = Article(
                 id=candidate["paperId"],
                 semantic_scholar_id=candidate["paperId"],
@@ -70,9 +60,16 @@ def search_semantic_scholar(query: str, index: str, top_k: int) -> List[Article]
                 keywords_snippet=None,
                 keywords_rest=None,
                 CSO_keywords=None,
-                citations=candidate.get("citationCount"),
-                references=candidate.get("referenceCount"),
+                n_citations=candidate.get("citationCount"),
+                n_references=candidate.get("referenceCount"),
             )
             candidate_list.append(retrieved_art)
 
-    return candidate_list
+    _status = "OK" if response.status_code == 200 else "ERROR"
+    return {
+        "results": candidate_list,
+        "status": _status,
+        "status_code": response.status_code,
+        "search_engine": "Semantic Scholar",
+        "search_query": query,
+    }
