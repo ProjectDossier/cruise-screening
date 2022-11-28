@@ -9,11 +9,17 @@
         <div class="card-content">
             <h1 class="title is-1">
                 {{ review.title }}
-                {% if  review.papers|length > 0 %}
-                    <a href="{% url 'literature_review:screen_papers' review.id %}"
-                       class="button is-success is-medium mt-1">
-                        Screen papers
-                    </a>
+                {% if review.papers|length > 0 %}
+                    {% if review.data_format_version > 2 %}
+                        <a href="{% url 'literature_review:screen_papers' review.id %}"
+                           class="button is-success is-medium mt-1">
+                            Screen papers
+                        </a>
+                    {% else %}
+                        <a class="button is-success is-medium mt-1" disabled>
+                            Screen papers
+                        </a>
+                    {% endif %}
                 {% endif %}
             </h1>
             <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
@@ -39,33 +45,39 @@
                 <template x-if="openStatistics">
                     <table class="table is-striped is-hoverable">
                         <thead>
-                            <tr>
-                                <th><button type="button" class="card__show-more" x-on:click="openStatistics = false">Hide ▴</button></th>
-                                <th>Decisions so far</th>
-                            </tr>
+                        <tr>
+                            <th>
+                                <button type="button" class="card__show-more" x-on:click="openStatistics = false">Hide
+                                    ▴
+                                </button>
+                            </th>
+                            <th>Decisions so far</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr class="has-text-success">
-                                <td>Includes</td>
-                                <td>{{ review.decisions_count.0 }}</td>
-                            </tr>
-                            <tr class="has-text-orange">
-                                <td>Maybe</td>
-                                <td>{{ review.decisions_count.1 }}</td>
-                            </tr>
-                            <tr class="has-text-grey-lighter">
-                                <td>Excludes</td>
-                                <td>{{ review.decisions_count.2 }}</td>
-                            </tr>
-                            <tr>
-                                <td>Missing judgements</td>
-                                <td>{{ review.decisions_count.3 }}</td>
-                            </tr>
+                        <tr class="has-text-success">
+                            <td>Includes</td>
+                            <td>{{ review.decisions_count.0 }}</td>
+                        </tr>
+                        <tr class="has-text-orange">
+                            <td>Maybe</td>
+                            <td>{{ review.decisions_count.1 }}</td>
+                        </tr>
+                        <tr class="has-text-grey-lighter">
+                            <td>Excludes</td>
+                            <td>{{ review.decisions_count.2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Missing judgements</td>
+                            <td>{{ review.decisions_count.3 }}</td>
+                        </tr>
                         </tbody>
                     </table>
                 </template>
                 <template x-if="!openStatistics">
-                    <button type="button" class="m-2 card__show-more" x-on:click="openStatistics = true">Show review statistics ▾</button>
+                    <button type="button" class="m-2 card__show-more" x-on:click="openStatistics = true">Show review
+                        statistics ▾
+                    </button>
                 </template>
             </div>
         </div>
@@ -129,19 +141,25 @@
                 {% else %}
                     <td class="has-text-centered">—</td>
                 {% endif %}
-                {% if paper.screened %}
-                    <td>Yes, <a
-                            href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a>
-                    </td>
+                {% if review.data_format_version > 2 %}
+                    {% if paper.screened %}
+                        <td>Yes, <a
+                                href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a>
+                        </td>
+                    {% else %}
+                        <td>
+                            <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a>
+                        </td>
+                    {% endif %}
                 {% else %}
-                    <td>
-                        <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a>
-                    </td>
+                    <td>—</td>
                 {% endif %}
                 {% if paper.automatic_decisions.decision == 1 %}
                     <td class="has-text-success">Include ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
                 {% elif paper.automatic_decisions.decision == 0 %}
-                    <td class="has-text-grey-lighter">Exclude ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
+                    <td class="has-text-grey-lighter">Exclude
+                        ({{ paper.automatic_decisions.probability|stringformat:".4s" }})
+                    </td>
                 {% else %}
                     <td></td>
                 {% endif %}
