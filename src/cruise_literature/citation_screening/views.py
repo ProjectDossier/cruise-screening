@@ -365,6 +365,15 @@ def export_review(request, review_id):
 
 
 @login_required
+def delete_review(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.filter(om_through__member=request.user, om_through__role="AD"):
+        return redirect("literature_review:review_details", review_id=review_id)
+    review.delete()
+    return redirect("literature_review:literature_review_home")
+
+
+@login_required
 def add_seed_studies(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
