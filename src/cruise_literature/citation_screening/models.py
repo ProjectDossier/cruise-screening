@@ -114,16 +114,26 @@ class LiteratureReview(models.Model):
 
     @property
     def number_of_papers(self):
-        return len(self.papers) if self.papers else 0
+        if self.data_format_version < 3:
+            return len(self.papers) if self.papers else 0
+        else:
+            return len(self.papers.values()) if self.papers else 0
 
     @property
     def number_of_pdfs(self):
-        return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+        if self.data_format_version < 3:
+            return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+        else:
+            return [sum(bool(paper["pdf"]) for paper in self.papers.values()) if self.papers else 0]
+            # filter(pdf__isnull=False).count()
 
     @property
     def number_of_screened(self):
         if self.papers:
-            return sum(bool(paper.get("screened")) for paper in self.papers)
+            if self.data_format_version < 3:
+                return sum(bool(paper.get("screened")) for paper in self.papers)
+            else:
+                return sum(bool(paper.get("screened")) for paper in self.papers.values())
         else:
             return 0
 
@@ -143,7 +153,11 @@ class LiteratureReview(models.Model):
         not_sures = 0
         excludes = 0
         no_decision = 0
-        for paper in self.papers:
+        if self.data_format_version < 3:
+            _papers = self.papers
+        else:
+            _papers = self.papers.values()
+        for paper in _papers:
             if paper.get("decision"):
                 if paper["decision"] == "1":
                     includes += 1
