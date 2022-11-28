@@ -27,9 +27,10 @@
     Export results
 </a>
 {% if request.resolver_match.view_name == 'literature_review:review_details' %}
-<a href="{% url 'literature_review:delete_review' review.id %}" class="button is-danger disabled light is-small align-button-to-right">
+<button class="js-modal-trigger button is-danger disabled light is-small align-button-to-right"
+        data-target="modal-delete-review-{{ review.id }}">
     Delete review
-</a>
+</button>
 {% endif %}
 {%  else %}
 <a href="{% url 'literature_review:literature_review_home' %}" class="button is-info is-small">
@@ -50,7 +51,22 @@
 <a href="{% url 'literature_review:export_review' review.id %}" class="ml-4 button is-light is-small">
     Export results
 </a>
-<a class="button is-danger disabled light is-small align-button-to-right" disabled>
+<button class="js-modal-trigger button is-danger disabled light is-small align-button-to-right"
+        data-target="modal-delete-review-{{ review.id }}">
     Delete review
-</a>
+</button>
+{% include "_modal_js.html" %}
 {% endif %}
+
+<div id="modal-delete-review-{{ review.id }}" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
+            <p>Are you sure that you want to delete the review '{{ review.title }}'?</p>
+            <p>This will delete {{ review.number_of_papers }} papers, together with eligibility decisions.</p>
+            <a href="{% url 'literature_review:delete_review' review.id %}"
+               class="button is-danger is-small">Yes</a>
+        </div>
+    </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+</div>

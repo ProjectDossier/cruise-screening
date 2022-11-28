@@ -367,11 +367,10 @@ def export_review(request, review_id):
 @login_required
 def delete_review(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    # if user is not member of the review and its review role is not "AD":
-    if request.user not in review.members.all().filter(role="AD"):
-        raise Http404("Review not found")
+    if request.user not in review.members.filter(om_through__member=request.user, om_through__role="AD"):
+        return redirect("literature_review:review_details", review_id=review_id)
     review.delete()
-    return redirect("literature_review:home")
+    return redirect("literature_review:literature_review_home")
 
 
 @login_required
