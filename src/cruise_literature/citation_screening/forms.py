@@ -245,9 +245,9 @@ class NewLiteratureReviewForm(forms.ModelForm):
                     paper = asdict(paper)
 
                     paper["n_citations"] = paper[
-                        "citations"
+                        "n_citations"
                     ]  # TODO: change in Article class at some point
-                    paper["n_references"] = paper["references"]
+                    paper["n_references"] = paper["n_references"]
                     paper["search_origin"] = [
                         {
                             "search_engine": search_engine_name,

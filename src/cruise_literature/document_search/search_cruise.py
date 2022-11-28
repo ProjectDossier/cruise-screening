@@ -115,8 +115,8 @@ def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
             keywords_snippet=keywords_snippet,
             keywords_rest=keywords_rest,
             CSO_keywords=candidate["_source"].get("CSO_keywords")["union"],
-            citations=citations,
-            references=references,
+            n_citations=citations,
+            n_references=references,
             doi=doi,
         )
         candidate_list.append(retrieved_art)

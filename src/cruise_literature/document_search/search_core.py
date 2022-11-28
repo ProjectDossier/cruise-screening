@@ -96,8 +96,8 @@ def search_core(query: str, top_k: int) -> SearchResultWithStatus:
                 keywords_snippet=None,
                 keywords_rest=None,
                 CSO_keywords=None,
-                citations=citations_count,
-                references=len(candidate.get("references")),
+                n_citations=citations_count,
+                n_references=len(candidate.get("references")),
             )
             candidate_list.append(retrieved_art)
 

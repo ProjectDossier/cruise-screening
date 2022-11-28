@@ -76,8 +76,8 @@ def search_google_scholar(query: str, top_k: int) -> SearchResultWithStatus:
             keywords_snippet=None,
             keywords_rest=None,
             CSO_keywords=None,
-            citations=candidate["num_citations"],
-            references=None,
+            n_citations=candidate["num_citations"],
+            n_references=None,
         )
         candidate_list.append(retrieved_art)
 

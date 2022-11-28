@@ -60,8 +60,8 @@ def search_semantic_scholar(query: str, top_k: int) -> SearchResultWithStatus:
                 keywords_snippet=None,
                 keywords_rest=None,
                 CSO_keywords=None,
-                citations=candidate.get("citationCount"),
-                references=candidate.get("referenceCount"),
+                n_citations=candidate.get("citationCount"),
+                n_references=candidate.get("referenceCount"),
             )
             candidate_list.append(retrieved_art)
 
