@@ -19,13 +19,6 @@ from document_search.search_google_scholar import search_google_scholar
 from document_search.search_cruise import search_cruise
 from users.models import KnowledgeArea
 
-SEARCH_ENGINES_DICT = {
-    "SemanticScholar": search_semantic_scholar,
-    "CORE": search_core,
-    "CRUISE": search_cruise,
-    "Google Scholar": search_google_scholar,
-}
-
 
 class ArrayFieldStripWhitespaces(SimpleArrayField):
     """Overwrites SimpleArrayField to add a check for values provided in array.

@@ -52,8 +52,6 @@ class LiteratureReview(models.Model):
     )
     search_databases = models.CharField(max_length=250, blank=True, null=True)
 
-    # creation_date = models.DateField(auto_now_add=True)
-    # last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
     organisation = models.ForeignKey(
         Organisation,
@@ -77,17 +75,6 @@ class LiteratureReview(models.Model):
         models.CharField(max_length=250, blank=True), null=True
     )
     criteria = models.JSONField(null=True, blank=True)
-    # {
-    #            "inclusion": {
-    #                "id_1": {"text": "inclusion criteria 1",
-    #                         "added": "date",
-    #                         "added_by": "user_id",
-    #                         "last_edited": "date",
-    #                         "deleted": "date",
-    #                         "deleted_by": "user_id",
-    #                         "deleted_reason": "reason"
-    #             }
-    #         }
 
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -227,24 +214,3 @@ class CitationScreening(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-
-# class EligibilityCriteria(models.Model):
-#     """Eligibility criteria for a literature review."""
-#
-#     literature_review = models.ForeignKey(
-#         LiteratureReview, on_delete=models.CASCADE, help_text="Literature Review ID"
-#     )
-#     criteria = models.JSONField(null=True, blank=True)
-#     # {
-#     #    "inclusion": {
-#     #        "id_1": {"text": "inclusion criteria 1",
-#     #                 "added": "date",
-#     #                 "added_by": "user_id",
-#     #                 "last_edited": "date",
-#     #                 "deleted": "date",
-#     #                 "deleted_by": "user_id",
-#     #                 "deleted_reason": "reason"
-#     #     }
-#     # }
-#     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
-#     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
