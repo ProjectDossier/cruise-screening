@@ -1,12 +1,13 @@
 import copy
 from dataclasses import asdict
 import datetime
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from django import forms
 
 from organisations.models import Organisation
 from .models import LiteratureReview, LiteratureReviewMember
+from document_search.models import SearchEngine
 from django.contrib.postgres.forms import (
     SimpleArrayField,
     ValidationError,
@@ -17,13 +18,6 @@ from document_search.search_core import search_core
 from document_search.search_google_scholar import search_google_scholar
 from document_search.search_cruise import search_cruise
 from users.models import KnowledgeArea
-
-SEARCH_ENGINES_DICT = {
-    "SemanticScholar": search_semantic_scholar,
-    "CORE": search_core,
-    "CRUISE": search_cruise,
-    "Google Scholar": search_google_scholar,
-}
 
 
 class ArrayFieldStripWhitespaces(SimpleArrayField):
@@ -144,6 +138,51 @@ def deduplicate(
     return deduplicated
 
 
+def create_criteria(
+    inclusion_criteria: List[str],
+    exclusion_criteria: List[str],
+    user_id: int,
+    timestamp: str,
+) -> Dict[str, List[Any]]:
+    """
+    Creates a dictionary of criteria to be used for screening.
+    :param inclusion_criteria: list of inclusion criteria
+    :param exclusion_criteria: list of exclusion criteria
+    :param user_id: id of the user who created the review
+    :param timestamp:
+    :return: dictionary of criteria
+    """
+    criteria = {
+        "inclusion": [],
+        "exclusion": []
+    }
+    for index_i, criterion in enumerate(inclusion_criteria):
+        _id = f"in_{index_i}"
+        if criterion:
+            criteria["inclusion"].append({
+                "id": _id,
+                "text": criterion,
+                "is_active": True,
+                "added_at": timestamp,
+                "added_by": user_id,
+                "updated_at": timestamp,
+                "updated_by": user_id,
+            })
+    for index_e, criterion in enumerate(exclusion_criteria):
+        _id = f"ex_{index_e}"
+        if criterion:
+            criteria["exclusion"].append({
+                "id": _id,
+                "text": criterion,
+                "is_active": True,
+                "added_at": timestamp,
+                "added_by": user_id,
+                "updated_at": timestamp,
+                "updated_by": user_id,
+            })
+    return criteria
+
+
 class NewLiteratureReviewForm(forms.ModelForm):
     title = forms.CharField(
         widget=forms.TextInput(attrs={"class": "input form_required"})
@@ -195,10 +234,14 @@ class NewLiteratureReviewForm(forms.ModelForm):
     )
     search_engines = forms.MultipleChoiceField(
         label="Select search engines where you want to search for papers. By default it searches in first three.",
-        choices=[(k, " ".join(k.split("_"))) for k in SEARCH_ENGINES_DICT.keys()],
-        initial=list(SEARCH_ENGINES_DICT.keys())[
-            :3
-        ],  # only first three search engines by default
+        choices=SearchEngine.objects.filter(is_available_for_review=True).values_list(
+            "id", "name"
+        ),
+        initial=list(
+            SearchEngine.objects.filter(
+                name__in=["CRUISE", "SemanticScholar", "CORE"]
+            ).values_list("id", flat=True)
+        ),
         widget=forms.SelectMultiple(attrs={"class": "select is-multiple is-medium"}),
         help_text="Selecting Google Scholar will drastically increase the search time.",
     )
@@ -230,37 +273,47 @@ class NewLiteratureReviewForm(forms.ModelForm):
         super(NewLiteratureReviewForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        INDEX_NAME = "papers"  # TODO: get rid of this parameter
         instance = super(NewLiteratureReviewForm, self).save(commit=False)
         top_k = self.cleaned_data["top_k"]
         search_engines = self.cleaned_data["search_engines"]
 
         queries = self.cleaned_data["search_queries"]
-        results = {}  # TODO: change to list for convenience
+        results: Dict[str, Dict[str, Any]] = {}
         for query in queries:
             # TODO: add more search engines
             for search_engine_name in search_engines:
-                search_method = SEARCH_ENGINES_DICT[search_engine_name]
-                for paper in search_method(query=query, top_k=top_k):
+                search_engine = SearchEngine.objects.filter(
+                    id=int(search_engine_name)
+                ).first()
+                search_method = eval(search_engine.search_method.split(".")[-1])
+
+                for paper in search_method(query=query, top_k=top_k)["results"]:
                     paper = asdict(paper)
 
-                    paper["n_citations"] = paper[
-                        "n_citations"
-                    ]  # TODO: change in Article class at some point
-                    paper["n_references"] = paper["n_references"]
                     paper["search_origin"] = [
                         {
-                            "search_engine": search_engine_name,
+                            "search_engine": search_engine.name,
                             "query": query,
-                            "added": str(datetime.datetime.now()),
+                            "added_at": str(datetime.datetime.now()),
+                            "added_by": self.user.username,
+                            "origin": "search",
+                            "id": paper["id"],
                         }
-                    ]  # TODO replaces query and search engine in future release
-                    paper["query"] = query
-                    paper["search_engine"] = search_engine_name
+                    ]
                     paper["decision"] = None
+                    paper["outcome"] = None
+                    paper["screened"] = False
                     results[paper["id"]] = paper
         results = deduplicate(results=results)
-        instance.papers = list(results.values())
+        instance.papers = results
+
+        eligibility_criteria = create_criteria(
+            self.cleaned_data["inclusion_criteria"],
+            self.cleaned_data["exclusion_criteria"],
+            user_id=self.user.id,
+            timestamp=str(datetime.datetime.now()),
+        )
+        instance.criteria = eligibility_criteria
 
         if commit:
             instance.save()
