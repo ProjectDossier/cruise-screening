@@ -238,16 +238,13 @@ def screen_papers_v2(request, review_id, paper_id=None):
                 return render(request, "literature_review/view_review.html", {"review": review})
 
 
-# split into two methods - one when user clicks on specific paper, one when just 'screens'
-# one screen_paper method, one screen_papers
 @login_required
 def screen_papers(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
         raise Http404("Review not found")
 
-    data_format_version = review.data_format_version
-    if data_format_version < 3:
+    if review.data_format_version < 3:
         return screen_papers_v2(request, review_id, None)
     else:
         _papers = list(review.papers.values())
@@ -255,7 +252,7 @@ def screen_papers(request, review_id):
             for paper in _papers:
                 if (
                     not paper.get("decisions")
-                    or len(paper.get("decisions")) < MIN_DECISIONS
+                    or len(paper.get("decisions")) < review.min_decisions
                 ):
                     return render(
                         request,
@@ -271,7 +268,7 @@ def screen_papers(request, review_id):
             for paper in _papers:
                 if (
                     not paper.get("decisions")
-                    or len(paper.get("decisions")) < MIN_DECISIONS
+                    or len(paper.get("decisions")) < review.min_decisions
                 ):
                     return render(
                         request,
@@ -282,19 +279,16 @@ def screen_papers(request, review_id):
                             "start_time": time.time(),
                         },
                     )
-                else:
-                    return render(request, "literature_review/view_review.html", {"review": review})
+            return render(request, "literature_review/view_review.html", {"review": review})
 
 
 def create_screening_decisions(request, review, paper_id):
     screening_time = round(time.time() - float(request.POST["start_time"]), 2)
-    keys = request.POST.keys()
-    exclusions = [request.POST[x] for x in keys if x.startswith("exclusion")]
-    inclusions = [request.POST[x] for x in keys if x.startswith("inclusion")]
+
+    inclusion_decisions = {inc_crit["id"]: request.POST[inc_crit["id"]] for inc_crit in review.criteria["inclusion"] if inc_crit["is_active"]}
+    exclusion_decisions = {exc_crit["id"]: request.POST[exc_crit["id"]] for exc_crit in review.criteria["exclusion"] if exc_crit["is_active"]}
+
     reason = request.POST["reason"]
-    eligibility_decision = make_decision(
-        exclusions=exclusions, inclusions=inclusions
-    )
     topic_relevance = request.POST["topic_relevance"]
     domain_relevance = request.POST["domain_relevance"]
     decision = request.POST["decision"]
@@ -305,10 +299,9 @@ def create_screening_decisions(request, review, paper_id):
         {
             "reviewer_id": request.user.pk,
             "decision": int(decision),
-            "eligibility_decision": eligibility_decision,
             "reason": reason,
-            "inclusions": inclusions,
-            "exclusions": exclusions,
+            "exclusion_decisions": exclusion_decisions,
+            "inclusion_decisions": inclusion_decisions,
             "stage": "title_abstract",
             "domain_relevance": int(domain_relevance),
             "topic_relevance": int(topic_relevance),
@@ -318,7 +311,7 @@ def create_screening_decisions(request, review, paper_id):
         }
     ]
     review.papers[paper_id]["decision"] = decision
-    if len(review.papers[paper_id]["decisions"]) >= MIN_DECISIONS:
+    if len(review.papers[paper_id]["decisions"]) >= review.min_decisions:
         review.papers[paper_id]["screened"] = True
 
     return review, request

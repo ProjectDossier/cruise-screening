@@ -150,7 +150,7 @@ def create_criteria(
     exclusion_criteria: List[str],
     user_id: int,
     timestamp: str,
-) -> Dict[str, Dict[str, Any]]:
+) -> Dict[str, List[Any]]:
     """
     Creates a dictionary of criteria to be used for screening.
     :param inclusion_criteria: list of inclusion criteria
@@ -160,13 +160,13 @@ def create_criteria(
     :return: dictionary of criteria
     """
     criteria = {
-        "inclusion": {},
-        "exclusion": {}
+        "inclusion": [],
+        "exclusion": []
     }
     for index_i, criterion in enumerate(inclusion_criteria):
         _id = f"in_{index_i}"
         if criterion:
-            criteria["inclusion"][_id] = {
+            criteria["inclusion"].append({
                 "id": _id,
                 "text": criterion,
                 "is_active": True,
@@ -174,11 +174,11 @@ def create_criteria(
                 "added_by": user_id,
                 "updated_at": timestamp,
                 "updated_by": user_id,
-            }
+            })
     for index_e, criterion in enumerate(exclusion_criteria):
         _id = f"ex_{index_e}"
         if criterion:
-            criteria["exclusion"][_id] = {
+            criteria["exclusion"].append({
                 "id": _id,
                 "text": criterion,
                 "is_active": True,
@@ -186,7 +186,7 @@ def create_criteria(
                 "added_by": user_id,
                 "updated_at": timestamp,
                 "updated_by": user_id,
-            }
+            })
     return criteria
 
 
@@ -304,6 +304,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
                             "added_at": str(datetime.datetime.now()),
                             "added_by": self.user.username,
                             "origin": "search",
+                            "id": paper["id"],
                         }
                     ]
                     paper["decision"] = None
