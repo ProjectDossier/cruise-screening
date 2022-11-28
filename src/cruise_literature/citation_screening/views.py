@@ -145,20 +145,9 @@ def make_decision(exclusions, inclusions):
     return True
 
 
-# split into two methods - one when user clicks on specific paper, one when just 'screens'
-# one screen_paper method, one screen_papers
-@login_required
-def screen_papers(request, review_id, paper_id=None):
+def screen_papers_v2(request, review_id, paper_id=None):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user not in review.members.all():
-        raise Http404("Review not found")
-
-    data_format_version = review.data_format_version
-    if data_format_version < 3:
-        _papers = review.papers
-    else:
-        _papers = list(review.papers.values())
-
+    _papers = review.papers
     if request.method == "GET":
         if paper_id:
             edited_index = [
@@ -178,8 +167,8 @@ def screen_papers(request, review_id, paper_id=None):
 
         for paper in _papers:
             if (
-                not paper.get("decisions")
-                or len(paper.get("decisions")) < MIN_DECISIONS
+                    not paper.get("decisions")
+                    or len(paper.get("decisions")) < MIN_DECISIONS
             ):
                 return render(
                     request,
@@ -233,8 +222,8 @@ def screen_papers(request, review_id, paper_id=None):
 
         for paper in _papers:
             if (
-                not paper.get("decisions")
-                or len(paper.get("decisions")) < MIN_DECISIONS
+                    not paper.get("decisions")
+                    or len(paper.get("decisions")) < MIN_DECISIONS
             ):
                 return render(
                     request,
@@ -247,6 +236,109 @@ def screen_papers(request, review_id, paper_id=None):
                 )
             else:
                 return render(request, "literature_review/view_review.html", {"review": review})
+
+
+# split into two methods - one when user clicks on specific paper, one when just 'screens'
+# one screen_paper method, one screen_papers
+@login_required
+def screen_papers(request, review_id, paper_id=None):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    data_format_version = review.data_format_version
+    if data_format_version < 3:
+        return screen_papers_v2(request, review_id, paper_id)
+    else:
+        _papers = list(review.papers.values())
+        if request.method == "GET":
+            if paper_id:
+                edited_index = [
+                    index_i
+                    for index_i, x in enumerate(_papers)
+                    if str(x["id"]) == str(paper_id)
+                ][0]
+                return render(
+                    request,
+                    "literature_review/screen_paper.html",
+                    {
+                        "review": review,
+                        "paper": _papers[edited_index],
+                        "start_time": time.time(),
+                    },
+                )
+
+            for paper in _papers:
+                if (
+                    not paper.get("decisions")
+                    or len(paper.get("decisions")) < MIN_DECISIONS
+                ):
+                    return render(
+                        request,
+                        "literature_review/screen_paper.html",
+                        {"review": review, "paper": paper, "start_time": time.time()},
+                    )
+        elif request.method == "POST":
+            screening_time = round(time.time() - float(request.POST["start_time"]), 2)
+            keys = request.POST.keys()
+            exclusions = [request.POST[x] for x in keys if x.startswith("exclusion")]
+            inclusions = [request.POST[x] for x in keys if x.startswith("inclusion")]
+
+            paper_id = request.POST["paper_id"]
+            reason = request.POST["reason"]
+            eligibility_decision = make_decision(
+                exclusions=exclusions, inclusions=inclusions
+            )
+            topic_relevance = request.POST["topic_relevance"]
+            domain_relevance = request.POST["domain_relevance"]
+            decision = request.POST["decision"]
+            paper_prior_knowledge = request.POST["paper_prior_knowledge"]
+            authors_prior_knowledge = request.POST["authors_prior_knowledge"]
+
+            edited_index = [
+                index_i
+                for index_i, x in enumerate(_papers)
+                if str(x["id"]) == str(paper_id)
+            ][
+                0
+            ]  # FIXME: this will fail if duplicates in DB
+            _papers[edited_index]["decisions"] = [
+                {
+                    "reviewer_id": request.user.pk,
+                    "decision": int(decision),
+                    "eligibility_decision": eligibility_decision,
+                    "reason": reason,
+                    "inclusions": inclusions,
+                    "exclusions": exclusions,
+                    "stage": "title_abstract",
+                    "domain_relevance": int(domain_relevance),
+                    "topic_relevance": int(topic_relevance),
+                    "paper_prior_knowledge": int(paper_prior_knowledge),
+                    "authors_prior_knowledge": int(authors_prior_knowledge),
+                    "screening_time": screening_time,
+                }
+            ]
+            _papers[edited_index]["decision"] = decision
+            if len(_papers[edited_index]["decisions"]) >= MIN_DECISIONS:
+                _papers[edited_index]["screened"] = True
+            review.save()
+
+            for paper in _papers:
+                if (
+                    not paper.get("decisions")
+                    or len(paper.get("decisions")) < MIN_DECISIONS
+                ):
+                    return render(
+                        request,
+                        "literature_review/screen_paper.html",
+                        {
+                            "review": review,
+                            "paper": paper,
+                            "start_time": time.time(),
+                        },
+                    )
+                else:
+                    return render(request, "literature_review/view_review.html", {"review": review})
 
 
 @login_required
