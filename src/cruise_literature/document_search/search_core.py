@@ -6,7 +6,6 @@ import os
 from cruise_literature.settings import SEARCH_WITH_CORE
 
 from utils.article import Article
-
 from utils.article import Author
 
 if SEARCH_WITH_CORE:
