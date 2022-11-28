@@ -87,7 +87,7 @@
                 </tr>
                 </thead>
                 <tbody x-ref="tbody">
-                {% for paper in review.papers %}
+                {% for paper in review.papers|convert_papers_list:review.data_format_version %}
                     {% if paper.decision == "1" %}
                         <tr class="has-text-success">
                             {% elif paper.decision == "-1" %}

@@ -263,6 +263,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
                     ]
                     paper["decision"] = None
                     paper["outcome"] = None
+                    paper["screened"] = False
                     results[paper["id"]] = paper
         results = deduplicate(results=results)
         instance.papers = results

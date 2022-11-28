@@ -14,8 +14,18 @@ import inspect
 from document_classification.registry import MLRegistry
 from document_classification.classifiers.dummy import DummyClassifier
 from document_classification.classifiers.fasttext_classifier import FastTextClassifier
+from django.template.defaulttags import register
 
 MIN_DECISIONS = 1  # TODO replace with database object, review specific
+
+
+@register.filter
+def convert_papers_list(papers, data_format_version):
+    """data_format_version 1 and 2 are lists, 3 is a dict"""
+    if data_format_version < 3:
+        return papers
+    else:
+        return papers.values()
 
 
 @login_required
@@ -143,11 +153,17 @@ def screen_papers(request, review_id, paper_id=None):
     if request.user not in review.members.all():
         raise Http404("Review not found")
 
+    data_format_version = review.data_format_version
+    if data_format_version < 3:
+        _papers = review.papers
+    else:
+        _papers = list(review.papers.values())
+
     if request.method == "GET":
         if paper_id:
             edited_index = [
                 index_i
-                for index_i, x in enumerate(review.papers)
+                for index_i, x in enumerate(_papers)
                 if str(x["id"]) == str(paper_id)
             ][0]
             return render(
@@ -155,12 +171,12 @@ def screen_papers(request, review_id, paper_id=None):
                 "literature_review/screen_paper.html",
                 {
                     "review": review,
-                    "paper": review.papers[edited_index],
+                    "paper": _papers[edited_index],
                     "start_time": time.time(),
                 },
             )
 
-        for paper in review.papers:
+        for paper in _papers:
             if (
                 not paper.get("decisions")
                 or len(paper.get("decisions")) < MIN_DECISIONS
@@ -189,12 +205,12 @@ def screen_papers(request, review_id, paper_id=None):
 
         edited_index = [
             index_i
-            for index_i, x in enumerate(review.papers)
+            for index_i, x in enumerate(_papers)
             if str(x["id"]) == str(paper_id)
         ][
             0
         ]  # FIXME: this will fail if duplicates in DB
-        review.papers[edited_index]["decisions"] = [
+        _papers[edited_index]["decisions"] = [
             {
                 "reviewer_id": request.user.pk,
                 "decision": int(decision),
@@ -210,12 +226,12 @@ def screen_papers(request, review_id, paper_id=None):
                 "screening_time": screening_time,
             }
         ]
-        review.papers[edited_index]["decision"] = decision
-        if len(review.papers[edited_index]["decisions"]) >= MIN_DECISIONS:
-            review.papers[edited_index]["screened"] = True
+        _papers[edited_index]["decision"] = decision
+        if len(_papers[edited_index]["decisions"]) >= MIN_DECISIONS:
+            _papers[edited_index]["screened"] = True
         review.save()
 
-        for paper in review.papers:
+        for paper in _papers:
             if (
                 not paper.get("decisions")
                 or len(paper.get("decisions")) < MIN_DECISIONS
