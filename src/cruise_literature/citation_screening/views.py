@@ -8,7 +8,12 @@ from requests import HTTPError
 from django.contrib.auth.decorators import login_required
 import datetime
 
-from document_classification.views import predict_papers, prediction_reason, predict_criterion, predict_relevance
+from document_classification.views import (
+    predict_papers,
+    prediction_reason,
+    predict_criterion,
+    predict_relevance,
+)
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from .process_pdf import parse_doc_grobid
@@ -169,8 +174,8 @@ def screen_papers_v2(request, review_id, paper_id=None):
 
         for paper in _papers:
             if (
-                    not paper.get("decisions")
-                    or len(paper.get("decisions")) < MIN_DECISIONS
+                not paper.get("decisions")
+                or len(paper.get("decisions")) < MIN_DECISIONS
             ):
                 return render(
                     request,
@@ -224,8 +229,8 @@ def screen_papers_v2(request, review_id, paper_id=None):
 
         for paper in _papers:
             if (
-                    not paper.get("decisions")
-                    or len(paper.get("decisions")) < MIN_DECISIONS
+                not paper.get("decisions")
+                or len(paper.get("decisions")) < MIN_DECISIONS
             ):
                 return render(
                     request,
@@ -237,7 +242,9 @@ def screen_papers_v2(request, review_id, paper_id=None):
                     },
                 )
             else:
-                return render(request, "literature_review/view_review.html", {"review": review})
+                return render(
+                    request, "literature_review/view_review.html", {"review": review}
+                )
 
 
 @login_required
@@ -281,14 +288,24 @@ def screen_papers(request, review_id):
                             "start_time": time.time(),
                         },
                     )
-            return render(request, "literature_review/view_review.html", {"review": review})
+            return render(
+                request, "literature_review/view_review.html", {"review": review}
+            )
 
 
 def create_screening_decisions(request, review, paper_id):
     screening_time = round(time.time() - float(request.POST["start_time"]), 2)
 
-    inclusion_decisions = {inc_crit["id"]: request.POST[inc_crit["id"]] for inc_crit in review.criteria["inclusion"] if inc_crit["is_active"]}
-    exclusion_decisions = {exc_crit["id"]: request.POST[exc_crit["id"]] for exc_crit in review.criteria["exclusion"] if exc_crit["is_active"]}
+    inclusion_decisions = {
+        inc_crit["id"]: request.POST[inc_crit["id"]]
+        for inc_crit in review.criteria["inclusion"]
+        if inc_crit["is_active"]
+    }
+    exclusion_decisions = {
+        exc_crit["id"]: request.POST[exc_crit["id"]]
+        for exc_crit in review.criteria["exclusion"]
+        if exc_crit["is_active"]
+    }
 
     reason = request.POST["reason"]
     topic_relevance = request.POST["topic_relevance"]
@@ -345,7 +362,7 @@ def screen_paper(request, review_id, paper_id):
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
 
-        return redirect('literature_review:view_review', review_id=review_id)
+        return redirect("literature_review:view_review", review_id=review_id)
 
 
 @login_required
@@ -369,7 +386,9 @@ def export_review(request, review_id):
 @login_required
 def delete_review(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user not in review.members.filter(om_through__member=request.user, om_through__role="AD"):
+    if request.user not in review.members.filter(
+        om_through__member=request.user, om_through__role="AD"
+    ):
         return redirect("literature_review:review_details", review_id=review_id)
     review.delete()
     return redirect("literature_review:literature_review_home")
@@ -510,9 +529,10 @@ def automatic_screening(request, review_id):
             context={"review": review},
         )
 
-def get_decisions(paper, decision_type:str):
-    """if there are already decisions from the same user, return the newest one"""
-    # todo
+
+def get_decisions(paper, decision_type: str):
+    """Get decisions forŁ a paper."""
+    # todo: if there are already decisions from the same user, return the newest one
     if decision_type == "automatic":
         return paper.get("automatic_decisions")
     elif decision_type == "manual":
@@ -532,15 +552,27 @@ def prompt_based_screening(request, review_id):
             review.papers[paper_id]["automatic_decisions"] = []
 
         if review.papers[paper_id]["automatic_decisions"]:
-            already_reviewed = [_dec for _dec in review.papers[paper_id]["automatic_decisions"] if _dec["reviewer_id"] == model_id]
+            already_reviewed = [
+                _dec
+                for _dec in review.papers[paper_id]["automatic_decisions"]
+                if _dec["reviewer_id"] == model_id
+            ]
             if already_reviewed:
                 continue
 
         start_time = time.time()
         if prediction_result := predict_papers(review, paper):
-            inclusion_decisions = {criterion["id"]: predict_criterion(paper, criterion).lower() for criterion in review.criteria["inclusion"] if criterion["is_active"]}
+            inclusion_decisions = {
+                criterion["id"]: predict_criterion(paper, criterion).lower()
+                for criterion in review.criteria["inclusion"]
+                if criterion["is_active"]
+            }
 
-            exclusion_decisions = {criterion["id"]: predict_criterion(paper, criterion).lower() for criterion in review.criteria["exclusion"] if criterion["is_active"]}
+            exclusion_decisions = {
+                criterion["id"]: predict_criterion(paper, criterion).lower()
+                for criterion in review.criteria["exclusion"]
+                if criterion["is_active"]
+            }
 
             _prediction_reason = prediction_reason(review, paper)
             topic_relevance = predict_relevance(review, paper)

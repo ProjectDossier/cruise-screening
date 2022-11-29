@@ -85,8 +85,7 @@ def query_text2text_api(query: str) -> Dict[str, Any]:
         )
         return res.json()
     except requests.exceptions.ConnectionError:
-        return {"status": 'error',
-                "reason": "Text-to-text API is not available"}
+        return {"status": "error", "reason": "Text-to-text API is not available"}
 
 
 def predict_papers(review: LiteratureReview, paper: Dict[str, Any]) -> Optional[str]:

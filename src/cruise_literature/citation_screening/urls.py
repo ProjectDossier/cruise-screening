@@ -43,5 +43,4 @@ urlpatterns = [
     path("export_review/<int:review_id>/", views.export_review, name="export_review"),
     path("delete_review/<int:review_id>/", views.delete_review, name="delete_review"),
     path("create_review/", views.create_new_review, name="create_new_review"),
-
 ]

@@ -33,7 +33,8 @@ def resolve_decisions(_decisions: List[str]):
     if len(_decisions) == 1:
         return _decisions[0]
     else:
-        return max(set(_decisions), key = _decisions.count)
+        return max(set(_decisions), key=_decisions.count)
+
 
 class LiteratureReview(models.Model):
     title = models.CharField(
@@ -126,9 +127,15 @@ class LiteratureReview(models.Model):
     @property
     def number_of_pdfs(self):
         if self.data_format_version < 3:
-            return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+            return (
+                sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+            )
         else:
-            return [sum(bool(paper["pdf"]) for paper in self.papers.values()) if self.papers else 0]
+            return [
+                sum(bool(paper["pdf"]) for paper in self.papers.values())
+                if self.papers
+                else 0
+            ]
             # filter(pdf__isnull=False).count()
 
     @property
@@ -137,7 +144,9 @@ class LiteratureReview(models.Model):
             if self.data_format_version < 3:
                 return sum(bool(paper.get("screened")) for paper in self.papers)
             else:
-                return sum(bool(paper.get("screened")) for paper in self.papers.values())
+                return sum(
+                    bool(paper.get("screened")) for paper in self.papers.values()
+                )
         else:
             return 0
 
@@ -189,7 +198,9 @@ class LiteratureReview(models.Model):
 
         for paper in _papers:
             if paper.get("automatic_decisions"):
-                _decisions = [decision['decision'] for decision in paper["automatic_decisions"]]
+                _decisions = [
+                    decision["decision"] for decision in paper["automatic_decisions"]
+                ]
                 decision = convert_decisions(resolve_decisions(_decisions))
                 if decision == "1":
                     includes += 1
@@ -258,4 +269,3 @@ class CitationScreening(models.Model):
 
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
-

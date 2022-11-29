@@ -152,34 +152,35 @@ def create_criteria(
     :param timestamp:
     :return: dictionary of criteria
     """
-    criteria = {
-        "inclusion": [],
-        "exclusion": []
-    }
+    criteria = {"inclusion": [], "exclusion": []}
     for index_i, criterion in enumerate(inclusion_criteria):
         _id = f"in_{index_i}"
         if criterion:
-            criteria["inclusion"].append({
-                "id": _id,
-                "text": criterion,
-                "is_active": True,
-                "added_at": timestamp,
-                "added_by": user_id,
-                "updated_at": timestamp,
-                "updated_by": user_id,
-            })
+            criteria["inclusion"].append(
+                {
+                    "id": _id,
+                    "text": criterion,
+                    "is_active": True,
+                    "added_at": timestamp,
+                    "added_by": user_id,
+                    "updated_at": timestamp,
+                    "updated_by": user_id,
+                }
+            )
     for index_e, criterion in enumerate(exclusion_criteria):
         _id = f"ex_{index_e}"
         if criterion:
-            criteria["exclusion"].append({
-                "id": _id,
-                "text": criterion,
-                "is_active": True,
-                "added_at": timestamp,
-                "added_by": user_id,
-                "updated_at": timestamp,
-                "updated_by": user_id,
-            })
+            criteria["exclusion"].append(
+                {
+                    "id": _id,
+                    "text": criterion,
+                    "is_active": True,
+                    "added_at": timestamp,
+                    "added_by": user_id,
+                    "updated_at": timestamp,
+                    "updated_by": user_id,
+                }
+            )
     return criteria
 
 
