@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 from django.contrib.auth.decorators import login_required
 import datetime
+
+from document_classification.views import predict_papers, prediction_reason, predict_criterion, predict_relevance
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from .process_pdf import parse_doc_grobid
@@ -507,3 +509,66 @@ def automatic_screening(request, review_id):
             template_name="literature_review/view_review.html",
             context={"review": review},
         )
+
+def get_decisions(paper, decision_type:str):
+    """if there are already decisions from the same user, return the newest one"""
+    # todo
+    if decision_type == "automatic":
+        return paper.get("automatic_decisions")
+    elif decision_type == "manual":
+        return paper.get("decisions")
+    else:
+        raise ValueError("decision_type must be 'automatic' or 'manual'")
+
+
+def prompt_based_screening(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    model_id = "T0_3B"
+    for paper_id, paper in review.papers.items():
+        if not review.papers[paper_id].get("automatic_decisions"):
+            review.papers[paper_id]["automatic_decisions"] = []
+
+        start_time = time.time()
+        prediction_result = predict_papers(review, paper)
+
+        if prediction_result:
+            inclusion_decisions = {}
+            for criterion in review.criteria["inclusion"]:
+                if criterion["is_active"]:
+                    inclusion_decisions[criterion["id"]] = predict_criterion(paper, criterion).lower()
+
+            exclusion_decisions = {}
+            for criterion in review.criteria["exclusion"]:
+                if criterion["is_active"]:
+                    exclusion_decisions[criterion["id"]] = predict_criterion(paper, criterion).lower()
+
+            _prediction_reason = prediction_reason(review, paper)
+            topic_relevance = predict_relevance(review, paper)
+
+            review.papers[paper_id]["automatic_decisions"].append(
+                {
+                    "reviewer_id": model_id,
+                    "decision": prediction_result.lower(),
+                    "reason": _prediction_reason,
+                    "exclusion_decisions": exclusion_decisions,
+                    "inclusion_decisions": inclusion_decisions,
+                    "stage": "title_abstract",
+                    # "domain_relevance": int(domain_relevance),
+                    "topic_relevance": int(topic_relevance),
+                    "paper_prior_knowledge": None,
+                    "authors_prior_knowledge": None,
+                    "screening_time": time.time() - start_time,
+                    "added_at": str(datetime.datetime.now()),
+                    "added_by": request.user.username,
+                }
+            )
+            review.save()
+
+    return render(
+        request=request,
+        template_name="literature_review/view_review.html",
+        context={"review": review},
+    )
