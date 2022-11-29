@@ -156,3 +156,5 @@ AUTH_USER_MODEL = "users.User"
 
 # if True then also search inside CORE publications aggregator
 SEARCH_WITH_CORE = True
+
+TEXT_TO_TEXT_API = True

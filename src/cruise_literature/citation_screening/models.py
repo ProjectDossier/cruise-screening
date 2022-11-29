@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 
 from django.core.validators import (
     MinLengthValidator,
@@ -16,6 +16,24 @@ from users.models import KnowledgeArea
 
 REVIEW_TITLE_MAX_LEN = 100
 REVIEW_TITLE_MIN_LEN = 3
+
+
+def convert_decisions(text: str) -> str:
+    if text == "yes":
+        return "1"
+    elif text == "no":
+        return "0"
+    elif text == "maybe":
+        return "-1"
+    else:
+        return "-1"
+
+
+def resolve_decisions(_decisions: List[str]):
+    if len(_decisions) == 1:
+        return _decisions[0]
+    else:
+        return max(set(_decisions), key=_decisions.count)
 
 
 class LiteratureReview(models.Model):
@@ -109,9 +127,15 @@ class LiteratureReview(models.Model):
     @property
     def number_of_pdfs(self):
         if self.data_format_version < 3:
-            return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+            return (
+                sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+            )
         else:
-            return [sum(bool(paper["pdf"]) for paper in self.papers.values()) if self.papers else 0]
+            return [
+                sum(bool(paper["pdf"]) for paper in self.papers.values())
+                if self.papers
+                else 0
+            ]
             # filter(pdf__isnull=False).count()
 
     @property
@@ -120,7 +144,9 @@ class LiteratureReview(models.Model):
             if self.data_format_version < 3:
                 return sum(bool(paper.get("screened")) for paper in self.papers)
             else:
-                return sum(bool(paper.get("screened")) for paper in self.papers.values())
+                return sum(
+                    bool(paper.get("screened")) for paper in self.papers.values()
+                )
         else:
             return 0
 
@@ -151,6 +177,36 @@ class LiteratureReview(models.Model):
                 elif paper["decision"] == "-1":
                     not_sures += 1
                 elif paper["decision"] == "0":
+                    excludes += 1
+            else:
+                no_decision += 1
+        return includes, not_sures, excludes, no_decision
+
+    @property
+    def automatic_decisions_count(self) -> Tuple[int, int, int, int]:
+        """returns include, not sure, exclude, no decision"""
+        if not self.papers:
+            return 0, 0, 0, 0
+        includes = 0
+        not_sures = 0
+        excludes = 0
+        no_decision = 0
+        if self.data_format_version < 3:
+            _papers = self.papers
+        else:
+            _papers = self.papers.values()
+
+        for paper in _papers:
+            if paper.get("automatic_decisions"):
+                _decisions = [
+                    decision["decision"] for decision in paper["automatic_decisions"]
+                ]
+                decision = convert_decisions(resolve_decisions(_decisions))
+                if decision == "1":
+                    includes += 1
+                elif decision == "-1":
+                    not_sures += 1
+                elif decision == "0":
                     excludes += 1
             else:
                 no_decision += 1
@@ -213,4 +269,3 @@ class CitationScreening(models.Model):
 
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
-

@@ -101,6 +101,17 @@ Update the `DATABASES` entry  in [`cruise_literature/settings.py`](src/cruise_li
     ...
 ```
 
+#### 1.4 Text to text API
+
+It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) for a given text.
+It is not necessary and can be switched off in the [settings.py](src/cruise_literature/cruise_literature/settings.py):
+
+```python
+TEXT_TO_TEXT_API = False
+```
+
+Checkout [prompt api](src/backend/prompt_api/README.md) to learn more about installation.
+
 
 ## 2. Running
 

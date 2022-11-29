@@ -29,6 +29,11 @@ urlpatterns = [
         views.automatic_screening,
         name="automatic_screening",
     ),
+    path(
+        "literature_review/<int:review_id>/prompt_based_screening",
+        views.prompt_based_screening,
+        name="prompt_based_screening",
+    ),
     path("screen_papers/<int:review_id>/", views.screen_papers, name="screen_papers"),
     path(
         "screen_paper/<int:review_id>/<str:paper_id>/",
@@ -38,5 +43,4 @@ urlpatterns = [
     path("export_review/<int:review_id>/", views.export_review, name="export_review"),
     path("delete_review/<int:review_id>/", views.delete_review, name="delete_review"),
     path("create_review/", views.create_new_review, name="create_new_review"),
-
 ]
