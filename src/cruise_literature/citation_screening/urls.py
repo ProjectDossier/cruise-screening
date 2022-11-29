@@ -25,6 +25,11 @@ urlpatterns = [
         name="edit_review",
     ),
     path(
+        "literature_review/<int:review_id>/import_papers",
+        views.import_papers,
+        name="import_papers",
+    ),
+    path(
         "literature_review/<int:review_id>/automatic_screening",
         views.automatic_screening,
         name="automatic_screening",

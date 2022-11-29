@@ -8,22 +8,19 @@
             <h1 class="title is-3">
                 Review: {{ review.title }}
             </h1>
-            <h5 class="is-5">Add new seed studies to your review</h5>
+            <h5 class="is-5">Import papers to the review</h5>
             <hr/>
-            <form method="POST" action="{% url 'literature_review:add_seed_studies' review.id %}">
+            <form method="POST" enctype="multipart/form-data" action="{% url 'literature_review:import_papers' review.id %}">
                 {% csrf_token %}
-                <textarea class="textarea is-small m-2" name="seed_studies_urls"
-                          placeholder="Add URLs to your seed studies, one item per line..."></textarea>
-                <hr/>
                 <div id="file-js-example" class="file has-name m-2">
                     <label class="file-label">
-                        <input class="file-input" type="file" name="seed_study_file" disabled>
+                        <input class="file-input form-control" type="file" id="bibliography_file" name="bibliography_file" required="True">
                         <span class="file-cta">
                       <span class="file-icon">
                         <i class="fas fa-upload"></i>
                       </span>
                       <span class="file-label">
-                        Choose additional PDF file (currently not supported)
+                        Choose a bibliography file to import
                       </span>
                     </span>
                         <span class="file-name">
@@ -31,19 +28,7 @@
                     </span>
                     </label>
                 </div>
-                <hr/>
-                <div class="screen_paper_relevance control m-2 p-1 box">
-                    <span class="is-size-6">Do you want to snowball references? (currently not supported)</span>
-                    <label class="ml-4">
-                        <input type="radio" name="domain_relevance" value="Yes" disabled>
-                        <span class="button is-small">Yes</span>
-                    </label>
-                    <label class="ml-4">
-                        <input type="radio" name="domain_relevance" value="No" disabled>
-                        <span class="button is-small">No</span>
-                    </label>
-                </div>
-                <button class="button is-info is-light is-fullwidth mt-5">Submit</button>
+                <button class="button is-info is-light is-fullwidth mt-5">Import</button>
             </form>
 
             <script>

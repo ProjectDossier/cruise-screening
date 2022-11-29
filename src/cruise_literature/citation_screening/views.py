@@ -1,6 +1,7 @@
 import json
 import time
 
+import bibtexparser
 from django.contrib import messages
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -392,6 +393,90 @@ def delete_review(request, review_id):
         return redirect("literature_review:review_details", review_id=review_id)
     review.delete()
     return redirect("literature_review:literature_review_home")
+
+
+def import_ris(file, review):
+    pass
+
+
+def import_bib(file_data):
+    bib_database = bibtexparser.loads(file_data)
+    return bib_database
+
+
+def import_json(file, review):
+    pass
+
+
+def import_papers(request, review_id):
+    """Import papers from a file.
+    Supported file types: RIS, bib and json.
+    
+    :param request: HTTP request
+    :type request: HttpRequest
+    :param review_id: Literature review ID
+    :type review_id: int
+    :return: redirect to the view review page
+    :rtype: HttpResponse
+    """
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+    if request.method == "POST":
+        file = request.FILES["bibliography_file"]
+        file_data = file.read().decode("utf-8")
+        if file:
+            search_origin = {
+                "origin": "file_import",
+                "search_engine": "file_import",
+                "query": file.name,
+                "added_at": str(datetime.datetime.now()),
+                "added_by": request.user.username,
+            }
+
+            if file.name.endswith(".ris"):
+                import_ris(file, review)
+            elif file.name.endswith(".bib"):
+                _papers = import_bib(file_data)
+                # _papers = bib_to_json(_papers)
+
+                for entry in _papers.entries:
+                    if entry["ID"] in review.papers:
+                        continue
+                    paper = {
+                        "id": entry["ID"],
+                        "title": entry.get("title"),
+                        "authors": entry.get("author"),
+                        "publication_date": entry.get("year"),
+                        "abstract": entry.get("abstract"),
+                        "venue": entry.get("journal"),
+                        "doi": entry.get("doi"),
+                        "pdf": entry.get("pdf"),
+                        "url": entry.get("url"),
+                        "keywords": entry.get("keywords"),
+                        "notes": entry.get("notes"),
+                        "decisions": [],
+                        "decision": None,
+                        "screened": False,
+                        "included": False,
+                        "search_origin": [search_origin],
+                    }
+                    paper["search_origin"][0]["paper_id"] = paper["id"]
+
+                    review.papers[entry["ID"]] = paper
+                    review.save()
+
+            elif file.name.endswith(".json"):
+                import_json(file, review)
+            else:
+                raise Http404("Invalid file type")
+            return render(
+                request=request,
+                template_name="literature_review/view_review.html",
+                context={"review": review},
+            )
+    else:
+        return render(request, "literature_review/import_papers.html", {"review": review})
 
 
 @login_required
