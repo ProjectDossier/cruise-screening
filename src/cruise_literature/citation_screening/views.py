@@ -395,8 +395,19 @@ def delete_review(request, review_id):
     return redirect("literature_review:literature_review_home")
 
 
-def import_ris(file, review):
-    pass
+def import_ris(file_data):
+    """loads RIS file data into a list of dictionaries"""
+    papers = []
+    paper = {}
+    for line in file_data.splitlines():
+        if line.startswith("TY  - "):
+            paper = {}
+        elif line.startswith("ER  - "):
+            papers.append(paper)
+        else:
+            key, value = line.split("  - ")
+            paper[key] = value
+    return papers
 
 
 def import_bib(file_data):
@@ -404,7 +415,7 @@ def import_bib(file_data):
     return bib_database
 
 
-def import_json(file, review):
+def import_json(file_data):
     pass
 
 
@@ -435,7 +446,7 @@ def import_papers(request, review_id):
             }
 
             if file.name.endswith(".ris"):
-                import_ris(file, review)
+                import_ris(file_data)
             elif file.name.endswith(".bib"):
                 _papers = import_bib(file_data)
                 # _papers = bib_to_json(_papers)
@@ -443,6 +454,9 @@ def import_papers(request, review_id):
                 for entry in _papers.entries:
                     if entry["ID"] in review.papers:
                         continue
+                    keywords = []
+                    if entry.get("keywords"):
+                        keywords = entry.get("keywords").split(",")
                     paper = {
                         "id": entry["ID"],
                         "title": entry.get("title"),
@@ -453,8 +467,9 @@ def import_papers(request, review_id):
                         "doi": entry.get("doi"),
                         "pdf": entry.get("pdf"),
                         "url": entry.get("url"),
-                        "keywords": entry.get("keywords"),
-                        "notes": entry.get("notes"),
+                        "keywords_snippet": keywords,
+                        "notes": entry.get("note"),
+                        "other_fields": entry,
                         "decisions": [],
                         "decision": None,
                         "screened": False,
@@ -467,7 +482,7 @@ def import_papers(request, review_id):
                     review.save()
 
             elif file.name.endswith(".json"):
-                import_json(file, review)
+                import_json(file_data)
             else:
                 raise Http404("Invalid file type")
             return render(
