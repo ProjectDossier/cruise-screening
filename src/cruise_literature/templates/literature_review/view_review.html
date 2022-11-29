@@ -51,25 +51,30 @@
                                     ▴
                                 </button>
                             </th>
-                            <th>Decisions so far</th>
+                            <th>Manual decisions so far</th>
+                            <th>Automatic decisions</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr class="has-text-success">
                             <td>Includes</td>
                             <td>{{ review.decisions_count.0 }}</td>
+                            <td>{{ review.automatic_decisions_count.0 }}</td>
                         </tr>
                         <tr class="has-text-orange">
                             <td>Maybe</td>
                             <td>{{ review.decisions_count.1 }}</td>
+                            <td>{{ review.automatic_decisions_count.1 }}</td>
                         </tr>
                         <tr class="has-text-grey-lighter">
                             <td>Excludes</td>
                             <td>{{ review.decisions_count.2 }}</td>
+                            <td>{{ review.automatic_decisions_count.2 }}</td>
                         </tr>
                         <tr>
                             <td>Missing judgements</td>
                             <td>{{ review.decisions_count.3 }}</td>
+                            <td>{{ review.automatic_decisions_count.3 }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -159,7 +164,7 @@
                     {% for decision in paper.automatic_decisions %}
                         {% if decision.decision == "yes" %}
                             <span class="tag is-success is-light hover-text" data-hover="{{ decision.reviewer_id }}">Include</span>
-                        {% elif decision.decision == "not sure" %}
+                        {% elif decision.decision == "maybe" %}
                             <span class="tag is-warning is-light hover-text" data-hover="{{ decision.reviewer_id }}">Maybe</span>
                         {% elif decision.decision == "no" %}
                             <span class="tag is-danger is-light hover-text" data-hover="{{ decision.reviewer_id }}">Exclude</span>
