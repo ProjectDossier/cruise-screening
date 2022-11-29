@@ -154,14 +154,20 @@
                 {% else %}
                     <td>—</td>
                 {% endif %}
-                {% if paper.automatic_decisions.decision == 1 %}
-                    <td class="has-text-success">Include ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
-                {% elif paper.automatic_decisions.decision == 0 %}
-                    <td class="has-text-grey-lighter">Exclude
-                        ({{ paper.automatic_decisions.probability|stringformat:".4s" }})
+                {% if paper.automatic_decisions|length > 0 %}
+                    <td>
+                    {% for decision in paper.automatic_decisions %}
+                        {% if decision.decision == "yes" %}
+                            <span class="tag is-success is-light">Include</span>
+                        {% elif decision.decision == "not sure" %}
+                            <span class="tag is-warning is-light">Maybe</span>
+                        {% elif decision.decision == "no" %}
+                            <span class="tag is-danger is-light">Exclude</span>
+                        {% endif %}
+                    {% endfor %}
                     </td>
                 {% else %}
-                    <td></td>
+                    <td>-</td>
                 {% endif %}
                 </tr>
                 {% endfor %}
