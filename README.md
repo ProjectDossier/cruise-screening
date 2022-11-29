@@ -129,6 +129,7 @@ Fill in sample data into the database
 
 ```bash
 (cruise-literature)$ python manage.py loaddata users_data.json
+(cruise-literature)$ python manage.py loaddata search_engines.json
 ```
 
 Make sure that Django Desktop application is running. 

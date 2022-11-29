@@ -52,8 +52,6 @@ class LiteratureReview(models.Model):
     )
     search_databases = models.CharField(max_length=250, blank=True, null=True)
 
-    creation_date = models.DateField(auto_now_add=True)
-    last_edit_date = models.DateField(auto_now=True)
     project_deadline = models.DateField()
     organisation = models.ForeignKey(
         Organisation,
@@ -76,6 +74,8 @@ class LiteratureReview(models.Model):
     exclusion_criteria = ArrayField(
         models.CharField(max_length=250, blank=True), null=True
     )
+    criteria = models.JSONField(null=True, blank=True)
+
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through="LiteratureReviewMember",
@@ -85,20 +85,42 @@ class LiteratureReview(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
+    min_decisions = models.IntegerField(
+        _("minimum decisions per paper"),
+        default=1,
+        help_text="How many reviewers need to screen every paper. Default is 1.",
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
+    )
+
+    data_format_version = models.IntegerField(
+        default=3,
+        help_text="Version of the data format. This is used to migrate data between versions.",
+    )
+
     papers = models.JSONField(null=True)
 
     @property
     def number_of_papers(self):
-        return len(self.papers) if self.papers else 0
+        if self.data_format_version < 3:
+            return len(self.papers) if self.papers else 0
+        else:
+            return len(self.papers.values()) if self.papers else 0
 
     @property
     def number_of_pdfs(self):
-        return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+        if self.data_format_version < 3:
+            return sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
+        else:
+            return [sum(bool(paper["pdf"]) for paper in self.papers.values()) if self.papers else 0]
+            # filter(pdf__isnull=False).count()
 
     @property
     def number_of_screened(self):
         if self.papers:
-            return sum(bool(paper.get("screened")) for paper in self.papers)
+            if self.data_format_version < 3:
+                return sum(bool(paper.get("screened")) for paper in self.papers)
+            else:
+                return sum(bool(paper.get("screened")) for paper in self.papers.values())
         else:
             return 0
 
@@ -118,7 +140,11 @@ class LiteratureReview(models.Model):
         not_sures = 0
         excludes = 0
         no_decision = 0
-        for paper in self.papers:
+        if self.data_format_version < 3:
+            _papers = self.papers
+        else:
+            _papers = self.papers.values()
+        for paper in _papers:
             if paper.get("decision"):
                 if paper["decision"] == "1":
                     includes += 1
@@ -140,11 +166,8 @@ class LiteratureReview(models.Model):
         """
         if self.number_of_screened < 8:
             return False
-        else:
-            includes, not_sures, excludes, _ = self.decisions_count
-            if (includes + not_sures) >= 3 and excludes >= 3:
-                return True
-        return False
+        includes, not_sures, excludes, _ = self.decisions_count
+        return (includes + not_sures) >= 3 and excludes >= 3
 
 
 class LiteratureReviewMember(models.Model):
@@ -172,3 +195,22 @@ class LiteratureReviewMember(models.Model):
         choices=roles_choices,
         default="ME",
     )
+
+
+class CitationScreening(models.Model):
+    """Class representing one citation screening task: first/second level screening."""
+
+    literature_review = models.ForeignKey(
+        LiteratureReview, on_delete=models.CASCADE, help_text="Literature Review ID"
+    )
+    screening_level = models.IntegerField(
+        default=1,
+        help_text="Screening level: 1 or 2",
+        choices=[(1, "Title and abstract screening"), (2, "Full-text screening")],
+        validators=[MinValueValidator(1), MaxValueValidator(2)],
+    )
+    tasks = models.JSONField(null=True)
+
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+

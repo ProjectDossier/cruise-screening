@@ -3,7 +3,8 @@ import re
 from typing import List
 
 import requests
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from document_search.utils import SearchResultWithStatus
 from utils.article import Article
 
 
@@ -16,8 +17,8 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     highlighted_abstract = ""
     highlighted_snippet = ""
     for term in doc.split():
-        if re.sub(r"[^\w]", "", term) in highlight_terms:
-            term = "<em>" + term + "</em>"
+        if re.sub(r"\W", "", term) in highlight_terms:
+            term = f"<em>{term}</em>"
         term += " "
         highlighted_abstract += term
         if len(highlighted_snippet) < 160:
@@ -26,14 +27,27 @@ def highlighter(doc: str, es_highlighted_texts: List[str]):
     return highlighted_abstract[:-1], highlighted_snippet[:-1]
 
 
-def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
+def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
     """Search internal elasticsearch database."""
+    index_name = "papers"
     headers = {"Content-type": "application/json"}
-    res = requests.post(
-        "http://localhost:9880" + "/search",
-        data=json.dumps({"query": query, "es_index": index, "es_top_k": top_k}),
-        headers=headers,
-    )
+    try:
+        res = requests.post(
+            "http://localhost:9880" + "/search",
+            data=json.dumps(
+                {"query": query, "es_index": index_name, "es_top_k": top_k}
+            ),
+            headers=headers,
+        )
+    except requests.exceptions.ConnectionError:
+        return {
+            "results": [],
+            "status": "ERROR",
+            "status_code": 503,
+            "search_engine": "CRUISE",
+            "search_query": query,
+        }
+
     results = res.json()["results"]
     candidate_list = []
     for candidate in results["hits"]["hits"]:
@@ -46,8 +60,7 @@ def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
             abstract = candidate["_source"].get("abstract")
             snippet = candidate["_source"].get("abstract")[:300]
 
-        authors_raw = candidate["_source"].get("authors")
-        if authors_raw:
+        if authors_raw := candidate["_source"].get("authors"):
             author_details = [
                 author["name"] for author in authors_raw if "name" in author
             ]
@@ -77,14 +90,14 @@ def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
 
         keywords_snippet = {}
         keywords_rest = {}
-        index_i = 0
-        for k, v in sorted(
-            candidate["_source"].get("keywords").items(),
-            key=lambda item: item[1],
-            reverse=True,
+        for index_i, (k, v) in enumerate(
+            sorted(
+                candidate["_source"].get("keywords").items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )
         ):
-            index_i += 1
-            if index_i < 5:
+            if index_i < 6:
                 keywords_snippet[k] = v
             else:
                 keywords_rest[k] = v
@@ -102,25 +115,18 @@ def search_cruise(query: str, index: str, top_k: int) -> List[Article]:
             keywords_snippet=keywords_snippet,
             keywords_rest=keywords_rest,
             CSO_keywords=candidate["_source"].get("CSO_keywords")["union"],
-            citations=citations,
-            references=references,
+            n_citations=citations,
+            n_references=references,
             doi=doi,
         )
         candidate_list.append(retrieved_art)
-
-    return candidate_list
-
-
-def paginate_results(search_result: list, page: int, results_per_page: int = 19):
-    paginator = Paginator(search_result, results_per_page)
-    try:
-        search_result_list = paginator.page(page)
-    except PageNotAnInteger:
-        search_result_list = paginator.page(1)
-    except EmptyPage:
-        search_result_list = paginator.page(paginator.num_pages)
-
-    return search_result_list, paginator
+    return {
+        "results": candidate_list,
+        "status": "OK",
+        "status_code": 200,
+        "search_engine": "CRUISE",
+        "search_query": query,
+    }
 
 
 def merge_results(
