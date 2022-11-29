@@ -7,7 +7,8 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 app = Flask(__name__)
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename="app.log", filemode='a'
 )
 logging.info("Loading model and tokenizer...")
 
@@ -91,9 +92,11 @@ def question() -> Dict[str, str]:
     text = request.json["text"]
     try:
         response = get_response(text)
+        logging.debug("text: %s, response: %s", text, response)
         status = "OK"
     except Exception as e:
         logging.error(e)
+        logging.error(text)
         response = "Error"
         status = "ERROR"
     return {"response": response, "status": status}
