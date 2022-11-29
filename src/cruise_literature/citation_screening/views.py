@@ -531,19 +531,16 @@ def prompt_based_screening(request, review_id):
         if not review.papers[paper_id].get("automatic_decisions"):
             review.papers[paper_id]["automatic_decisions"] = []
 
+        if review.papers[paper_id]["automatic_decisions"]:
+            already_reviewed = [_dec for _dec in review.papers[paper_id]["automatic_decisions"] if _dec["reviewer_id"] == model_id]
+            if already_reviewed:
+                continue
+
         start_time = time.time()
-        prediction_result = predict_papers(review, paper)
+        if prediction_result := predict_papers(review, paper):
+            inclusion_decisions = {criterion["id"]: predict_criterion(paper, criterion).lower() for criterion in review.criteria["inclusion"] if criterion["is_active"]}
 
-        if prediction_result:
-            inclusion_decisions = {}
-            for criterion in review.criteria["inclusion"]:
-                if criterion["is_active"]:
-                    inclusion_decisions[criterion["id"]] = predict_criterion(paper, criterion).lower()
-
-            exclusion_decisions = {}
-            for criterion in review.criteria["exclusion"]:
-                if criterion["is_active"]:
-                    exclusion_decisions[criterion["id"]] = predict_criterion(paper, criterion).lower()
+            exclusion_decisions = {criterion["id"]: predict_criterion(paper, criterion).lower() for criterion in review.criteria["exclusion"] if criterion["is_active"]}
 
             _prediction_reason = prediction_reason(review, paper)
             topic_relevance = predict_relevance(review, paper)
