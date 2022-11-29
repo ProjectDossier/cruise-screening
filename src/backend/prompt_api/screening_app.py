@@ -28,7 +28,7 @@ def get_response(text: str) -> str:
     out_text = out_text.replace("<pad>", "")
     out_text = out_text.replace("<s>", "")
     out_text = out_text.replace("</s>", "")
-    return out_text
+    return out_text.strip()
 
 
 @app.route("/")
