@@ -1,5 +1,11 @@
 from typing import List
-from scholarly import scholarly
+
+import fake_useragent
+
+try:
+    from scholarly import scholarly
+except fake_useragent.errors.FakeUserAgentError:
+    scholarly = None
 
 from document_search.utils import SearchResultWithStatus
 from utils.article import Article
@@ -39,6 +45,15 @@ def revert_snippet(snippet: str) -> str:
 
 
 def search_google_scholar(query: str, top_k: int) -> SearchResultWithStatus:
+    if scholarly is None:
+        return {
+            "results": [],
+            "status": "ERROR",
+            "status_code": 503,
+            "search_engine": "Google Scholar",
+            "search_query": query,
+        }
+
     pubs = scholarly.search_pubs(query, patents=False)
 
     candidate_list = []
