@@ -122,8 +122,9 @@
                     <th @click="sortByColumn">Source</th>
                     <th @click="sortByColumn">URL</th>
                     <th @click="sortByColumn">PDF</th>
-                    <th @click="sortByColumn">Screened</th>
+                    <th @click="sortByColumn">Manual</th>
                     <th @click="sortByColumn">Automatic</th>
+                    <th @click="sortByColumn"></th>
                 </tr>
                 </thead>
                 <tbody x-ref="tbody">
@@ -155,9 +156,13 @@
                 {% if paper.citations %}
                     <td>{{ paper.citations }}</td>
                 {% else %}
-                    <td>-</td>
+                    <td>—</td>
                 {% endif %}
-                <td>{{ paper.search_engine }}</td>
+                <td>
+                {% for search_origin in paper.search_origin %}
+                    <span class="tag is-light hover-text" data-hover="query:{{ search_origin.query }} at:{{ search_origin.added_at }}">{{ search_origin.search_engine }}</span>
+                {% endfor %}
+                </td>
                 {% if paper.url %}
                     <td class="has-text-centered"><a href="{{ paper.url }}">🌐</a></td>
                 {% else %}
@@ -171,13 +176,9 @@
                 {% endif %}
                 {% if review.data_format_version > 2 %}
                     {% if paper.screened %}
-                        <td>Yes, <a
-                                href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">edit</a>
-                        </td>
+                        <td>done</td>
                     {% else %}
-                        <td>
-                            <a href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">No</a>
-                        </td>
+                        <td>—</td>
                     {% endif %}
                 {% else %}
                     <td>—</td>
@@ -197,8 +198,18 @@
                         {% endfor %}
                     </td>
                 {% else %}
-                    <td>-</td>
+                    <td>—</td>
                 {% endif %}
+                                        {% if paper.screened %}
+                        <td><a
+                                href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">Edit</a>
+                        </td>
+                    {% else %}
+                        <td>
+                            <a href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">Screen</a>
+                        </td>
+                    {% endif %}
+
                 </tr>
                 {% endfor %}
                 </tbody>
