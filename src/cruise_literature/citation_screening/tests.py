@@ -85,14 +85,14 @@ class ViewTests(TestCase):
             criteria={
                 "inclusion": [
                     {
-                        "id": "in_1",
+                        "id": "in_0",
                         "text": "test inclusion criterion",
                         "is_active": True,
                     }
                 ],
                 "exclusion": [
                     {
-                        "id": "ex_1",
+                        "id": "ex_0",
                         "text": "test exclusion criterion",
                         "is_active": True,
                     }
@@ -205,8 +205,8 @@ class ViewTests(TestCase):
         self.assertEqual(test_lit_review.description, "Test Description")
         self.assertEqual(test_lit_review.project_deadline, datetime(2020, 1, 1).date())
         self.assertEqual(test_lit_review.search_queries, ["test"])
-        self.assertEqual(test_lit_review.inclusion_criteria, ["test"])
-        self.assertEqual(test_lit_review.exclusion_criteria, ["test"])
+        self.assertEqual(test_lit_review.criteria['inclusion'][0]['text'], "test")
+        self.assertEqual(test_lit_review.criteria['exclusion'][0]['text'], "test")
         self.assertEqual(test_lit_review.annotations_per_paper, 1)
 
         _papers = test_lit_review.papers
@@ -283,19 +283,23 @@ class ViewTests(TestCase):
         )
         self.assertEqual(test_lit_review.title, "Updated Literature Review")
         self.assertEqual(test_lit_review.description, "Updated Description")
-        self.assertEqual(test_lit_review.inclusion_criteria, ["new inclusion"])
-        self.assertEqual(test_lit_review.exclusion_criteria, ["new exclusion"])
         criteria = test_lit_review.criteria
 
-        self.assertEqual(criteria["inclusion"][0]['id'], "in_1")
+        self.assertEqual(criteria["inclusion"][0]['id'], "in_0")
         self.assertEqual(criteria["inclusion"][0]['text'], "test inclusion criterion")
         self.assertEqual(criteria["inclusion"][0]['is_active'], False)
 
-        self.assertEqual(criteria["inclusion"][1]['id'], "in_2")
+        self.assertEqual(criteria["inclusion"][1]['id'], "in_1")
         self.assertEqual(criteria["inclusion"][1]['text'], "new inclusion")
-        self.assertEqual(criteria["inclusion"][0]['is_active'], True)
+        self.assertEqual(criteria["inclusion"][1]['is_active'], True)
 
-        self.assertEqual(test_lit_review.criteria, ["new exclusion"])
+        self.assertEqual(criteria["exclusion"][0]['id'], "ex_0")
+        self.assertEqual(criteria["exclusion"][0]['text'], "test exclusion criterion")
+        self.assertEqual(criteria["exclusion"][0]['is_active'], False)
+
+        self.assertEqual(criteria["exclusion"][1]['id'], "ex_1")
+        self.assertEqual(criteria["exclusion"][1]['text'], "new exclusion")
+        self.assertEqual(criteria["exclusion"][1]['is_active'], True)
 
     def assertions_failed_edit_review(self):
         """Bulk assertions for
@@ -362,21 +366,19 @@ class ViewTests(TestCase):
         self.assertEqual(lit_rev["criteria"], {
                 "inclusion": [
                     {
-                        "id": "in_1",
+                        "id": "in_0",
                         "text": "test inclusion criterion",
                         "is_active": True,
                     }
                 ],
                 "exclusion": [
                     {
-                        "id": "ex_1",
+                        "id": "ex_0",
                         "text": "test exclusion criterion",
                         "is_active": True,
                     }
                 ]
             })
-        # self.assertEqual(lit_rev["inclusion_criteria"], ["test inclusion criterion"])
-        # self.assertEqual(lit_rev["exclusion_criteria"], ["test exclusion criterion"])
         self.assertEqual(len(lit_rev["papers"]), 1)
         self.assertEqual(lit_rev["papers"][_fake_paper['id']], _fake_paper)
 
