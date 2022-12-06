@@ -6,8 +6,10 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.test import TestCase, Client
 from django.urls import reverse
 
+from document_search.models import SearchEngine
 from users.models import User
 from .models import LiteratureReview, LiteratureReviewMember
+from .process_pdf import parse_doc_grobid
 
 from .views import (
     create_new_review,
@@ -31,6 +33,8 @@ _fake_paper = {
     "pdf": "https://www.fake.com/fake.pdf",
     "screened": False,
     "decision": [],
+    "automatic_decisions": [],
+    "decisions": []
 }
 
 paper_screening_POST_params = {
@@ -50,6 +54,7 @@ base_templates = ["_base.html", "_header.html", "_footer.html"]
 class ViewTests(TestCase):
     user = None
     lit_rev = None
+    fixtures = ['search_engines.json', ]
 
     @classmethod
     def setUpClass(cls):
@@ -75,9 +80,25 @@ class ViewTests(TestCase):
             title="Test Literature Review 1",
             description="Test Description",
             project_deadline="2020-01-01",
-            inclusion_criteria=["test inclusion criterion"],
-            exclusion_criteria=["test exclusion criterion"],
-            papers=[_fake_paper],
+            # inclusion_criteria=["test inclusion criterion"],
+            # exclusion_criteria=["test exclusion criterion"],
+            criteria={
+                "inclusion": [
+                    {
+                        "id": "in_1",
+                        "text": "test inclusion criterion",
+                        "is_active": True,
+                    }
+                ],
+                "exclusion": [
+                    {
+                        "id": "ex_1",
+                        "text": "test exclusion criterion",
+                        "is_active": True,
+                    }
+                ]
+            },
+            papers={_fake_paper['id']: _fake_paper},
         )
         cls.member = LiteratureReviewMember.objects.create(
             member=cls.user, literature_review=cls.lit_rev
@@ -110,7 +131,8 @@ class ViewTests(TestCase):
             "inclusion_criteria": "test",
             "exclusion_criteria": "test",
             "top_k": 10,
-            "search_engines": ["CRUISE"],
+            "search_engines": [SearchEngine.objects.filter(
+                name="CRUISE").first().id],
             "annotations_per_paper": 1,
         }
 
@@ -163,10 +185,13 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/accounts/login/?next=/create_review/")
 
-    def test_create_new_review_POST(self):
+    def test_create_new_review_POST_success_test_redirect(self):
         response = self.client.post(self.create_new_review_url, self.new_review_params)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, "/")
+
+    def test_create_new_review_POST_success_test_db(self):
+        self.client.post(self.create_new_review_url, self.new_review_params)
 
         self.assertEqual(LiteratureReview.objects.count(), 2)
         self.assertEqual(LiteratureReviewMember.objects.count(), 2)
@@ -186,17 +211,16 @@ class ViewTests(TestCase):
 
         _papers = test_lit_review.papers
         self.assertEqual(len(_papers), 10)
+        _test_paper_id = 'v_XFroEBnCl8skwT4wON'
         self.assertEqual(
-            _papers[0]["title"],
+            _papers[_test_paper_id]["title"],
             "Collateral ASIC Test",
         )
-        self.assertEqual(_papers[0]["authors"], "Al Bailey, Tim Lada, Jim Preston")
-        self.assertEqual(_papers[0]["url"], "http://dx.doi.org/10.1109/54.573368")
-        self.assertEqual(_papers[0]["decision"], None)
-        self.assertEqual(_papers[0]["search_origin"][0]["query"], "test")
-        self.assertEqual(_papers[0]["search_origin"][0]["search_engine"], "CRUISE")
-
-        self.assertEqual(_papers[1]["title"], "Agile Test Composition")
+        self.assertEqual(_papers[_test_paper_id]["authors"], "Al Bailey, Tim Lada, Jim Preston")
+        self.assertEqual(_papers[_test_paper_id]["url"], "http://dx.doi.org/10.1109/54.573368")
+        self.assertEqual(_papers[_test_paper_id]["decision"], None)
+        self.assertEqual(_papers[_test_paper_id]["search_origin"][0]["query"], "test")
+        self.assertEqual(_papers[_test_paper_id]["search_origin"][0]["search_engine"], "CRUISE")
 
     def test_create_new_review_POST_unauthenticated(self):
         self.client.logout()
@@ -261,6 +285,17 @@ class ViewTests(TestCase):
         self.assertEqual(test_lit_review.description, "Updated Description")
         self.assertEqual(test_lit_review.inclusion_criteria, ["new inclusion"])
         self.assertEqual(test_lit_review.exclusion_criteria, ["new exclusion"])
+        criteria = test_lit_review.criteria
+
+        self.assertEqual(criteria["inclusion"][0]['id'], "in_1")
+        self.assertEqual(criteria["inclusion"][0]['text'], "test inclusion criterion")
+        self.assertEqual(criteria["inclusion"][0]['is_active'], False)
+
+        self.assertEqual(criteria["inclusion"][1]['id'], "in_2")
+        self.assertEqual(criteria["inclusion"][1]['text'], "new inclusion")
+        self.assertEqual(criteria["inclusion"][0]['is_active'], True)
+
+        self.assertEqual(test_lit_review.criteria, ["new exclusion"])
 
     def assertions_failed_edit_review(self):
         """Bulk assertions for
@@ -324,10 +359,26 @@ class ViewTests(TestCase):
         self.assertEqual(lit_rev["title"], "Test Literature Review 1")
         self.assertEqual(lit_rev["description"], "Test Description")
         self.assertEqual(lit_rev["search_queries"], None)
-        self.assertEqual(lit_rev["inclusion_criteria"], ["test inclusion criterion"])
-        self.assertEqual(lit_rev["exclusion_criteria"], ["test exclusion criterion"])
+        self.assertEqual(lit_rev["criteria"], {
+                "inclusion": [
+                    {
+                        "id": "in_1",
+                        "text": "test inclusion criterion",
+                        "is_active": True,
+                    }
+                ],
+                "exclusion": [
+                    {
+                        "id": "ex_1",
+                        "text": "test exclusion criterion",
+                        "is_active": True,
+                    }
+                ]
+            })
+        # self.assertEqual(lit_rev["inclusion_criteria"], ["test inclusion criterion"])
+        # self.assertEqual(lit_rev["exclusion_criteria"], ["test exclusion criterion"])
         self.assertEqual(len(lit_rev["papers"]), 1)
-        self.assertEqual(lit_rev["papers"][0], _fake_paper)
+        self.assertEqual(lit_rev["papers"][_fake_paper['id']], _fake_paper)
 
     def test_export_review_GET_unauthenticated(self):
         self.client.logout()
@@ -382,8 +433,9 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_add_seed_studies_POST(self):
+        TEST_SEED_STUDY = "https://arxiv.org/pdf/2211.04623.pdf"
         new_seed_studies = {
-            "seed_studies_urls": ["https://arxiv.org/pdf/2211.04623.pdf"]
+            "seed_studies_urls": [TEST_SEED_STUDY]
         }
         response = self.client.post(self.add_seed_studies_url, new_seed_studies)
         self.assertTemplateUsed(response, "literature_review/add_seed_studies.html")
@@ -394,16 +446,17 @@ class ViewTests(TestCase):
         self.assertEqual(LiteratureReview.objects.count(), 1)
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         self.assertEqual(len(test_lit_review.papers), 2)
+        _grobid_doc = parse_doc_grobid(url=TEST_SEED_STUDY)
         papers = test_lit_review.papers
-        self.assertEqual(papers[0], _fake_paper)
+        self.assertEqual(papers[_fake_paper['id']], _fake_paper)
         self.assertEqual(
-            papers[1]["title"], "Neural network concatenation for Polar Codes"
+            papers[_grobid_doc.pdf_md5]["title"], "Neural network concatenation for Polar Codes"
         )
-        self.assertEqual(papers[1]["authors"], "Evgeny Stupachenko")
-        self.assertEqual(papers[1]["seed_study"], True)
-        self.assertEqual(papers[1]["search_engine"], "Seed Study")
-        self.assertEqual(papers[1]["pdf"], "https://arxiv.org/pdf/2211.04623.pdf")
-        self.assertEqual(papers[1]["decision"], None)
+        self.assertEqual(papers[_grobid_doc.pdf_md5]["authors"], "Evgeny Stupachenko")
+        self.assertEqual(papers[_grobid_doc.pdf_md5]["seed_study"], True)
+        self.assertEqual(papers[_grobid_doc.pdf_md5]["search_engine"], "Seed Study")  # fixme
+        self.assertEqual(papers[_grobid_doc.pdf_md5]["pdf"], TEST_SEED_STUDY)
+        self.assertEqual(papers[_grobid_doc.pdf_md5]["decision"], None)
 
     def test_add_seed_studies_POST_unauthenticated(self):
         self.client.logout()
@@ -459,11 +512,11 @@ class ViewTests(TestCase):
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         _papers = test_lit_review.papers
         self.assertEqual(len(_papers), 1)
-        self.assertEqual(_papers[0]["id"], _fake_paper["id"])
-        self.assertEqual(_papers[0]["title"], _fake_paper["title"])
-        self.assertEqual(_papers[0]["abstract"], _fake_paper["abstract"])
+        self.assertEqual(_papers[_fake_paper['id']]["id"], _fake_paper["id"])
+        self.assertEqual(_papers[_fake_paper['id']]["title"], _fake_paper["title"])
+        self.assertEqual(_papers[_fake_paper['id']]["abstract"], _fake_paper["abstract"])
 
-        _decisions = _papers[0]["decisions"]
+        _decisions = _papers[_fake_paper['id']]["decisions"]
         self.assertEqual(_decisions[0]["domain_relevance"], 1)
         self.assertEqual(_decisions[0]["topic_relevance"], 1)
         self.assertEqual(_decisions[0]["decision"], 1)
@@ -480,7 +533,7 @@ class ViewTests(TestCase):
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         self.assertEqual(len(test_lit_review.papers), 1)
         papers = test_lit_review.papers
-        self.assertEqual(papers[0], _fake_paper)
+        self.assertEqual(papers[_fake_paper['id']], _fake_paper)
 
     def test_screen_papers_POST_not_member(self):
         self.client.logout()
@@ -498,7 +551,7 @@ class ViewTests(TestCase):
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         self.assertEqual(len(test_lit_review.papers), 1)
         papers = test_lit_review.papers
-        self.assertEqual(papers[0], _fake_paper)
+        self.assertEqual(papers[_fake_paper['id']], _fake_paper)
 
     def test_screen_papers_POST_not_exist(self):
         # screening_params = {"screening": "1"}
@@ -512,7 +565,7 @@ class ViewTests(TestCase):
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         self.assertEqual(len(test_lit_review.papers), 1)
         papers = test_lit_review.papers
-        self.assertEqual(papers[0], _fake_paper)
+        self.assertEqual(papers[_fake_paper['id']], _fake_paper)
 
     def test_screen_papers_POST_invalid(self):
         screening_params = {"bad_key": "1"}  # and missing keys
@@ -527,4 +580,4 @@ class ViewTests(TestCase):
         test_lit_review = LiteratureReview.objects.get(title="Test Literature Review 1")
         self.assertEqual(len(test_lit_review.papers), 1)
         papers = test_lit_review.papers
-        self.assertEqual(papers[0], _fake_paper)
+        self.assertEqual(papers[_fake_paper['id']], _fake_paper)
