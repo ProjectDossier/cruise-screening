@@ -31,14 +31,18 @@
             <hr/>
             <p>
                 <strong class="has-background-orange-light m-2">Inclusion criteria:</strong>
-                {% for criterion in review.inclusion_criteria %}
-                    <span class="tag is-success is-light">{{ criterion }}</span>
+                {% for criterion in review.criteria.inclusion %}
+                    {% if criterion.is_active %}
+                        <span class="tag is-success is-light">{{ criterion.text }}</span>
+                    {% endif %}
                 {% endfor %}
             </p>
             <p>
                 <strong class="has-background-orange-light m-2">Exclusion criteria:</strong>
-                {% for criterion in review.exclusion_criteria %}
-                    <span class="tag is-danger is-light">{{ criterion }}</span>
+                {% for criterion in review.criteria.exclusion %}
+                    {% if criterion.is_active %}
+                        <span class="tag is-danger is-light">{{ criterion.text }}</span>
+                    {% endif %}
                 {% endfor %}
             </p>
             <div x-data="{ openStatistics: false}">
