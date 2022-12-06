@@ -1,4 +1,4 @@
-{% extends '_base.html' %}
+{% extends '_base_templates/_base.html' %}
 {% load static %}
 
 {% block content %}
@@ -22,7 +22,26 @@
                     {% endif %}
                 {% endif %}
             </h1>
-            <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+            <div x-data="{openReviewDescription: false}">
+            {% if review.description != review.description|first_n_words:35 %}
+                <template x-if="openReviewDescription">
+                    <p class="title is-5"><strong>Description:</strong> {{ review.description }}
+                        <button type="button" class="card__show-more" x-on:click="openReviewDescription = false">Show less
+                        </button>
+                    </p>
+                </template>
+                <template x-if="!openReviewDescription" x-cloak>
+                    <p class="title is-5"><strong>Description:</strong> {{ review.description|first_n_words:35 }} ...
+                        <button type="button" class="card__show-more" x-on:click="openReviewDescription = true">Show full
+                            description
+                        </button>
+                    </p>
+                </template>
+            {% else %}
+                <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+            {% endif %}
+            </div>
+            {#            <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>#}
             <p>Search queries:
                 {% for query in review.search_queries %}
                     <span class="tag is-light">{{ query }}</span>
@@ -165,15 +184,17 @@
                 {% endif %}
                 {% if paper.automatic_decisions|length > 0 %}
                     <td>
-                    {% for decision in paper.automatic_decisions %}
-                        {% if decision.decision == "yes" %}
-                            <span class="tag is-success is-light hover-text" data-hover="{{ decision.reviewer_id }}">Include</span>
-                        {% elif decision.decision == "maybe" %}
-                            <span class="tag is-warning is-light hover-text" data-hover="{{ decision.reviewer_id }}">Maybe</span>
-                        {% elif decision.decision == "no" %}
-                            <span class="tag is-danger is-light hover-text" data-hover="{{ decision.reviewer_id }}">Exclude</span>
-                        {% endif %}
-                    {% endfor %}
+                        {% for decision in paper.automatic_decisions %}
+                            {% if decision.decision == "yes" %}
+                                <span class="tag is-success is-light hover-text"
+                                      data-hover="{{ decision.reviewer_id }}">Include</span>
+                            {% elif decision.decision == "maybe" %}
+                                <span class="tag is-warning is-light hover-text"
+                                      data-hover="{{ decision.reviewer_id }}">Maybe</span>
+                            {% elif decision.decision == "no" %}
+                                <span class="tag is-danger is-light hover-text" data-hover="{{ decision.reviewer_id }}">Exclude</span>
+                            {% endif %}
+                        {% endfor %}
                     </td>
                 {% else %}
                     <td>-</td>
@@ -192,5 +213,5 @@
     </div>
 
 
-    {% include "_footer.html" %}
+    {% include "_base_templates/_footer.html" %}
 {% endblock %}

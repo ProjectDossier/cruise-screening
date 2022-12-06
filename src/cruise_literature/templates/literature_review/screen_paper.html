@@ -1,4 +1,4 @@
-{% extends '_base.html' %}
+{% extends '_base_templates/_base.html' %}
 
 {% block content %}
     <div class="card">
@@ -19,7 +19,7 @@
                     <a href="{{ paper.url }}">🌐</a>
                 {% endif %}
             </h1>
-            {% if paper.abstract %}
+            {% if paper.abstract != paper.abstract|first_n_char:1600  %}
                 <template x-if="openAbstract">
                     <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract | safe }}
                         <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less
@@ -27,11 +27,13 @@
                     </p>
                 </template>
                 <template x-if="!openAbstract" x-cloak>
-                    <p class="is-5"><strong>Abstract:</strong> {{ paper.snippet | safe }}...
+                    <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract|first_n_char:1600 }}...
                         <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show full abstract
                         </button>
                     </p>
                 </template>
+            {% elif paper.abstract %}
+                <p class="is-5"><strong>Abstract:</strong> {{ paper.abstract | safe }}</p>
             {% elif paper.snippet %}
                 <p class="is-5"><strong>Snippet:</strong> {{ paper.snippet | safe }}...</p>
             {% else %}
@@ -188,5 +190,5 @@
     </div>
 
 
-    {% include "_footer.html" %}
+    {% include "_base_templates/_footer.html" %}
 {% endblock %}

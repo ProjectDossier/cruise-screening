@@ -8,7 +8,7 @@ def home(request):
     if request.method == "GET":
         return render(
             request,
-            "interfaces/home.html",
+            "home/home.html",
         )
 
 
@@ -19,5 +19,5 @@ def about(request):
     if request.method == "GET":
         return render(
             request,
-            "interfaces/about.html",
+            "home/about.html",
         )
