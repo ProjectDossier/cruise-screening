@@ -131,12 +131,11 @@ class LiteratureReview(models.Model):
                 sum(bool(paper["pdf"]) for paper in self.papers) if self.papers else 0
             )
         else:
-            return [
+            return (
                 sum(bool(paper["pdf"]) for paper in self.papers.values())
                 if self.papers
                 else 0
-            ]
-            # filter(pdf__isnull=False).count()
+            )
 
     @property
     def number_of_screened(self):
