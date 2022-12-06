@@ -160,6 +160,7 @@ def create_criteria(
                 {
                     "id": _id,
                     "text": criterion,
+                    "comment": "",
                     "is_active": True,
                     "added_at": timestamp,
                     "added_by": user_id,
@@ -174,6 +175,7 @@ def create_criteria(
                 {
                     "id": _id,
                     "text": criterion,
+                    "comment": "",
                     "is_active": True,
                     "added_at": timestamp,
                     "added_by": user_id,
