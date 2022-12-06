@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import random
 
 
 def home(request):
@@ -6,9 +7,19 @@ def home(request):
     Home page
     """
     if request.method == "GET":
+        default_search_queries = [
+            "Natural Language Processing",
+            "Machine Learning",
+            "Computational Biology",
+            "Comparative Genomics",
+            "High Energy Physics",
+            "Cancer Research",
+            "How to build a search engine?",
+        ]
         return render(
             request,
             "home/home.html",
+            {"default_query": random.choice(default_search_queries)},
         )
 
 
