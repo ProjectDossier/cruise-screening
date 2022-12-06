@@ -55,6 +55,9 @@ def create_new_review(request):
             if "error_messages" in form:
                 for msg in form.error_messages:
                     messages.error(request, f"{msg}: {form.error_messages[msg]}")
+            elif "errors" in form:
+                for msg in form.errors:
+                    messages.error(request, f"{msg}: {form.errors[msg]}")
 
             return render(
                 request=request,
@@ -519,10 +522,9 @@ def add_seed_studies(request, review_id):
 
             try:
                 doc = parse_doc_grobid(url=seed_studies_url)
-                print(doc.header.title)
-                new_papers = list(review.papers)
-                new_papers.append(
-                    {
+                # print(doc.header.title)
+                # new_papers = list(review.papers)
+                _new_papers = {
                         "id": doc.pdf_md5,
                         "pdf": seed_studies_url,
                         "url": doc.header.url,
@@ -543,8 +545,8 @@ def add_seed_studies(request, review_id):
                         "decision": None,
                         "seed_study": True,
                     }
-                )
-                review.papers = new_papers
+                # )
+                review.papers[doc.pdf_md5] = _new_papers
                 review.save()
                 added_studies.append(seed_studies_url)
             except HTTPError:
@@ -588,7 +590,7 @@ def automatic_screening(request, review_id):
 
         xy_train = {}
         x_pred = {}
-        for paper in review.papers:
+        for key, paper in review.papers:
             if paper.get("decisions") and paper.get("screened"):
                 decision = paper["decisions"][0]["decision"]
                 if decision == "-1":
