@@ -77,23 +77,82 @@ def create_new_review(request):
     )
 
 
-def update_criteria(current_criteria:Dict[str, List[Dict]], inclusion:List[str], exclusion: List[str], user_id:int) -> Dict[str, List[Dict]]:
+def update_criteria(
+    current_criteria: Dict[str, List[Dict]],
+    inclusion: List[str],
+    exclusion: List[str],
+    user_id: int,
+) -> Dict[str, List[Dict]]:
+    """
+    Updates the criteria for a literature review. If a criterion is not in the
+    current criteria, it is added. If it is in the current criteria but not in the new
+    criteria, it is marked as inactive.
+
+    :param current_criteria:
+    :param inclusion:
+    :param exclusion:
+    :param user_id:
+    :return:
+    """
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    old_inclusion_text = [x["text"] for x in current_criteria["inclusion"]]
+    old_exclusion_text = [x["text"] for x in current_criteria["exclusion"]]
+
+    # add new inclusion criteria
     for inc in inclusion:
-        if inc in [x['text'] for x in current_criteria['inclusion']]:
+        if inc in old_inclusion_text:
             continue
         else:
-            current_criteria['inclusion'].append({'id': f"in_{len(current_criteria['inclusion'])}",
-                                                  'is_active': True,
-                                                  'text': inc,
-                                                "comment": "",
-                                                "added_at": timestamp,
-                                                "added_by": user_id,
-                                                "updated_at": timestamp,
-                                                "updated_by": user_id,
-                                                  })
+            current_criteria["inclusion"].append(
+                {
+                    "id": f"in_{len(current_criteria['inclusion'])}",
+                    "is_active": True,
+                    "text": inc,
+                    "comment": "",
+                    "added_at": timestamp,
+                    "added_by": user_id,
+                    "updated_at": timestamp,
+                    "updated_by": user_id,
+                }
+            )
 
-        return current_criteria
+    for exc in exclusion:
+        if exc in old_exclusion_text:
+            continue
+        else:
+            current_criteria["exclusion"].append(
+                {
+                    "id": f"ex_{len(current_criteria['exclusion'])}",
+                    "is_active": True,
+                    "text": exc,
+                    "comment": "",
+                    "added_at": timestamp,
+                    "added_by": user_id,
+                    "updated_at": timestamp,
+                    "updated_by": user_id,
+                }
+            )
+
+    # make is_active False for all criteria that are not in the new list
+    for old_inc in old_inclusion_text:
+        if old_inc not in inclusion:
+            for inc in current_criteria["inclusion"]:
+                if inc["text"] == old_inc:
+                    inc["is_active"] = False
+                    inc["updated_at"] = timestamp
+                    inc["updated_by"] = user_id
+                    break
+
+    for old_exc in old_exclusion_text:
+        if old_exc not in exclusion:
+            for exc in current_criteria["exclusion"]:
+                if exc["text"] == old_exc:
+                    exc["is_active"] = False
+                    exc["updated_at"] = timestamp
+                    exc["updated_by"] = user_id
+                    break
+
+    return current_criteria
 
 
 @login_required
@@ -108,10 +167,12 @@ def edit_review(request, review_id):
             title = form.cleaned_data.get("title")
             review.title = title
             review.description = form.cleaned_data.get("description")
-            new_criteria = update_criteria(current_criteria=review.criteria, inclusion=form.cleaned_data.get("inclusion_criteria"), exclusion=form.cleaned_data.get("exclusion_criteria"),
-                                           user_id=request.user.id)
-            # review.inclusion_criteria = form.cleaned_data.get("inclusion_criteria")
-            # review.exclusion_criteria = form.cleaned_data.get("exclusion_criteria")
+            new_criteria = update_criteria(
+                current_criteria=review.criteria,
+                inclusion=form.cleaned_data.get("inclusion_criteria"),
+                exclusion=form.cleaned_data.get("exclusion_criteria"),
+                user_id=request.user.id,
+            )
             review.criteria = new_criteria
             review.tags = form.cleaned_data.get("tags")
             review.organisation = form.cleaned_data.get("organisation")
@@ -134,8 +195,12 @@ def edit_review(request, review_id):
             initial={
                 "title": review.title,
                 "description": review.description,
-                "inclusion_criteria": [x['text'] for x in review.criteria['inclusion']],
-                "exclusion_criteria": [x['text'] for x in review.criteria['exclusion']],
+                "inclusion_criteria": [
+                    x["text"] for x in review.criteria["inclusion"] if x["is_active"]
+                ],
+                "exclusion_criteria": [
+                    x["text"] for x in review.criteria["exclusion"] if x["is_active"]
+                ],
                 "tags": review.tags,
                 "organisation": review.organisation,
             },
@@ -323,13 +388,14 @@ def screen_papers(request, review_id):
 def create_screening_decisions(request, review, paper_id):
     screening_time = round(time.time() - float(request.POST["start_time"]), 2)
 
+    # todo: add option in the review to make inclusion/exclusion mandatory or not
     inclusion_decisions = {
-        inc_crit["id"]: request.POST[inc_crit["id"]]
+        inc_crit["id"]: request.POST.get(inc_crit["id"], False)
         for inc_crit in review.criteria["inclusion"]
         if inc_crit["is_active"]
     }
     exclusion_decisions = {
-        exc_crit["id"]: request.POST[exc_crit["id"]]
+        exc_crit["id"]: request.POST.get(exc_crit["id"], False)
         for exc_crit in review.criteria["exclusion"]
         if exc_crit["is_active"]
     }
@@ -402,8 +468,6 @@ def export_review(request, review_id):
         "title": review.title,
         "description": review.description,
         "search_queries": review.search_queries,
-        # "inclusion_criteria": review.inclusion_criteria,
-        # "exclusion_criteria": review.exclusion_criteria,
         "criteria": review.criteria,
         "papers": review.papers,
     }
@@ -448,7 +512,7 @@ def import_json(file_data):
 def import_papers(request, review_id):
     """Import papers from a file.
     Supported file types: RIS, bib and json.
-    
+
     :param request: HTTP request
     :type request: HttpRequest
     :param review_id: Literature review ID
@@ -517,7 +581,9 @@ def import_papers(request, review_id):
                 context={"review": review},
             )
     else:
-        return render(request, "literature_review/import_papers.html", {"review": review})
+        return render(
+            request, "literature_review/import_papers.html", {"review": review}
+        )
 
 
 @login_required
@@ -548,26 +614,24 @@ def add_seed_studies(request, review_id):
                 # print(doc.header.title)
                 # new_papers = list(review.papers)
                 _new_papers = {
-                        "id": doc.pdf_md5,
-                        "pdf": seed_studies_url,
-                        "url": doc.header.url,
-                        "title": doc.header.title,
-                        "abstract": doc.abstract,
-                        "snippet": doc.abstract[:300],
-                        "authors": ", ".join([a.full_name for a in doc.header.authors]),
-                        "venue": doc.header.journal,
-                        "publication_date": doc.header.date,
-                        "n_references": len(
-                            doc.citations
-                        ),  # TODO: change to n_references
-                        "n_citations": None,
-                        "core_id": None,
-                        "semantic_scholar_id": None,
-                        "query": None,
-                        "search_engine": "Seed Study",
-                        "decision": None,
-                        "seed_study": True,
-                    }
+                    "id": doc.pdf_md5,
+                    "pdf": seed_studies_url,
+                    "url": doc.header.url,
+                    "title": doc.header.title,
+                    "abstract": doc.abstract,
+                    "snippet": doc.abstract[:300],
+                    "authors": ", ".join([a.full_name for a in doc.header.authors]),
+                    "venue": doc.header.journal,
+                    "publication_date": doc.header.date,
+                    "n_references": len(doc.citations),  # TODO: change to n_references
+                    "n_citations": None,
+                    "core_id": None,
+                    "semantic_scholar_id": None,
+                    "query": None,
+                    "search_engine": "Seed Study",
+                    "decision": None,
+                    "seed_study": True,
+                }
                 # )
                 review.papers[doc.pdf_md5] = _new_papers
                 review.save()
