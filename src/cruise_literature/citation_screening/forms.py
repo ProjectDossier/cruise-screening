@@ -317,6 +317,8 @@ class NewLiteratureReviewForm(forms.ModelForm):
             timestamp=str(datetime.datetime.now()),
         )
         instance.criteria = eligibility_criteria
+        instance.inclusion_criteria = []
+        instance.exclusion_criteria = []
 
         if commit:
             instance.save()

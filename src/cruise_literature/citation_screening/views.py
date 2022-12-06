@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Dict, List
 
 import bibtexparser
 from django.contrib import messages
@@ -76,6 +77,25 @@ def create_new_review(request):
     )
 
 
+def update_criteria(current_criteria:Dict[str, List[Dict]], inclusion:List[str], exclusion: List[str], user_id:int) -> Dict[str, List[Dict]]:
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    for inc in inclusion:
+        if inc in [x['text'] for x in current_criteria['inclusion']]:
+            continue
+        else:
+            current_criteria['inclusion'].append({'id': f"in_{len(current_criteria['inclusion'])}",
+                                                  'is_active': True,
+                                                  'text': inc,
+                                                "comment": "",
+                                                "added_at": timestamp,
+                                                "added_by": user_id,
+                                                "updated_at": timestamp,
+                                                "updated_by": user_id,
+                                                  })
+
+        return current_criteria
+
+
 @login_required
 def edit_review(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
@@ -88,8 +108,11 @@ def edit_review(request, review_id):
             title = form.cleaned_data.get("title")
             review.title = title
             review.description = form.cleaned_data.get("description")
-            review.inclusion_criteria = form.cleaned_data.get("inclusion_criteria")
-            review.exclusion_criteria = form.cleaned_data.get("exclusion_criteria")
+            new_criteria = update_criteria(current_criteria=review.criteria, inclusion=form.cleaned_data.get("inclusion_criteria"), exclusion=form.cleaned_data.get("exclusion_criteria"),
+                                           user_id=request.user.id)
+            # review.inclusion_criteria = form.cleaned_data.get("inclusion_criteria")
+            # review.exclusion_criteria = form.cleaned_data.get("exclusion_criteria")
+            review.criteria = new_criteria
             review.tags = form.cleaned_data.get("tags")
             review.organisation = form.cleaned_data.get("organisation")
             review.save()
@@ -111,8 +134,8 @@ def edit_review(request, review_id):
             initial={
                 "title": review.title,
                 "description": review.description,
-                "inclusion_criteria": review.inclusion_criteria,
-                "exclusion_criteria": review.exclusion_criteria,
+                "inclusion_criteria": [x['text'] for x in review.criteria['inclusion']],
+                "exclusion_criteria": [x['text'] for x in review.criteria['exclusion']],
                 "tags": review.tags,
                 "organisation": review.organisation,
             },
@@ -379,8 +402,8 @@ def export_review(request, review_id):
         "title": review.title,
         "description": review.description,
         "search_queries": review.search_queries,
-        "inclusion_criteria": review.inclusion_criteria,
-        "exclusion_criteria": review.exclusion_criteria,
+        # "inclusion_criteria": review.inclusion_criteria,
+        # "exclusion_criteria": review.exclusion_criteria,
         "criteria": review.criteria,
         "papers": review.papers,
     }
