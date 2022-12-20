@@ -22,15 +22,25 @@
     </div>
     <div class="card-content pt-1">
         <div class="content">
-            {% if search_result.abstract|length > search_result.snippet|length %}
-                <template x-if="openAbstract">
-                    <p class="card__text">{{ search_result.abstract | safe }} <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less</button></p>
-                </template>
-                <template x-if="!openAbstract" x-cloak>
-                    <p class="card__text">{{ search_result.snippet | safe }}... <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show more</button></p>
-                </template>
+        {% if search_result.abstract != search_result.abstract|first_n_char:500  %}
+            <template x-if="openAbstract">
+                <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract | safe }}
+                    <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less
+                    </button>
+                </p>
+            </template>
+            <template x-if="!openAbstract" x-cloak>
+                <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract|first_n_char:500 }}...
+                    <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show full abstract
+                    </button>
+                </p>
+            </template>
+            {% elif search_result.abstract %}
+                <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract | safe }}</p>
+            {% elif search_result.snippet %}
+                <p class="is-5"><strong>Snippet:</strong> {{ search_result.snippet | safe }}...</p>
             {% else %}
-                <p class="card__text">{{ search_result.snippet | safe }}...</p>
+                <p class="is-5"><strong>Abstract:</strong> No abstract available</p>
             {% endif %}
             <p>
                 {% for keyword, score in search_result.keywords_snippet.items %}
