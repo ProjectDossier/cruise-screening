@@ -94,7 +94,7 @@ def search_results(request):
         }
         return render(
             request=request,
-            template_name="interfaces/plain_search.html",
+            template_name="document_search/plain_search.html",
             context=context,
         )
 
@@ -123,7 +123,7 @@ def search_results(request):
     # assign value of default taxonomy based on selected javascript box...
     return render(
         request=request,
-        template_name="interfaces/search_with_taxonomy.html",
+        template_name="document_search/search_with_taxonomy.html",
         context=context,
     )
 

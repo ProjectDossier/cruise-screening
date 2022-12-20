@@ -24,6 +24,8 @@ from document_classification.registry import MLRegistry
 from document_classification.classifiers.dummy import DummyClassifier
 from document_classification.classifiers.fasttext_classifier import FastTextClassifier
 from django.template.defaulttags import register
+from utils.django_tags import first_n_char, first_n_words
+
 
 MIN_DECISIONS = 1  # TODO replace with database object, review specific
 

@@ -1,4 +1,4 @@
-{% extends '_base.html' %}
+{% extends '_base_templates/_base.html' %}
 
 {% block content %}
     <div class="card">
@@ -13,21 +13,23 @@
     </div>
 
     <div class="card">
-        <div class="card-content">
+        <div x-data="sortTable()" class="card-content">
             <table class="table is-striped table is-fullwidth is-hoverable">
                 <thead>
                 <tr>
-                    <th>Number</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Discipline</th>
-                    <th>Search queries</th>
-                    <th>#PDFs / #papers</th>
-                    <th>#Screened (%)</th>
-                    <th>Decisions (I / ? / E)</th>
+                    <th @click="sortByColumn">Number</th>
+                    <th @click="sortByColumn">Title</th>
+                    <th @click="sortByColumn">Description</th>
+                    <th @click="sortByColumn">Discipline</th>
+                    <th @click="sortByColumn">Search queries</th>
+                    <th @click="sortByColumn">#papers</th>
+                    <th @click="sortByColumn">#PDFs</th>
+                    <th @click="sortByColumn">#Screened</th>
+                    <th @click="sortByColumn">% Screened</th>
+                    <th @click="sortByColumn">Decisions (I / ? / E)</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody x-ref="tbody">
                 {% for review in literature_reviews %}
                     <tr>
                         <th>{{ forloop.counter }}</th>
@@ -39,8 +41,10 @@
                                 <span class="tag is-light">{{ query }}</span>
                             {% endfor %}
                         </td>
-                        <td>{{ review.number_of_pdfs }} / {{ review.number_of_papers }}</td>
-                        <td>{{ review.number_of_screened }} ({{ review.percentage_screened }}%)</td>
+                        <td>{{ review.number_of_papers }}</td>
+                        <td>{{ review.number_of_pdfs }}</td>
+                        <td>{{ review.number_of_screened }}</td>
+                        <td>{{ review.percentage_screened }}%</td>
                         <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }}
                             / {{ review.decisions_count.2 }}</td>
                     </tr>
@@ -50,5 +54,5 @@
         </div>
     </div>
 
-    {% include "_footer.html" %}
+    {% include "_base_templates/_footer.html" %}
 {% endblock %}
