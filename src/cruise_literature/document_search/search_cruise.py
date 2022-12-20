@@ -47,6 +47,14 @@ def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
             "search_engine": "CRUISE",
             "search_query": query,
         }
+    if res.status_code != 200:
+        return {
+            "results": [],
+            "status": "ERROR",
+            "status_code": res.status_code,
+            "search_engine": "CRUISE",
+            "search_query": query,
+        }
 
     results = res.json()["results"]
     candidate_list = []

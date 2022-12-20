@@ -30,7 +30,7 @@
 <nav class="navbar is-light navbar-height" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
         <a class="navbar__logo" href="{% url 'home' %}">
-            <img src="{% static 'logo.png' %}" width="60" height="60">
+            <img src="{% static 'img/cruise-logo.png' %}" width="60" height="60">
         </a>
         <a role="button" data-target="userMenu" class="navbar-burger" aria-label="menu"
            aria-expanded="false">
@@ -76,9 +76,6 @@
                         </a>
                         <a href="{% url 'literature_review:literature_review_home' %}" class="navbar-item">
                             My reviews
-                        </a>
-                        <a href="{% url 'about' %}" class="navbar-item">
-                            About us
                         </a>
                         <hr class="navbar-divider">
                         <a href="{% url 'logout' %}" class="navbar-item">
