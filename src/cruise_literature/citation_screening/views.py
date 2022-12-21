@@ -41,6 +41,11 @@ def convert_papers_list(papers, data_format_version):
         return papers.values()
 
 
+@register.filter
+def _hash(h, key):
+    return h[key]
+
+
 @login_required
 def create_new_review(request):
     initial = {
@@ -344,14 +349,28 @@ def screen_paper(request, review_id, paper_id):
     if review.data_format_version < 3:
         raise Http404("Review not found")
 
-    _papers = list(review.papers.values())
     if request.method == "GET":
+        paper = review.papers[paper_id]
+        if paper.get('decisions'):
+            paper_decisions = [x for x in paper['decisions'] if x['reviewer_id'] == request.user.pk]
+            if paper_decisions:
+                paper_decision = paper_decisions[0]
+                return render(
+                    request,
+                    "literature_review/screen_paper.html",
+                    {
+                        "review": review,
+                        "paper": paper,
+                        "paper_decision": paper_decision,
+                        "start_time": time.time(),
+                    },
+                )
         return render(
             request,
             "literature_review/screen_paper.html",
             {
                 "review": review,
-                "paper": review.papers[paper_id],
+                "paper": paper,
                 "start_time": time.time(),
             },
         )
