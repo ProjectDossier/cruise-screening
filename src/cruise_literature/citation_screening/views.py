@@ -495,22 +495,29 @@ def import_ris(file_data):
     entries = rispy.loads(file_data, skip_unknown_tags=True)
     papers = []
     for entry in entries:
-        paper = {}
-        paper['title'] = entry.get("title")
-        paper['abstract'] = entry.get("abstract")
-        paper['authors'] = ", ".join(entry.get("authors"))
-        paper['venue'] = entry.get("journal_name")
-        paper['publication_date'] = entry.get("year")
-        paper['doi'] = entry.get("doi")
-        paper['url'] = entry.get("url")
-        if paper['url'] is None:
-            paper['url'] = f"https://www.doi.org/{paper['doi']}"
-        paper['keywords'] = entry.get("keywords")
-        paper['pdf'] = entry.get("pdf")
-        paper['id'] = entry.get("id")
+        paper = {
+            "title": entry.get("title"),
+            "abstract": entry.get("abstract"),
+            "authors": ", ".join(entry.get("authors")),
+            "venue": entry.get("journal_name"),
+            "publication_date": entry.get("year"),
+            "doi": entry.get("doi"),
+            "url": entry.get("url"),
+            "n_references": None,
+            "n_citations": None,
+            "decisions": [],
+            "decision": None,
+            "screened": False,
+            "included": False,
+        }
+        if paper["url"] is None:
+            paper["url"] = f"https://www.doi.org/{paper['doi']}"
+        paper["keywords"] = entry.get("keywords")
+        paper["pdf"] = entry.get("pdf")
+        paper["id"] = entry.get("id")
 
-        if paper['id'] is None:
-            paper['id'] = hashlib.md5(paper['title'].encode('utf-8')).hexdigest()
+        if paper["id"] is None:
+            paper["id"] = hashlib.md5(paper["title"].encode("utf-8")).hexdigest()
         papers.append(paper)
 
     return papers
@@ -544,10 +551,6 @@ def import_bib(file_data):
     return bib_database
 
 
-def import_json(file_data):
-    pass
-
-
 def import_papers(request, review_id):
     """Import papers from a file.
     Supported file types: RIS, bib and json.
@@ -578,8 +581,6 @@ def import_papers(request, review_id):
                 _papers = import_ris(file_data)
             elif file.name.endswith(".bib"):
                 _papers = import_bib(file_data)
-            elif file.name.endswith(".json"):
-                import_json(file_data)
             else:
                 raise Http404("Invalid file type")
 
@@ -628,8 +629,6 @@ def add_seed_studies(request, review_id):
 
             try:
                 doc = parse_doc_grobid(url=seed_studies_url)
-                # print(doc.header.title)
-                # new_papers = list(review.papers)
                 _new_papers = {
                     "id": doc.pdf_md5,
                     "pdf": seed_studies_url,
