@@ -32,3 +32,14 @@ def about(request):
             request,
             "home/about.html",
         )
+
+
+def faq(request):
+    """
+    FAQ page
+    """
+    if request.method == "GET":
+        return render(
+            request,
+            "home/faq.html",
+        )

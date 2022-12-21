@@ -65,6 +65,9 @@
     {% endif %}
     <div class="navbar-menu" id="userMenu">
         <div class="navbar-end">
+            <a href="{% url 'faq' %}" class="navbar-item">
+                FAQ
+            </a>
             {% if user.is_authenticated %}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a href="{% url 'user_profile' %}" class="navbar-link">

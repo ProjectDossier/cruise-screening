@@ -1,0 +1,61 @@
+{% extends "_base_templates/_base.html" %}
+{% load static %}
+{% block content %}
+
+    <article class="about content">
+        <div class="about__text">
+            <h1 class="is-size-3">Frequently Asked Questions</h1>
+            <ul>
+                <li><a href="#what-is-cruise">What is CRUISE?</a></li>
+                <li><a href="#cruise-purpose">What is the purpose of CRUISE?</a></li>
+                <li><a href="#cruise-who">Who is building CRUISE?</a></li>
+                <li><a href="#cruise-open-source">Is CRUISE open-source?</a></li>
+                <li><a href="#do-i-need-to-register">Do I need to register to use CRUISE?</a></li>
+                <li><a href="#cruise-limitations">What are the limitations of CRUISE?</a></li>
+                <li><a href="#how-can-i-help">How can I help?</a></li>
+                <li><a href="#other">Do you have some other questions?</a></li>
+            </ul>
+            <h3 class="is-size-5" id="what-is-cruise">What is CRUISE?</h3>
+            <p>CRUISE is a collaborative project initiated by student researchers from the DoSSIER Project.
+                As a part of CRUISE, this search engine aims to help academics searching for a literature on a specific
+                topic find the relevant items faster.</p>
+
+            <h3 class="is-size-5" id="cruise-purpose">What is the purpose of CRUISE?</h3>
+            <p>CRUISE aims to provide a comprehensive and up-to-date overview of the research landscape of a given field
+                by combining data from multiple sources. We provide a meta search engine that allows for the exploration
+                of relevant publications to create a literature review. We apply some automation techniques to speed up
+                the process of finding relevant publications.</p>
+
+            <h3 class="is-size-5" id="cruise-who">Who is behind CRUISE?</h3>
+            <p>CRUISE is a collaborative project initiated by student researchers from the DoSSIER Project.
+                The project is currently maintained by the <a href="https://www.dossier-project.eu/">DoSSIER</a> team.</p>
+
+            <h3 class="is-size-5" id="cruise-open-source">Is CRUISE open-source?</h3>
+            <p>Yes! You can find the source code for the project on
+                <a href="https://github.com/ProjectDossier/cruise-literature">GitHub</a>.</p>
+
+            <h3 class="is-size-5" id="do-i-need-to-register">Do I need to register to use CRUISE?</h3>
+            <p>Unregistered users can use the meta-search functionality. However, if you want to create a literature review,
+            you need to create an account. It is free. You can also create the </p>
+
+            <h3 class="is-size-5" id="cruise-limitations">What are the limitations of CRUISE?</h3>
+            <p>CRUISE is currently in the alpha version. It has several limitations related to its user interface and
+                functionalities. We are working on improving the user interface and adding more data sources.</p>
+            <p>Previous work has shown that large language models such as the ones used to generate automatic predictions
+                in CRUISE, can generate realistic but inaccurate and unreliable output and even hallucinate. We tried to
+                mitigate this issue by adding several filters to the output of the model. However, we cannot guarantee that
+                the output of the model is always accurate. We are working on improving the model to make it more reliable.</p>
+
+            <h3 class="is-size-5" id="how-can-i-help">How can I help?</h3>
+            <p>CRUISE is a collaborative, open-source project, and we are always looking for people to help out. If you would like to
+                contribute to the project, you can find more information on our <a href="{% url 'about' %}">About page</a>.</p>
+
+            <h3 class="is-size-5" id="other">Do you have some other questions?</h3>
+            <p>If you have any other questions, please feel free to contact us at <a
+                    href="mailto:Wojciech.Kusa@tuwien.ac.at">Wojciech.Kusa@tuwien.ac.at</a>.</p>
+            <p>Last updated on December 2022</p>
+        </div>
+    </article>
+
+    {% include "_base_templates/_footer.html" %}
+{% endblock %}
