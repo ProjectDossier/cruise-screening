@@ -8,7 +8,7 @@
             <h1 class="title is-4">
                 Review: {{ review.title }}
             </h1>
-            <h5 class="is-5">Import papers to the review. Supported formats: .bib, .ris, .json</h5>
+            <h5 class="is-5">Import papers to the review. Supported formats: .bib and .ris</h5>
             <hr/>
             <form method="POST" enctype="multipart/form-data"
                   action="{% url 'literature_review:import_papers' review.id %}">

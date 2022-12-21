@@ -1,7 +1,9 @@
+import hashlib
 import json
 import time
 from typing import Dict, List
 
+import rispy
 import bibtexparser
 from django.contrib import messages
 from django.http import HttpResponse, Http404
@@ -488,27 +490,65 @@ def delete_review(request, review_id):
 
 
 def import_ris(file_data):
-    """loads RIS file data into a list of dictionaries"""
+    """loads RIS file data into a list of papers"""
+    file_data = "\n".join([line.strip() for line in file_data.splitlines()])
+    entries = rispy.loads(file_data, skip_unknown_tags=True)
     papers = []
-    paper = {}
-    for line in file_data.splitlines():
-        if line.startswith("TY  - "):
-            paper = {}
-        elif line.startswith("ER  - "):
-            papers.append(paper)
-        else:
-            key, value = line.split("  - ")
-            paper[key] = value
+    for entry in entries:
+        paper = {
+            "title": entry.get("title"),
+            "abstract": entry.get("abstract"),
+            "authors": ", ".join(entry.get("authors")),
+            "venue": entry.get("journal_name"),
+            "publication_date": entry.get("year"),
+            "doi": entry.get("doi"),
+            "url": entry.get("url"),
+            "n_references": None,
+            "n_citations": None,
+            "decisions": [],
+            "decision": None,
+            "screened": False,
+            "included": False,
+        }
+        if paper["url"] is None:
+            paper["url"] = f"https://www.doi.org/{paper['doi']}"
+        paper["keywords"] = entry.get("keywords")
+        paper["pdf"] = entry.get("pdf")
+        paper["id"] = entry.get("id")
+
+        if paper["id"] is None:
+            paper["id"] = hashlib.md5(paper["title"].encode("utf-8")).hexdigest()
+        papers.append(paper)
+
     return papers
 
 
 def import_bib(file_data):
-    bib_database = bibtexparser.loads(file_data)
+    bib_database = []
+    for entry in bibtexparser.loads(file_data).entries:
+        keywords = []
+        if entry.get("keywords"):
+            keywords = entry.get("keywords").split(",")
+        paper = {
+            "id": entry["ID"],
+            "title": entry.get("title"),
+            "authors": entry.get("author"),
+            "publication_date": entry.get("year"),
+            "abstract": entry.get("abstract"),
+            "venue": entry.get("journal"),
+            "doi": entry.get("doi"),
+            "pdf": entry.get("pdf"),
+            "url": entry.get("url"),
+            "keywords_snippet": keywords,
+            "notes": entry.get("note"),
+            "other_fields": entry,
+            "decisions": [],
+            "decision": None,
+            "screened": False,
+            "included": False,
+        }
+        bib_database.append(paper)
     return bib_database
-
-
-def import_json(file_data):
-    pass
 
 
 def import_papers(request, review_id):
@@ -536,47 +576,23 @@ def import_papers(request, review_id):
                 "added_at": str(datetime.datetime.now()),
                 "added_by": request.user.username,
             }
-
+            _papers = []
             if file.name.endswith(".ris"):
-                import_ris(file_data)
+                _papers = import_ris(file_data)
             elif file.name.endswith(".bib"):
                 _papers = import_bib(file_data)
-                # _papers = bib_to_json(_papers)
-
-                for entry in _papers.entries:
-                    if entry["ID"] in review.papers:
-                        continue
-                    keywords = []
-                    if entry.get("keywords"):
-                        keywords = entry.get("keywords").split(",")
-                    paper = {
-                        "id": entry["ID"],
-                        "title": entry.get("title"),
-                        "authors": entry.get("author"),
-                        "publication_date": entry.get("year"),
-                        "abstract": entry.get("abstract"),
-                        "venue": entry.get("journal"),
-                        "doi": entry.get("doi"),
-                        "pdf": entry.get("pdf"),
-                        "url": entry.get("url"),
-                        "keywords_snippet": keywords,
-                        "notes": entry.get("note"),
-                        "other_fields": entry,
-                        "decisions": [],
-                        "decision": None,
-                        "screened": False,
-                        "included": False,
-                        "search_origin": [search_origin],
-                    }
-                    paper["search_origin"][0]["paper_id"] = paper["id"]
-
-                    review.papers[entry["ID"]] = paper
-                    review.save()
-
-            elif file.name.endswith(".json"):
-                import_json(file_data)
             else:
                 raise Http404("Invalid file type")
+
+            for paper in _papers:
+                if paper["id"] in review.papers:
+                    continue
+
+                paper["search_origin"] = [search_origin]
+                paper["search_origin"][0]["paper_id"] = paper["id"]
+                review.papers[paper["id"]] = paper
+                review.save()
+
             return render(
                 request=request,
                 template_name="literature_review/view_review.html",
@@ -613,8 +629,6 @@ def add_seed_studies(request, review_id):
 
             try:
                 doc = parse_doc_grobid(url=seed_studies_url)
-                # print(doc.header.title)
-                # new_papers = list(review.papers)
                 _new_papers = {
                     "id": doc.pdf_md5,
                     "pdf": seed_studies_url,
