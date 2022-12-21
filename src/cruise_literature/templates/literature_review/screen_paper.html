@@ -7,10 +7,6 @@
                 Back
             </a>
             <p class="pl-4 pt-1"><strong>Review title:</strong> {{ review.title }}</p>
-            <a href="{% url 'literature_review:literature_review_home' %}"
-               class="button align-button-to-right is-small">
-                All Reviews
-            </a>
         </div>
         <div class="card-content" x-data="{ openAbstract: false, openReviewDescription: false}">
             <h1 class="title is-3">
@@ -60,53 +56,89 @@
                 <input class="input mr-2" name="start_time" value="{{ start_time }}" type="hidden"/>
                 <strong><span class="has-background-orange-light mb-2">1. Relevance</span><span class="has-text-danger"> *</span></strong>
                 <div class="screen_paper_relevance control m-2 p-1 box">
-                    <span class="tag is-light is-size-6">Domain relevance</span>
+                    <span class="tag is-light is-size-6">Domain relevance: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     <label class="ml-4">
-                        <input type="radio" name="domain_relevance" value="2" required>
+                        {% if paper_decision.domain_relevance == 2 %}
+                            <input type="radio" name="domain_relevance" value="2" required checked="checked">
+                        {% else %}
+                            <input type="radio" name="domain_relevance" value="2" required>
+                        {% endif %}
                         <span class="button is-small">very relevant</span>
                     </label>
                     <label class="ml-4">
-                        <input type="radio" name="domain_relevance" value="1">
+                        {% if paper_decision.domain_relevance == 1 %}
+                            <input type="radio" name="domain_relevance" value="1" checked="checked">
+                        {% else %}
+                            <input type="radio" name="domain_relevance" value="1">
+                        {% endif %}
                         <span class="button is-small">somewhat relevant</span>
                     </label>
                     <label class="ml-4">
-                        <input type="radio" name="domain_relevance" value="0">
+                        {% if paper_decision.domain_relevance == 0 %}
+                            <input type="radio" name="domain_relevance" value="0" checked="checked">
+                        {% else %}
+                            <input type="radio" name="domain_relevance" value="0">
+                        {% endif %}
                         <span class="button is-small">not relevant</span>
                     </label>
                 </div>
                 <div class="screen_paper_relevance control m-2 p-1 box">
-                    <span class="tag is-light is-size-6">Relevance to the query &nbsp;&nbsp;&nbsp;</span>
+                    <span class="tag is-light is-size-6">Relevance to the query: </span>
                     <label class="ml-4">
-                        <input type="radio" name="topic_relevance" value="2" required="required">
+                        {% if paper_decision.topic_relevance == 2 %}
+                            <input type="radio" name="topic_relevance" value="2" required="required" checked="checked">
+                        {% else %}
+                            <input type="radio" name="topic_relevance" value="2" required="required">
+                        {% endif %}
                         <span class="button is-small">very relevant</span>
                     </label>
                     <label class="ml-4 is-small">
-                        <input type="radio" name="topic_relevance" value="1">
+                        {% if paper_decision.topic_relevance == 1 %}
+                            <input type="radio" name="topic_relevance" value="1" checked="checked">
+                        {% else %}
+                            <input type="radio" name="topic_relevance" value="1">
+                        {% endif %}
                         <span class="button is-small">somewhat relevant</span>
                     </label>
                     <label class="ml-4">
-                        <input type="radio" name="topic_relevance" value="0">
+                        {% if paper_decision.topic_relevance == 0 %}
+                            <input type="radio" name="topic_relevance" value="0" checked="checked">
+                        {% else %}
+                            <input type="radio" name="topic_relevance" value="0">
+                        {% endif %}
                         <span class="button is-small">not relevant</span>
                     </label>
                 </div>
                 <hr/>
                 <div class="columns">
                     <div class="column">
-                        <strong><span class="has-background-orange-light mb-2">2. Inclusion criteria</span></strong>
+                        <strong><span class="has-background-orange-light mb-2">2. Inclusion criteria</span><span class="has-text-danger"> *</span></strong>
                         {% for criterion in review.criteria.inclusion %}
                             {%  if criterion.is_active %}
                             <div class="control m-2 p-1 box screen_paper_relevance">
                                 <span class="is-light tag is-size-6 eligibility_text_tag">{{ criterion.text }}</span>
                                 <label class="ml-1">
-                                    <input type="radio" name="{{ criterion.id }}" value="yes">
+                                    {% if paper_decision.inclusion_decisions|_hash:criterion.id == 'yes' %}
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" checked="checked">
+                                    {% else %}
+                                        <input type="radio" name="{{ criterion.id }}" value="yes">
+                                    {% endif %}
                                     <span class="button is-small">Yes</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="{{ criterion.id }}" value="not_sure">
+                                    {% if paper_decision.inclusion_decisions|_hash:criterion.id == 'not_sure' %}
+                                        <input type="radio" name="{{ criterion.id }}" value="not_sure" checked="checked">
+                                    {% else %}
+                                        <input type="radio" name="{{ criterion.id }}" value="not_sure">
+                                    {% endif %}
                                     <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="{{ criterion.id }}" value="no">
+                                    {% if paper_decision.inclusion_decisions|_hash:criterion.id == 'no' %}
+                                        <input type="radio" name="{{ criterion.id }}" value="no" checked="checked">
+                                    {% else %}
+                                        <input type="radio" name="{{ criterion.id }}" value="no">
+                                    {% endif %}
                                     <span class="button is-small">No</span>
                                 </label>
                             </div>
@@ -120,15 +152,27 @@
                             <div class="control m-2 p-1 box screen_paper_relevance">
                                 <span class="tag is-light is-size-6 eligibility_text_tag">{{ criterion.text }}</span>
                                 <label class="ml-1">
-                                    <input type="radio" name="{{ criterion.id }}" value="yes" required>
+                                    {% if paper_decision.exclusion_decisions|_hash:criterion.id == 'yes' %}
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" required checked="checked">
+                                        {% else %}
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" required>
+                                    {% endif %}
                                     <span class="button is-small">Yes</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="{{ criterion.id }}" value="not_sure">
+                                    {% if paper_decision.exclusion_decisions|_hash:criterion.id == 'not_sure' %}
+                                        <input type="radio" name="{{ criterion.id }}" value="not_sure" checked="checked">
+                                    {% else %}
+                                        <input type="radio" name="{{ criterion.id }}" value="not_sure">
+                                    {% endif %}
                                     <span class="button is-small">Not sure</span>
                                 </label>
                                 <label>
-                                    <input type="radio" name="{{ criterion.id }}" value="no">
+                                    {% if paper_decision.exclusion_decisions|_hash:criterion.id == 'not_sure' %}
+                                        <input type="radio" name="{{ criterion.id }}" value="no" checked="checked">
+                                    {% else %}
+                                        <input type="radio" name="{{ criterion.id }}" value="no">
+                                    {% endif %}
                                     <span class="button is-small">No</span>
                                 </label>
                             </div>
@@ -139,19 +183,36 @@
                 <strong><span class="has-background-orange-light mb-2">
                     4. Descriptive reason
                 </span></strong>
-                <input class="input mr-2 mt-2" name="reason" value=""/>
+                {% if paper_decision.reason %}
+                    <input class="input mr-2 mt-2" name="reason" value="{{ paper_decision.reason }}"/>
+                {% else %}
+                    <input class="input mr-2 mt-2" name="reason" value=""/>
+                {% endif %}
+
                 <div class="screen_paper_relevance control mt-4">
                     <strong><span class="has-background-orange-light mb-2">5. Decision based on title and abstract</span><span class="has-text-danger"> *</span></strong>
                     <label class="ml-4">
-                        <input type="radio" name="decision" value="1" required>
+                        {% if paper_decision.decision == 1 %}
+                            <input type="radio" name="decision" value="1" required checked="checked">
+                        {% else %}
+                            <input type="radio" name="decision" value="1" required>
+                        {% endif %}
                         <span class="button is-small">Include</span>
                     </label>
                     <label class="ml-4">
-                        <input type="radio" name="decision" value="-1">
+                        {% if paper_decision.decision == -1 %}
+                            <input type="radio" name="decision" value="-1" checked="checked">
+                        {% else %}
+                            <input type="radio" name="decision" value="-1">
+                        {% endif %}
                         <span class="button is-small">Not sure</span>
                     </label>
                     <label class="ml-4">
-                        <input type="radio" name="decision" value="0">
+                        {% if paper_decision.decision == 0 %}
+                            <input type="radio" name="decision" value="0" checked="checked">
+                        {% else %}
+                            <input type="radio" name="decision" value="0">
+                        {% endif %}
                         <span class="button is-small">Exclude</span>
                     </label>
                 </div>
@@ -160,26 +221,46 @@
                 <div class="control pb-1 screen_paper_relevance">
                     <strong><span class="has-background-orange-light mb-2">6. Did you know this paper before?</span><span class="has-text-danger"> *</span></strong>
                     <label class="m-3">
-                        <input type="radio" name="paper_prior_knowledge" value="2" required>
+                        {% if paper_decision.paper_prior_knowledge == 2 %}
+                            <input type="radio" name="paper_prior_knowledge" value="2" required checked="checked">
+                        {% else %}
+                            <input type="radio" name="paper_prior_knowledge" value="2" required>
+                        {% endif %}
                         <span class="button is-small">I knew and read the full paper before</span>
                     </label>
                     <label>
-                        <input type="radio" name="paper_prior_knowledge" value="1">
+                        {% if paper_decision.paper_prior_knowledge == 1 %}
+                            <input type="radio" name="paper_prior_knowledge" value="1" checked="checked">
+                        {% else %}
+                            <input type="radio" name="paper_prior_knowledge" value="1">
+                        {% endif %}
                         <span class="button is-small">I knew the paper but not read the full paper before</span>
                     </label>
                     <label>
-                        <input type="radio" name="paper_prior_knowledge" value="0">
+                        {% if paper_decision.paper_prior_knowledge == 0 %}
+                            <input type="radio" name="paper_prior_knowledge" value="0" checked="checked">
+                        {% else %}
+                            <input type="radio" name="paper_prior_knowledge" value="0">
+                        {% endif %}
                         <span class="button is-small">I did not know it before</span>
                     </label>
                 </div>
                 <div class="control pb-1 screen_paper_relevance">
                     <strong><span class="has-background-orange-light mb-2">7. Did you know any of the authors before?</span><span class="has-text-danger"> *</span></strong>
                     <label class="m-3">
-                        <input type="radio" name="authors_prior_knowledge" value="1" required>
+                        {% if paper_decision.authors_prior_knowledge == 1 %}
+                            <input type="radio" name="authors_prior_knowledge" value="1" required checked="checked">
+                        {% else %}
+                            <input type="radio" name="authors_prior_knowledge" value="1" required>
+                        {% endif %}
                         <span class="button is-small">Yes, I knew at least one of the authors</span>
                     </label>
                     <label>
-                        <input type="radio" name="authors_prior_knowledge" value="0">
+                        {% if paper_decision.authors_prior_knowledge == 0 %}
+                            <input type="radio" name="authors_prior_knowledge" value="0" checked="checked">
+                        {% else %}
+                            <input type="radio" name="authors_prior_knowledge" value="0">
+                        {% endif %}
                         <span class="button is-small">No, I did not know any of the authors</span>
                     </label>
                 </div>

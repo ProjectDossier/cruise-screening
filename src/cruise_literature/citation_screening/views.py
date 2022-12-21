@@ -41,6 +41,11 @@ def convert_papers_list(papers, data_format_version):
         return papers.values()
 
 
+@register.filter
+def _hash(h, key):
+    return h[key]
+
+
 @login_required
 def create_new_review(request):
     initial = {
@@ -248,30 +253,18 @@ def make_decision(exclusions, inclusions):
     return True
 
 
-def screen_papers_v2(request, review_id, paper_id=None):
+@login_required
+def screen_papers(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    _papers = review.papers
-    if request.method == "GET":
-        if paper_id:
-            edited_index = [
-                index_i
-                for index_i, x in enumerate(_papers)
-                if str(x["id"]) == str(paper_id)
-            ][0]
-            return render(
-                request,
-                "literature_review/screen_paper.html",
-                {
-                    "review": review,
-                    "paper": _papers[edited_index],
-                    "start_time": time.time(),
-                },
-            )
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
 
+    _papers = list(review.papers.values())
+    if request.method == "GET":
         for paper in _papers:
             if (
                 not paper.get("decisions")
-                or len(paper.get("decisions")) < MIN_DECISIONS
+                or len(paper.get("decisions")) < review.min_decisions
             ):
                 return render(
                     request,
@@ -279,54 +272,15 @@ def screen_papers_v2(request, review_id, paper_id=None):
                     {"review": review, "paper": paper, "start_time": time.time()},
                 )
     elif request.method == "POST":
-        screening_time = round(time.time() - float(request.POST["start_time"]), 2)
-        keys = request.POST.keys()
-        exclusions = [request.POST[x] for x in keys if x.startswith("exclusion")]
-        inclusions = [request.POST[x] for x in keys if x.startswith("inclusion")]
 
         paper_id = request.POST["paper_id"]
-        reason = request.POST["reason"]
-        eligibility_decision = make_decision(
-            exclusions=exclusions, inclusions=inclusions
-        )
-        topic_relevance = request.POST["topic_relevance"]
-        domain_relevance = request.POST["domain_relevance"]
-        decision = request.POST["decision"]
-        paper_prior_knowledge = request.POST["paper_prior_knowledge"]
-        authors_prior_knowledge = request.POST["authors_prior_knowledge"]
-
-        edited_index = [
-            index_i
-            for index_i, x in enumerate(_papers)
-            if str(x["id"]) == str(paper_id)
-        ][
-            0
-        ]  # FIXME: this will fail if duplicates in DB
-        _papers[edited_index]["decisions"] = [
-            {
-                "reviewer_id": request.user.pk,
-                "decision": int(decision),
-                "eligibility_decision": eligibility_decision,
-                "reason": reason,
-                "inclusions": inclusions,
-                "exclusions": exclusions,
-                "stage": "title_abstract",
-                "domain_relevance": int(domain_relevance),
-                "topic_relevance": int(topic_relevance),
-                "paper_prior_knowledge": int(paper_prior_knowledge),
-                "authors_prior_knowledge": int(authors_prior_knowledge),
-                "screening_time": screening_time,
-            }
-        ]
-        _papers[edited_index]["decision"] = decision
-        if len(_papers[edited_index]["decisions"]) >= MIN_DECISIONS:
-            _papers[edited_index]["screened"] = True
+        review, request = create_screening_decisions(request, review, paper_id)
         review.save()
 
         for paper in _papers:
             if (
                 not paper.get("decisions")
-                or len(paper.get("decisions")) < MIN_DECISIONS
+                or len(paper.get("decisions")) < review.min_decisions
             ):
                 return render(
                     request,
@@ -337,56 +291,9 @@ def screen_papers_v2(request, review_id, paper_id=None):
                         "start_time": time.time(),
                     },
                 )
-            else:
-                return render(
-                    request, "literature_review/view_review.html", {"review": review}
-                )
-
-
-@login_required
-def screen_papers(request, review_id):
-    review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user not in review.members.all():
-        raise Http404("Review not found")
-
-    if review.data_format_version < 3:
-        return screen_papers_v2(request, review_id, None)
-    else:
-        _papers = list(review.papers.values())
-        if request.method == "GET":
-            for paper in _papers:
-                if (
-                    not paper.get("decisions")
-                    or len(paper.get("decisions")) < review.min_decisions
-                ):
-                    return render(
-                        request,
-                        "literature_review/screen_paper.html",
-                        {"review": review, "paper": paper, "start_time": time.time()},
-                    )
-        elif request.method == "POST":
-
-            paper_id = request.POST["paper_id"]
-            review, request = create_screening_decisions(request, review, paper_id)
-            review.save()
-
-            for paper in _papers:
-                if (
-                    not paper.get("decisions")
-                    or len(paper.get("decisions")) < review.min_decisions
-                ):
-                    return render(
-                        request,
-                        "literature_review/screen_paper.html",
-                        {
-                            "review": review,
-                            "paper": paper,
-                            "start_time": time.time(),
-                        },
-                    )
-            return render(
-                request, "literature_review/view_review.html", {"review": review}
-            )
+        return render(
+            request, "literature_review/view_review.html", {"review": review}
+        )
 
 
 def create_screening_decisions(request, review, paper_id):
@@ -442,14 +349,28 @@ def screen_paper(request, review_id, paper_id):
     if review.data_format_version < 3:
         raise Http404("Review not found")
 
-    _papers = list(review.papers.values())
     if request.method == "GET":
+        paper = review.papers[paper_id]
+        if paper.get('decisions'):
+            paper_decisions = [x for x in paper['decisions'] if x['reviewer_id'] == request.user.pk]
+            if paper_decisions:
+                paper_decision = paper_decisions[0]
+                return render(
+                    request,
+                    "literature_review/screen_paper.html",
+                    {
+                        "review": review,
+                        "paper": paper,
+                        "paper_decision": paper_decision,
+                        "start_time": time.time(),
+                    },
+                )
         return render(
             request,
             "literature_review/screen_paper.html",
             {
                 "review": review,
-                "paper": review.papers[paper_id],
+                "paper": paper,
                 "start_time": time.time(),
             },
         )
