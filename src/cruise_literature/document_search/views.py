@@ -13,6 +13,7 @@ from .search_core import search_core
 from .search_cruise import search_cruise
 from .search_google_scholar import search_google_scholar
 from .search_semantic_scholar import search_semantic_scholar
+from .search_pubmed import search_pubmed
 from .search_wikipedia import search_wikipedia
 from .utils import paginate_results, merge_results, Articles
 from .models import SearchEngine
