@@ -48,7 +48,7 @@ paper_screening_POST_params = {
     "authors_prior_knowledge": "2",
 }
 
-base_templates = ["_base.html", "_header.html", "_footer.html"]
+base_templates = ["_base_templates/_base.html", "_base_templates/_header.html", "_base_templates/_footer.html"]
 
 
 class ViewTests(TestCase):
