@@ -50,7 +50,7 @@
                 {% endif %}
             </p>
             <hr/>
-            <form method="POST" action="{% url 'literature_review:screen_papers' review.id %}">
+            <form method="POST" action="{% url 'citation_screening:screen_papers' review.id %}">
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>
                 <input class="input mr-2" name="start_time" value="{{ start_time }}" type="hidden"/>

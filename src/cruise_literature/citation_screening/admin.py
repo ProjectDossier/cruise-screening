@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-from .models import LiteratureReview, LiteratureReviewMember
+from .models import CitationScreening
 
-admin.site.register(LiteratureReview)
-admin.site.register(LiteratureReviewMember)
+admin.site.register(CitationScreening)

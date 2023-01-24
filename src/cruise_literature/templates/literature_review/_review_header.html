@@ -86,7 +86,7 @@
         </section>
         <footer class="modal-card-foot">
             {% if review.can_screen_automatically %}
-                <a href="{% url 'literature_review:automatic_screening' review.id %}" class="button is-info">
+                <a href="{% url 'citation_screening:automatic_screening' review.id %}" class="button is-info">
                     Use binary text classifier
                 </a>
             {% else %}
@@ -94,7 +94,7 @@
                     Use binary text classifier
                 </a>
             {% endif %}
-            <a href="{% url 'literature_review:prompt_based_screening' review.id %}" class="ml-4 button is-info">
+            <a href="{% url 'citation_screening:prompt_based_screening' review.id %}" class="ml-4 button is-info">
                 Use prompt-based model
             </a>
             <button class="button ml-4">Cancel</button>
