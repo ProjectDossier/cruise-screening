@@ -36,3 +36,17 @@ def first_n_items(list_of_items, n_items):
 @register.filter
 def last_n_items(list_of_items, n_items):
     return list_of_items[-n_items:]
+
+
+@register.filter
+def convert_papers_list(papers, data_format_version):
+    """data_format_version 1 and 2 are lists, 3 is a dict"""
+    if data_format_version < 3:
+        return papers
+    else:
+        return papers.values()
+
+
+@register.filter
+def _hash(h, key):
+    return h[key]

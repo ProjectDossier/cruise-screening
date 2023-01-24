@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "document_search",
     "concept_search",
     "users",
+    "literature_review",
     "citation_screening",
     "document_classification",
     "organisations",

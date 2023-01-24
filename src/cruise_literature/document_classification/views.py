@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins
 from rest_framework.exceptions import APIException
 
-from citation_screening.models import LiteratureReview
+from literature_review.models import LiteratureReview
 from cruise_literature import settings
 from .models import Endpoint
 from .models import MLAlgorithm

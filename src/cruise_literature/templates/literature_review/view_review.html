@@ -11,7 +11,7 @@
                 {{ review.title }}
                 {% if review.papers|length > 0 %}
                     {% if review.data_format_version > 2 %}
-                        <a href="{% url 'literature_review:screen_papers' review.id %}"
+                        <a href="{% url 'citation_screening:screen_papers' review.id %}"
                            class="button is-success is-medium mt-1">
                             Screen papers
                         </a>
@@ -140,7 +140,7 @@
                     {% endif %}
                 <th>{{ forloop.counter }}</th>
                 <td>
-                    <a href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">{{ paper.title }}</a>
+                    <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">{{ paper.title }}</a>
                 </td>
                 <td>{{ paper.authors }}</td>
                 {% if paper.publication_date %}
@@ -202,11 +202,11 @@
                 {% endif %}
                                         {% if paper.screened %}
                         <td><a
-                                href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">Edit</a>
+                                href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Edit</a>
                         </td>
                     {% else %}
                         <td>
-                            <a href="{% url 'literature_review:screen_paper' review_id=review.id paper_id=paper_id %}">Screen</a>
+                            <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Screen</a>
                         </td>
                     {% endif %}
 
