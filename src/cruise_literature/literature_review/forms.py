@@ -323,8 +323,6 @@ class NewLiteratureReviewForm(forms.ModelForm):
             timestamp=search_time_now,
         )
         instance.criteria = eligibility_criteria
-        instance.inclusion_criteria = []
-        instance.exclusion_criteria = []
 
         if commit:
             instance.save()

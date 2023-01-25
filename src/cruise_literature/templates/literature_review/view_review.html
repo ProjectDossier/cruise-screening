@@ -10,36 +10,39 @@
             <h1 class="title is-1">
                 {{ review.title }}
                 {% if review.papers|length > 0 %}
-                    {% if review.data_format_version > 2 %}
+                    {% if review.ready_for_screening %}
                         <a href="{% url 'citation_screening:screen_papers' review.id %}"
                            class="button is-success is-medium mt-1">
                             Screen papers
                         </a>
                     {% else %}
-                        <a class="button is-success is-medium mt-1" disabled>
+                        <a class="button is-success is-medium mt-1 hover-text" disabled data-hover="Distribute papers first">
                             Screen papers
                         </a>
                     {% endif %}
                 {% endif %}
             </h1>
             <div x-data="{openReviewDescription: false}">
-            {% if review.description != review.description|first_n_words:35 %}
-                <template x-if="openReviewDescription">
-                    <p class="title is-5"><strong>Description:</strong> {{ review.description }}
-                        <button type="button" class="card__show-more" x-on:click="openReviewDescription = false">Show less
-                        </button>
-                    </p>
-                </template>
-                <template x-if="!openReviewDescription" x-cloak>
-                    <p class="title is-5"><strong>Description:</strong> {{ review.description|first_n_words:35 }} ...
-                        <button type="button" class="card__show-more" x-on:click="openReviewDescription = true">Show full
-                            description
-                        </button>
-                    </p>
-                </template>
-            {% else %}
-                <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
-            {% endif %}
+                {% if review.description != review.description|first_n_words:35 %}
+                    <template x-if="openReviewDescription">
+                        <p class="title is-5"><strong>Description:</strong> {{ review.description }}
+                            <button type="button" class="card__show-more" x-on:click="openReviewDescription = false">
+                                Show less
+                            </button>
+                        </p>
+                    </template>
+                    <template x-if="!openReviewDescription" x-cloak>
+                        <p class="title is-5"><strong>Description:</strong> {{ review.description|first_n_words:35 }}
+                            ...
+                            <button type="button" class="card__show-more" x-on:click="openReviewDescription = true">Show
+                                full
+                                description
+                            </button>
+                        </p>
+                    </template>
+                {% else %}
+                    <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+                {% endif %}
             </div>
             {#            <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>#}
             <p>Search queries:
@@ -159,9 +162,10 @@
                     <td>—</td>
                 {% endif %}
                 <td>
-                {% for search_origin in paper.search_origin %}
-                    <span class="tag is-light hover-text" data-hover="query:{{ search_origin.query }} at:{{ search_origin.added_at }}">{{ search_origin.search_engine }}</span>
-                {% endfor %}
+                    {% for search_origin in paper.search_origin %}
+                        <span class="tag is-light hover-text"
+                              data-hover="query:{{ search_origin.query }} at:{{ search_origin.added_at }}">{{ search_origin.search_engine }}</span>
+                    {% endfor %}
                 </td>
                 {% if paper.url %}
                     <td class="has-text-centered"><a href="{{ paper.url }}">🌐</a></td>
@@ -200,15 +204,17 @@
                 {% else %}
                     <td>—</td>
                 {% endif %}
-                                        {% if paper.screened %}
-                        <td><a
-                                href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Edit</a>
-                        </td>
-                    {% else %}
-                        <td>
-                            <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Screen</a>
-                        </td>
-                    {% endif %}
+                 {% if not review.ready_for_screening %}
+                    <td></td>
+                {% elif paper.screened %}
+                    <td><a
+                            href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Edit</a>
+                    </td>
+                {% else %}
+                    <td>
+                        <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Screen</a>
+                    </td>
+                {% endif %}
 
                 </tr>
                 {% endfor %}

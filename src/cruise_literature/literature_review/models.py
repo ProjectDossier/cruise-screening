@@ -70,12 +70,7 @@ class LiteratureReview(models.Model):
     )
 
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
-    inclusion_criteria = ArrayField(
-        models.CharField(max_length=250, blank=True), null=True
-    )
-    exclusion_criteria = ArrayField(
-        models.CharField(max_length=250, blank=True), null=True
-    )
+
     criteria = models.JSONField(null=True, blank=True)
 
     members = models.ManyToManyField(
