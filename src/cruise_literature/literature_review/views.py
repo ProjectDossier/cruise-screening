@@ -425,9 +425,7 @@ def add_seed_studies(request, review_id):
 @login_required
 def manage_review(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user not in review.members.filter(
-        om_through__member=request.user, om_through__role="AD"
-    ):
+    if not review.literaturereviewmember_set.filter(member=request.user, role="AD"):
         raise Http404("Review not found")
 
     if request.method == "GET":
@@ -441,9 +439,7 @@ def manage_review(request, review_id):
 @login_required
 def add_review_member(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user not in review.members.filter(
-            om_through__member=request.user, om_through__role="AD"
-    ):
+    if not review.literaturereviewmember_set.filter(member=request.user, role="AD"):
         raise Http404("Review not found")
 
     if request.method == "GET":
@@ -454,12 +450,15 @@ def add_review_member(request, review_id):
         )
     elif request.method == "POST":
         username = request.POST["username"]
+        role = request.POST["role"]
         user = User.objects.get(username=username)
-        review.members.add(user)
+        review.members.add(
+            user, through_defaults={"role": role, "added_by": request.user}
+        )
         review.save()
         return render(
             request,
-            "literature_review/add_review_member.html",
+            "literature_review/manage_review.html",
             {"review": review},
         )
 
@@ -467,9 +466,7 @@ def add_review_member(request, review_id):
 @login_required
 def remove_review_member(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
-    if request.user not in review.members.filter(
-            om_through__member=request.user, om_through__role="AD"
-    ):
+    if not review.literaturereviewmember_set.filter(member=request.user, role="AD"):
         raise Http404("Review not found")
 
     if request.method == "GET":
@@ -480,11 +477,19 @@ def remove_review_member(request, review_id):
         )
     elif request.method == "POST":
         username = request.POST["username"]
+        if username == request.user.username:
+            messages.error(request, "You cannot remove yourself from the review!")
+
+            return render(
+                request,
+                "literature_review/manage_review.html",
+                {"review": review},
+            )
         user = User.objects.get(username=username)
         review.members.remove(user)
         review.save()
         return render(
             request,
-            "literature_review/remove_review_member.html",
+            "literature_review/manage_review.html",
             {"review": review},
         )
