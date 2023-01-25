@@ -1,3 +1,4 @@
+import copy
 from typing import Tuple, List
 
 from django.contrib.postgres.fields import ArrayField
@@ -8,6 +9,7 @@ from django.core.validators import (
     MinValueValidator,
 )
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from cruise_literature import settings
@@ -106,6 +108,16 @@ class LiteratureReview(models.Model):
     papers = models.JSONField(
         null=True, help_text="All papers in the literature review."
     )
+
+    def __init__(self, *args, **kwargs):
+        super(LiteratureReview, self).__init__(*args, **kwargs)
+        self.old_papers = copy.copy(self.papers)
+
+    def save(self, *args, **kwargs):
+        # check if papers are changed and update papers_updated_at
+        if self.papers and self.papers != self.old_papers:
+            self.papers_updated_at = timezone.now()
+        super(LiteratureReview, self).save(*args, **kwargs)
 
     @property
     def number_of_papers(self):
