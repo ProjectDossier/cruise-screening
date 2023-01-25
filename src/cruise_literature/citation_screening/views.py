@@ -26,7 +26,7 @@ def _distribute_papers_for_reviewers(
     members: list[str],
     min_decisions: int,
     papers_per_member: Optional[dict[str, int]] = None,
-) -> dict[str, dict[str, str]]:
+) -> dict[str, dict[str, list[str]]]:
     """Distribute papers to review members for screening
 
     :param papers: list of paper IDs in the review
@@ -46,7 +46,7 @@ def _distribute_papers_for_reviewers(
     if papers_per_member is None:
         _total = len(papers) * min_decisions
         papers_per_member = {member: (_total // len(members)) + 1 for member in members}
-    tasks = {member: [] for member in members}
+    tasks = {"new": {member: [] for member in members}, "in_progress": {}, "done": {}}
 
     for paper in papers:
         for member in np.random.choice(
@@ -57,24 +57,63 @@ def _distribute_papers_for_reviewers(
             / sum(papers_per_member.values()),
         ):
             if papers_per_member[member] > 0:
-                tasks[member].append(paper)
+                tasks["new"][member].append(paper)
                 papers_per_member[member] -= 1
     return tasks
 
 
+def _update_tasks(
+    old_tasks: dict[str, dict[str, list[str]]],
+    new_tasks: dict[str, dict[str, list[str]]],
+) -> dict[str, dict[str, list[str]]]:
+    """Tasks have a format of {status: member: [paper1, ...]}, where status: 'new', 'in_progress', 'done'
+
+    :param old_tasks:
+    :param new_tasks:
+    :return:
+    """
+    for member, papers in new_tasks["new"].items():
+        old_tasks["new"][member] = old_tasks["new"][member] + papers
+    return old_tasks
+
+
 @login_required
 def distribute_papers(request, review_id):
+    SCREENING_LEVEL = 1
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
         raise Http404("Review not found")
 
-    # check if ready for screening
-
     if request.method == "GET":
-        screenings = CitationScreening.objects.filter(literature_review=review).all()
-        if screenings:
-            # todo: check for last date and re-run only if there are new papers not in tasks.
-            return redirect("literature_review:review_details", review_id=review.id)
+        screening = CitationScreening.objects.filter(
+            literature_review=review, screening_level=SCREENING_LEVEL
+        ).first()
+        if screening:
+            if screening.tasks_updated_at >= review.papers_updated_at:
+                # papers were not updated after last screening task distribution
+                return redirect("literature_review:review_details", review_id=review.id)
+            else:
+                # papers were updated after last screening task distribution
+                # re-distribute papers
+                new_papers = set(review.papers.keys()) - set(
+                    screening.distributed_papers
+                )
+                all_papers = set(review.papers.keys()) | set(
+                    screening.distributed_papers
+                )
+                tasks = _distribute_papers_for_reviewers(
+                    papers=list(new_papers),
+                    members=list(
+                        review.members.all().values_list("username", flat=True)
+                    ),
+                    min_decisions=review.annotations_per_paper,
+                )
+                new_tasks = _update_tasks(screening.tasks, tasks)
+                screening.tasks = new_tasks
+                screening.tasks_updated_at = datetime.datetime.now()
+                screening.distributed_papers = list(all_papers)
+                screening.save()
+                return redirect("literature_review:review_details", review_id=review.id)
         else:
             tasks = _distribute_papers_for_reviewers(
                 papers=list(review.papers.keys()),
@@ -85,9 +124,9 @@ def distribute_papers(request, review_id):
             screening = CitationScreening.objects.create(
                 literature_review=review,
                 tasks=tasks,
-                screening_level=1,  # title and abstract screening level
+                screening_level=SCREENING_LEVEL,  # title and abstract screening level
                 tasks_updated_at=datetime.datetime.now(),
-                # todo: add papers_updated at
+                distributed_papers=list(review.papers.keys()),
             )
             screening.save()
             review.ready_for_screening = True
