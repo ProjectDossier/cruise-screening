@@ -144,6 +144,42 @@ def make_decision(exclusions, inclusions):
 
 
 @login_required
+def screening_home(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        _papers = list(review.papers.values())
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        if screening_task:
+            new = screening_task.tasks["new"].get(request.user.username, [])
+            new = [paper for paper in _papers if paper["id"] in new]
+            done = screening_task.tasks["done"].get(request.user.username, [])
+            done = [paper for paper in _papers if paper["id"] in done]
+
+            return render(
+                request,
+                "literature_review/screening_home.html",
+                {
+                    "review": review,
+                    "new": new,
+                    "done": done,
+                },
+            )
+
+
+def move_paper_to_done(tasks, paper_id, username):
+    if username not in tasks["done"]:
+        tasks["done"][username] = []
+    tasks["done"][username].append(paper_id)
+    tasks["new"][username].remove(paper_id)
+    return tasks
+
+
+@login_required
 def screen_papers(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
@@ -169,6 +205,16 @@ def screen_papers(request, review_id):
         paper_id = request.POST["paper_id"]
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
+
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        screening_task.tasks = move_paper_to_done(
+            tasks=screening_task.tasks,
+            paper_id=paper_id,
+            username=request.user.username,
+        )
+        screening_task.save()
 
         for paper in _papers:
             if (
@@ -275,6 +321,16 @@ def screen_paper(request, review_id, paper_id):
         paper_id = request.POST["paper_id"]
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
+
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        screening_task.tasks = move_paper_to_done(
+            tasks=screening_task.tasks,
+            paper_id=paper_id,
+            username=request.user.username,
+        )
+        screening_task.save()
 
         return redirect("literature_review:view_review", review_id=review_id)
 
