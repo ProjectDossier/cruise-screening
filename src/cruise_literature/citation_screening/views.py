@@ -1,5 +1,7 @@
 import time
+from typing import Optional
 
+import numpy as np
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -16,6 +18,76 @@ import inspect
 from document_classification.registry import MLRegistry
 from document_classification.classifiers.dummy import DummyClassifier
 from document_classification.classifiers.fasttext_classifier import FastTextClassifier
+from .models import CitationScreening
+
+
+def _distribute_papers_for_reviewers(
+    papers: list[str],
+    members: list[str],
+    min_decisions: int,
+    papers_per_member: Optional[dict[str, int]] = None,
+) -> dict[str, dict[str, str]]:
+    """Distribute papers to review members for screening
+
+    :param papers: list of paper IDs in the review
+    :param members: list of member usernames
+    :param min_decisions: minimum decisions per paper
+    :param papers_per_member: optional dictionary parameter with number of papers per member.
+    If None, then every member gets equal number of papers for screening
+    :return: dict with tasks for each member
+    """
+    if len(members) < min_decisions:
+        raise ValueError(
+            "Number of members should be greater or equal to min_decisions"
+        )
+    if not members:
+        raise ValueError("Number of members should be greater than 0")
+
+    if papers_per_member is None:
+        _total = len(papers) * min_decisions
+        papers_per_member = {member: (_total // len(members)) + 1 for member in members}
+    tasks = {member: [] for member in members}
+
+    for paper in papers:
+        for member in np.random.choice(
+            members,
+            min_decisions,
+            replace=False,
+            p=np.array(list(papers_per_member.values()))
+            / sum(papers_per_member.values()),
+        ):
+            if papers_per_member[member] > 0:
+                tasks[member].append(paper)
+                papers_per_member[member] -= 1
+    return tasks
+
+
+@login_required
+def distribute_papers(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        screenings = CitationScreening.objects.filter(literature_review=review).all()
+        if screenings:
+            # todo: check for last date and re-run only if there are new papers not in tasks.
+            return redirect("literature_review:review_details", review_id=review.id)
+        else:
+            tasks = _distribute_papers_for_reviewers(
+                papers=list(review.papers.keys()),
+                members=list(review.members.all().values_list("username", flat=True)),
+                min_decisions=review.min_decisions,
+            )
+            # create new screening object
+            screening = CitationScreening.objects.create(
+                literature_review=review,
+                tasks=tasks,
+                screening_level=1  # title and abstract screening level
+                # todo: add papers_updated at
+            )
+            screening.save()
+            return redirect("literature_review:review_details", review_id=review.id)
 
 
 def make_decision(exclusions, inclusions):
