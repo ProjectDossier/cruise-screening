@@ -97,7 +97,11 @@ class LiteratureReview(models.Model):
         help_text="Version of the data format. This is used to migrate data between versions.",
     )
 
-    papers = models.JSONField(null=True)
+    ready_for_screening = models.BooleanField(default=False, help_text="If True, than papers were distributed between reviewers for screening.")
+    search_updated_at = models.DateTimeField(null=True, blank=True, help_text="When the search was last updated.")
+    papers_updated_at = models.DateTimeField(null=True, blank=True, help_text="When the papers were last updated. Includes updating by search or documents upload.")
+
+    papers = models.JSONField(null=True, help_text="All papers in the literature review.")
 
     @property
     def number_of_papers(self):

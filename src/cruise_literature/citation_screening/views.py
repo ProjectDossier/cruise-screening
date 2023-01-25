@@ -68,6 +68,8 @@ def distribute_papers(request, review_id):
     if request.user not in review.members.all():
         raise Http404("Review not found")
 
+    # check if ready for screening
+
     if request.method == "GET":
         screenings = CitationScreening.objects.filter(literature_review=review).all()
         if screenings:
