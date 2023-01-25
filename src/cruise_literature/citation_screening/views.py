@@ -160,13 +160,14 @@ def screening_home(request, review_id):
             done = screening_task.tasks["done"].get(request.user.username, [])
             done = [paper for paper in _papers if paper["id"] in done]
 
+            distributed_papers = {"To Do": new, "Done": done}
+
             return render(
                 request,
                 "literature_review/screening_home.html",
                 {
                     "review": review,
-                    "new": new,
-                    "done": done,
+                    "distributed_papers": distributed_papers,
                 },
             )
 
@@ -190,16 +191,17 @@ def screen_papers(request, review_id):
 
     _papers = list(review.papers.values())
     if request.method == "GET":
-        for paper in _papers:
-            if (
-                not paper.get("decisions")
-                or len(paper.get("decisions")) < review.annotations_per_paper
-            ):
-                return render(
-                    request,
-                    "literature_review/screen_paper.html",
-                    {"review": review, "paper": paper, "start_time": time.time()},
-                )
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        paper_id = screening_task.tasks["new"][request.user.username][0]
+        paper = review.papers[paper_id]
+
+        return render(
+            request,
+            "literature_review/screen_paper.html",
+            {"review": review, "paper": paper, "start_time": time.time()},
+        )
     elif request.method == "POST":
 
         paper_id = request.POST["paper_id"]
@@ -216,20 +218,18 @@ def screen_papers(request, review_id):
         )
         screening_task.save()
 
-        for paper in _papers:
-            if (
-                not paper.get("decisions")
-                or len(paper.get("decisions")) < review.annotations_per_paper
-            ):
-                return render(
-                    request,
-                    "literature_review/screen_paper.html",
-                    {
-                        "review": review,
-                        "paper": paper,
-                        "start_time": time.time(),
-                    },
-                )
+        paper_id = screening_task.tasks["new"][request.user.username][0]
+        paper = review.papers[paper_id]
+        return render(
+            request,
+            "literature_review/screen_paper.html",
+            {
+                "review": review,
+                "paper": paper,
+                "start_time": time.time(),
+            },
+        )
+        # todo if screening_task.tasks['new'][request.user.username][0] is empty
         return render(request, "literature_review/view_review.html", {"review": review})
 
 
