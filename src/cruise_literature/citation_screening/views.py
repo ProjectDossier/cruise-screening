@@ -85,10 +85,13 @@ def distribute_papers(request, review_id):
             screening = CitationScreening.objects.create(
                 literature_review=review,
                 tasks=tasks,
-                screening_level=1  # title and abstract screening level
+                screening_level=1,  # title and abstract screening level
+                tasks_updated_at=datetime.datetime.now(),
                 # todo: add papers_updated at
             )
             screening.save()
+            review.ready_for_screening = True
+            review.save()
             return redirect("literature_review:review_details", review_id=review.id)
 
 
@@ -106,6 +109,9 @@ def screen_papers(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
         raise Http404("Review not found")
+
+    if not review.ready_for_screening:
+        raise Http404("Review not ready for manual screening. Distribute papers first.")
 
     _papers = list(review.papers.values())
     if request.method == "GET":
@@ -194,6 +200,9 @@ def screen_paper(request, review_id, paper_id):
 
     if review.data_format_version < 3:
         raise Http404("Review not found")
+
+    if not review.ready_for_screening:
+        raise Http404("Review not ready for manual screening. Distribute papers first.")
 
     if request.method == "GET":
         paper = review.papers[paper_id]

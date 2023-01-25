@@ -324,7 +324,8 @@ class NewLiteratureReviewForm(forms.ModelForm):
         if commit:
             instance.save()
             member = LiteratureReviewMember(
-                member=self.user, literature_review=instance, role="AD"
+                member=self.user, literature_review=instance, role="AD",
+                added_by_id=self.user.id
             )
             member.save()
 
