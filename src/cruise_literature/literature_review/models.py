@@ -1,3 +1,4 @@
+import copy
 from typing import Tuple, List
 
 from django.contrib.postgres.fields import ArrayField
@@ -8,6 +9,7 @@ from django.core.validators import (
     MinValueValidator,
 )
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from cruise_literature import settings
@@ -68,12 +70,7 @@ class LiteratureReview(models.Model):
     )
 
     search_queries = ArrayField(models.CharField(max_length=250, blank=True), null=True)
-    inclusion_criteria = ArrayField(
-        models.CharField(max_length=250, blank=True), null=True
-    )
-    exclusion_criteria = ArrayField(
-        models.CharField(max_length=250, blank=True), null=True
-    )
+
     criteria = models.JSONField(null=True, blank=True)
 
     members = models.ManyToManyField(
@@ -85,19 +82,37 @@ class LiteratureReview(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    min_decisions = models.IntegerField(
-        _("minimum decisions per paper"),
-        default=1,
-        help_text="How many reviewers need to screen every paper. Default is 1.",
-        validators=[MinValueValidator(1), MaxValueValidator(3)],
-    )
-
     data_format_version = models.IntegerField(
         default=3,
         help_text="Version of the data format. This is used to migrate data between versions.",
     )
 
-    papers = models.JSONField(null=True)
+    ready_for_screening = models.BooleanField(
+        default=False,
+        help_text="If True, than papers were distributed between reviewers for manual screening.",
+    )
+    search_updated_at = models.DateTimeField(
+        null=True, blank=True, help_text="When the search was last updated."
+    )
+    papers_updated_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the papers were last updated. Includes updating by search or documents upload.",
+    )
+
+    papers = models.JSONField(
+        null=True, help_text="All papers in the literature review."
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(LiteratureReview, self).__init__(*args, **kwargs)
+        self.old_papers = copy.copy(self.papers)
+
+    def save(self, *args, **kwargs):
+        # check if papers are changed and update papers_updated_at
+        if self.papers and self.papers != self.old_papers:
+            self.papers_updated_at = timezone.now()
+        super(LiteratureReview, self).save(*args, **kwargs)
 
     @property
     def number_of_papers(self):

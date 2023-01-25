@@ -283,6 +283,8 @@ class NewLiteratureReviewForm(forms.ModelForm):
 
         queries = self.cleaned_data["search_queries"]
         results: Dict[str, Dict[str, Any]] = {}
+
+        search_time_now = str(datetime.datetime.now())
         for query in queries:
             # TODO: add more search engines
             for search_engine_name in search_engines:
@@ -298,7 +300,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
                         {
                             "search_engine": search_engine.name,
                             "query": query,
-                            "added_at": str(datetime.datetime.now()),
+                            "added_at": search_time_now,
                             "added_by": self.user.username,
                             "origin": "search",
                             "id": paper["id"],
@@ -310,21 +312,23 @@ class NewLiteratureReviewForm(forms.ModelForm):
                     results[paper["id"]] = paper
         results = deduplicate(results=results)
         instance.papers = results
+        instance.ready_for_screening = False
+        instance.search_updated_at = search_time_now
+        instance.papers_updated_at = search_time_now
 
         eligibility_criteria = create_criteria(
             self.cleaned_data["inclusion_criteria"],
             self.cleaned_data["exclusion_criteria"],
             user_id=self.user.id,
-            timestamp=str(datetime.datetime.now()),
+            timestamp=search_time_now,
         )
         instance.criteria = eligibility_criteria
-        instance.inclusion_criteria = []
-        instance.exclusion_criteria = []
 
         if commit:
             instance.save()
             member = LiteratureReviewMember(
-                member=self.user, literature_review=instance, role="AD"
+                member=self.user, literature_review=instance, role="AD",
+                added_by_id=self.user.id
             )
             member.save()
 

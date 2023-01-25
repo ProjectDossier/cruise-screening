@@ -32,7 +32,7 @@ def create_new_review(request):
             form.save()
             title = form.cleaned_data.get("title")
             messages.success(request, f"New review created: {title}")
-            return redirect("home")
+            return redirect("literature_review:manage_review", review_id=form.instance.id)
         else:
             if "error_messages" in form:
                 for msg in form.error_messages:

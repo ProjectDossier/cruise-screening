@@ -1,5 +1,7 @@
 import time
+from typing import Optional
 
+import numpy as np
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -16,6 +18,120 @@ import inspect
 from document_classification.registry import MLRegistry
 from document_classification.classifiers.dummy import DummyClassifier
 from document_classification.classifiers.fasttext_classifier import FastTextClassifier
+from .models import CitationScreening
+
+
+def _distribute_papers_for_reviewers(
+    papers: list[str],
+    members: list[str],
+    min_decisions: int,
+    papers_per_member: Optional[dict[str, int]] = None,
+) -> dict[str, dict[str, list[str]]]:
+    """Distribute papers to review members for screening
+
+    :param papers: list of paper IDs in the review
+    :param members: list of member usernames
+    :param min_decisions: minimum decisions per paper
+    :param papers_per_member: optional dictionary parameter with number of papers per member.
+    If None, then every member gets equal number of papers for screening
+    :return: dict with tasks for each member
+    """
+    if len(members) < min_decisions:
+        raise ValueError(
+            "Number of members should be greater or equal to annotations_per_paper"
+        )
+    if not members:
+        raise ValueError("Number of members should be greater than 0")
+
+    if papers_per_member is None:
+        _total = len(papers) * min_decisions
+        papers_per_member = {member: (_total // len(members)) + 1 for member in members}
+    tasks = {"new": {member: [] for member in members}, "in_progress": {}, "done": {}}
+
+    for paper in papers:
+        for member in np.random.choice(
+            members,
+            min_decisions,
+            replace=False,
+            p=np.array(list(papers_per_member.values()))
+            / sum(papers_per_member.values()),
+        ):
+            if papers_per_member[member] > 0:
+                tasks["new"][member].append(paper)
+                papers_per_member[member] -= 1
+    return tasks
+
+
+def _update_tasks(
+    old_tasks: dict[str, dict[str, list[str]]],
+    new_tasks: dict[str, dict[str, list[str]]],
+) -> dict[str, dict[str, list[str]]]:
+    """Tasks have a format of {status: member: [paper1, ...]}, where status: 'new', 'in_progress', 'done'
+
+    :param old_tasks:
+    :param new_tasks:
+    :return:
+    """
+    for member, papers in new_tasks["new"].items():
+        old_tasks["new"][member] = old_tasks["new"][member] + papers
+    return old_tasks
+
+
+@login_required
+def distribute_papers(request, review_id):
+    SCREENING_LEVEL = 1
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        screening = CitationScreening.objects.filter(
+            literature_review=review, screening_level=SCREENING_LEVEL
+        ).first()
+        if screening:
+            if screening.tasks_updated_at >= review.papers_updated_at:
+                # papers were not updated after last screening task distribution
+                return redirect("literature_review:review_details", review_id=review.id)
+            else:
+                # papers were updated after last screening task distribution
+                # re-distribute papers
+                new_papers = set(review.papers.keys()) - set(
+                    screening.distributed_papers
+                )
+                all_papers = set(review.papers.keys()) | set(
+                    screening.distributed_papers
+                )
+                tasks = _distribute_papers_for_reviewers(
+                    papers=list(new_papers),
+                    members=list(
+                        review.members.all().values_list("username", flat=True)
+                    ),
+                    min_decisions=review.annotations_per_paper,
+                )
+                new_tasks = _update_tasks(screening.tasks, tasks)
+                screening.tasks = new_tasks
+                screening.tasks_updated_at = datetime.datetime.now()
+                screening.distributed_papers = list(all_papers)
+                screening.save()
+                return redirect("literature_review:review_details", review_id=review.id)
+        else:
+            tasks = _distribute_papers_for_reviewers(
+                papers=list(review.papers.keys()),
+                members=list(review.members.all().values_list("username", flat=True)),
+                min_decisions=review.annotations_per_paper,
+            )
+            # create new screening object
+            screening = CitationScreening.objects.create(
+                literature_review=review,
+                tasks=tasks,
+                screening_level=SCREENING_LEVEL,  # title and abstract screening level
+                tasks_updated_at=datetime.datetime.now(),
+                distributed_papers=list(review.papers.keys()),
+            )
+            screening.save()
+            review.ready_for_screening = True
+            review.save()
+            return redirect("literature_review:review_details", review_id=review.id)
 
 
 def make_decision(exclusions, inclusions):
@@ -33,12 +149,15 @@ def screen_papers(request, review_id):
     if request.user not in review.members.all():
         raise Http404("Review not found")
 
+    if not review.ready_for_screening:
+        raise Http404("Review not ready for manual screening. Distribute papers first.")
+
     _papers = list(review.papers.values())
     if request.method == "GET":
         for paper in _papers:
             if (
                 not paper.get("decisions")
-                or len(paper.get("decisions")) < review.min_decisions
+                or len(paper.get("decisions")) < review.annotations_per_paper
             ):
                 return render(
                     request,
@@ -54,7 +173,7 @@ def screen_papers(request, review_id):
         for paper in _papers:
             if (
                 not paper.get("decisions")
-                or len(paper.get("decisions")) < review.min_decisions
+                or len(paper.get("decisions")) < review.annotations_per_paper
             ):
                 return render(
                     request,
@@ -106,7 +225,7 @@ def create_screening_decisions(request, review, paper_id):
         }
     ]
     review.papers[paper_id]["decision"] = decision
-    if len(review.papers[paper_id]["decisions"]) >= review.min_decisions:
+    if len(review.papers[paper_id]["decisions"]) >= review.annotations_per_paper:
         review.papers[paper_id]["screened"] = True
 
     return review, request
@@ -120,6 +239,9 @@ def screen_paper(request, review_id, paper_id):
 
     if review.data_format_version < 3:
         raise Http404("Review not found")
+
+    if not review.ready_for_screening:
+        raise Http404("Review not ready for manual screening. Distribute papers first.")
 
     if request.method == "GET":
         paper = review.papers[paper_id]

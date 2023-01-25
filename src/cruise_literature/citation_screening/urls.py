@@ -20,4 +20,5 @@ urlpatterns = [
         views.screen_paper,
         name="screen_paper",
     ),
+    path("literature_review/<int:review_id>/ditribute_papers", views.distribute_papers, name="distribute_papers"),
 ]
