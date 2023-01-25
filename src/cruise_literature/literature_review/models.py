@@ -85,13 +85,6 @@ class LiteratureReview(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    min_decisions = models.IntegerField(
-        _("minimum decisions per paper"),
-        default=1,
-        help_text="How many reviewers need to screen every paper. Default is 1.",
-        validators=[MinValueValidator(1), MaxValueValidator(3)],
-    )
-
     data_format_version = models.IntegerField(
         default=3,
         help_text="Version of the data format. This is used to migrate data between versions.",

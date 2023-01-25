@@ -38,7 +38,7 @@ def _distribute_papers_for_reviewers(
     """
     if len(members) < min_decisions:
         raise ValueError(
-            "Number of members should be greater or equal to min_decisions"
+            "Number of members should be greater or equal to annotations_per_paper"
         )
     if not members:
         raise ValueError("Number of members should be greater than 0")
@@ -79,7 +79,7 @@ def distribute_papers(request, review_id):
             tasks = _distribute_papers_for_reviewers(
                 papers=list(review.papers.keys()),
                 members=list(review.members.all().values_list("username", flat=True)),
-                min_decisions=review.min_decisions,
+                min_decisions=review.annotations_per_paper,
             )
             # create new screening object
             screening = CitationScreening.objects.create(
@@ -112,7 +112,7 @@ def screen_papers(request, review_id):
         for paper in _papers:
             if (
                 not paper.get("decisions")
-                or len(paper.get("decisions")) < review.min_decisions
+                or len(paper.get("decisions")) < review.annotations_per_paper
             ):
                 return render(
                     request,
@@ -128,7 +128,7 @@ def screen_papers(request, review_id):
         for paper in _papers:
             if (
                 not paper.get("decisions")
-                or len(paper.get("decisions")) < review.min_decisions
+                or len(paper.get("decisions")) < review.annotations_per_paper
             ):
                 return render(
                     request,
@@ -180,7 +180,7 @@ def create_screening_decisions(request, review, paper_id):
         }
     ]
     review.papers[paper_id]["decision"] = decision
-    if len(review.papers[paper_id]["decisions"]) >= review.min_decisions:
+    if len(review.papers[paper_id]["decisions"]) >= review.annotations_per_paper:
         review.papers[paper_id]["screened"] = True
 
     return review, request
