@@ -1,0 +1,80 @@
+{% extends '_base_templates/_base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="card">
+        <div class="card-header pl-4">
+            {% include 'literature_review/_review_header.html' %}
+        </div>
+        <div class="card-content">
+            <div class="content">
+                <div class="columns">
+                    <div class="column is-8">
+                        <h3 class="title is-3">{{ review.title }}</h3>
+                    </div>
+                    <div class="column is-4">
+                        <div class="field is-grouped is-grouped-right">
+                            <p class="control">
+                                <a href="{% url 'literature_review:export_review' review.id %}" class="button is-link">
+                                    Export
+                                </a>
+                            </p>
+                            <p class="control">
+                                <a href="{% url 'literature_review:delete_review' review.id %}"
+                                   class="button is-danger">
+                                    Delete
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="column is-8">
+                        <div class="content">
+                            <h4 class="title is-4">Description</h4>
+                            <p>{{ review.description }}</p>
+                            <h4 class="title is-4">Search queries</h4>
+                            <p>{{ review.search_queries }}</p>
+                            <h4 class="title is-4">Tags</h4>
+                            <p>{{ review.tags }}</p>
+                            <h4 class="title is-4">Members</h4>
+                            <p>
+                                {% for member in review.members.all %}
+                                    {{ member.username }}
+                                {% endfor %}
+                            </p>
+                            <p>
+                                <a href="{% url 'literature_review:add_review_member' review.id %}">Add member</a>
+                                |
+                                <a href="{% url 'literature_review:remove_review_member' review.id %}">Remove member</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="column is-4">
+                        <div class="content">
+                            <h4 class="title is-4">Organisation</h4>
+                            <p>{{ review.organisation }}</p>
+                            <h4 class="title is-4">Created</h4>
+                            <p>{{ review.created_at }}</p>
+                            <h4 class="title is-4">Updated</h4>
+                            <p>{{ review.updated_at }}</p>
+                            <h4 class="title is-4">Deadline</h4>
+                            <p>{{ review.deadline }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer pl-4">
+            <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
+                Back
+            </a>
+        </div>
+    </div>
+
+
+    {% include "_base_templates/_footer.html" %}
+{% endblock %}

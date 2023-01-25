@@ -30,23 +30,10 @@ urlpatterns = [
         views.import_papers,
         name="import_papers",
     ),
-    # path(
-    #     "literature_review/<int:review_id>/automatic_screening",
-    #     views.automatic_screening,
-    #     name="automatic_screening",
-    # ),
-    # path(
-    #     "literature_review/<int:review_id>/prompt_based_screening",
-    #     views.prompt_based_screening,
-    #     name="prompt_based_screening",
-    # ),
-    # path("screen_papers/<int:review_id>/", views.screen_papers, name="screen_papers"),
-    # path(
-    #     "screen_paper/<int:review_id>/<str:paper_id>/",
-    #     views.screen_paper,
-    #     name="screen_paper",
-    # ),
     path("export_review/<int:review_id>/", views.export_review, name="export_review"),
     path("delete_review/<int:review_id>/", views.delete_review, name="delete_review"),
+    path("manage_review/<int:review_id>/", views.manage_review, name="manage_review"),
+    path("add_review_member/<int:review_id>", views.add_review_member, name="add_review_member"),
+    path("remove_review_member/<int:review_id>", views.remove_review_member, name="remove_review_member"),
     path("create_review/", views.create_new_review, name="create_new_review"),
 ]

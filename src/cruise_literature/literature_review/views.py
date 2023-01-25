@@ -11,6 +11,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 
+from users.models import User
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from utils.process_pdf import parse_doc_grobid
@@ -417,5 +418,78 @@ def add_seed_studies(request, review_id):
         return render(
             request,
             "literature_review/add_seed_studies.html",
+            {"review": review},
+        )
+
+
+@login_required
+def manage_review(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if not review.literaturereviewmember_set.filter(member=request.user, role="AD"):
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        return render(
+            request,
+            "literature_review/manage_review.html",
+            {"review": review},
+        )
+
+
+@login_required
+def add_review_member(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if not review.literaturereviewmember_set.filter(member=request.user, role="AD"):
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        return render(
+            request,
+            "literature_review/add_review_member.html",
+            {"review": review},
+        )
+    elif request.method == "POST":
+        username = request.POST["username"]
+        role = request.POST["role"]
+        user = User.objects.get(username=username)
+        review.members.add(
+            user, through_defaults={"role": role, "added_by": request.user}
+        )
+        review.save()
+        return render(
+            request,
+            "literature_review/manage_review.html",
+            {"review": review},
+        )
+
+
+@login_required
+def remove_review_member(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if not review.literaturereviewmember_set.filter(member=request.user, role="AD"):
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        return render(
+            request,
+            "literature_review/remove_review_member.html",
+            {"review": review},
+        )
+    elif request.method == "POST":
+        username = request.POST["username"]
+        if username == request.user.username:
+            messages.error(request, "You cannot remove yourself from the review!")
+
+            return render(
+                request,
+                "literature_review/manage_review.html",
+                {"review": review},
+            )
+        user = User.objects.get(username=username)
+        review.members.remove(user)
+        review.save()
+        return render(
+            request,
+            "literature_review/manage_review.html",
             {"review": review},
         )

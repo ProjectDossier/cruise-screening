@@ -27,6 +27,7 @@
                     <th @click="sortByColumn">#Screened</th>
                     <th @click="sortByColumn">% Screened</th>
                     <th @click="sortByColumn">Decisions (I / ? / E)</th>
+                    <th>Manage Review</th>
                 </tr>
                 </thead>
                 <tbody x-ref="tbody">
@@ -47,6 +48,7 @@
                         <td>{{ review.percentage_screened }}%</td>
                         <td>{{ review.decisions_count.0 }} / {{ review.decisions_count.1 }}
                             / {{ review.decisions_count.2 }}</td>
+                        <td><a href="{% url 'literature_review:manage_review' review.id %}">Settings</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
