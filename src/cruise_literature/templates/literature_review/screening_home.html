@@ -15,6 +15,11 @@
                            class="button is-success is-medium mt-1">
                             Screen papers
                         </a>
+                    {% elif papers_to_screen %}
+                        <a class="button is-success is-medium mt-1 hover-text" disabled
+                           data-hover="All papers screened">
+                            Screen papers
+                        </a>
                     {% else %}
                         <a class="button is-success is-medium mt-1 hover-text" disabled
                            data-hover="Distribute papers first">

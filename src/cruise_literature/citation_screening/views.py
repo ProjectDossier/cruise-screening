@@ -2,6 +2,7 @@ import time
 from typing import Optional
 
 import numpy as np
+from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -161,6 +162,7 @@ def screening_home(request, review_id):
             done = [paper for paper in _papers if paper["id"] in done]
 
             distributed_papers = {"To Do": new, "Done": done}
+            papers_to_screen: bool = len(new) > 0  # are there still some papers left?
 
             return render(
                 request,
@@ -168,6 +170,7 @@ def screening_home(request, review_id):
                 {
                     "review": review,
                     "distributed_papers": distributed_papers,
+                    "papers_to_screen": papers_to_screen,
                 },
             )
 
@@ -175,6 +178,11 @@ def screening_home(request, review_id):
 def move_paper_to_done(tasks, paper_id, username):
     if username not in tasks["done"]:
         tasks["done"][username] = []
+
+    # check if paper is already in done (i.e. we are editing a decision)
+    if paper_id in tasks["done"][username]:
+        return tasks
+
     tasks["done"][username].append(paper_id)
     tasks["new"][username].remove(paper_id)
     return tasks
@@ -218,6 +226,15 @@ def screen_papers(request, review_id):
         )
         screening_task.save()
 
+        if not screening_task.tasks["new"][request.user.username]:
+            messages.success(
+                request,
+                "You have screened all papers. Thank you for your contribution!",
+            )
+            return render(
+                request, "literature_review/view_review.html", {"review": review}
+            )
+
         paper_id = screening_task.tasks["new"][request.user.username][0]
         paper = review.papers[paper_id]
         return render(
@@ -229,8 +246,6 @@ def screen_papers(request, review_id):
                 "start_time": time.time(),
             },
         )
-        # todo if screening_task.tasks['new'][request.user.username][0] is empty
-        return render(request, "literature_review/view_review.html", {"review": review})
 
 
 def create_screening_decisions(request, review, paper_id):
