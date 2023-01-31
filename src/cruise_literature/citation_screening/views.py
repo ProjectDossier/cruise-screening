@@ -157,9 +157,9 @@ def screening_home(request, review_id):
         ).first()
         if screening_task:
             new = screening_task.tasks["new"].get(request.user.username, [])
-            new = [paper for paper in _papers if paper["id"] in new]
+            new = [paper for paper in _papers if str(paper["id"]) in new]  # todo: fix paper ID type
             done = screening_task.tasks["done"].get(request.user.username, [])
-            done = [paper for paper in _papers if paper["id"] in done]
+            done = [paper for paper in _papers if str(paper["id"]) in done]
 
             distributed_papers = {"To Do": new, "Done": done}
             papers_to_screen: bool = len(new) > 0  # are there still some papers left?
