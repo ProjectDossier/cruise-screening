@@ -20,6 +20,7 @@ from document_classification.registry import MLRegistry
 from document_classification.classifiers.dummy import DummyClassifier
 from document_classification.classifiers.fasttext_classifier import FastTextClassifier
 from .models import CitationScreening
+from utils.django_tags import is_field_required
 
 
 def _distribute_papers_for_reviewers(
@@ -253,22 +254,22 @@ def create_screening_decisions(request, review, paper_id):
 
     # todo: add option in the review to make inclusion/exclusion mandatory or not
     inclusion_decisions = {
-        inc_crit["id"]: request.POST.get(inc_crit["id"], False)
+        inc_crit["id"]: request.POST.get(inc_crit["id"], None)
         for inc_crit in review.criteria["inclusion"]
         if inc_crit["is_active"]
     }
     exclusion_decisions = {
-        exc_crit["id"]: request.POST.get(exc_crit["id"], False)
+        exc_crit["id"]: request.POST.get(exc_crit["id"], None)
         for exc_crit in review.criteria["exclusion"]
         if exc_crit["is_active"]
     }
 
     reason = request.POST["reason"]
-    topic_relevance = request.POST["topic_relevance"]
-    domain_relevance = request.POST["domain_relevance"]
+    topic_relevance : Optional[int] = request.POST.get("topic_relevance", None)
+    domain_relevance : Optional[int] = request.POST.get("domain_relevance", None)
     decision = request.POST["decision"]
-    paper_prior_knowledge = request.POST["paper_prior_knowledge"]
-    authors_prior_knowledge = request.POST["authors_prior_knowledge"]
+    paper_prior_knowledge : Optional[int] = request.POST.get("paper_prior_knowledge", None)
+    authors_prior_knowledge : Optional[int] = request.POST.get("authors_prior_knowledge", None)
 
     review.papers[paper_id]["decisions"] = [
         {
@@ -278,10 +279,10 @@ def create_screening_decisions(request, review, paper_id):
             "exclusion_decisions": exclusion_decisions,
             "inclusion_decisions": inclusion_decisions,
             "stage": "title_abstract",
-            "domain_relevance": int(domain_relevance),
-            "topic_relevance": int(topic_relevance),
-            "paper_prior_knowledge": int(paper_prior_knowledge),
-            "authors_prior_knowledge": int(authors_prior_knowledge),
+            "domain_relevance": int(domain_relevance) if domain_relevance else domain_relevance,
+            "topic_relevance": int(topic_relevance) if topic_relevance else topic_relevance,
+            "paper_prior_knowledge": int(paper_prior_knowledge) if paper_prior_knowledge else paper_prior_knowledge,
+            "authors_prior_knowledge": int(authors_prior_knowledge) if authors_prior_knowledge else authors_prior_knowledge,
             "screening_time": screening_time,
         }
     ]

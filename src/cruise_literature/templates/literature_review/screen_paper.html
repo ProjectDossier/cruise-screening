@@ -54,14 +54,18 @@
                 {% csrf_token %}
                 <input class="input mr-2" name="paper_id" value="{{ paper.id }}" type="hidden"/>
                 <input class="input mr-2" name="start_time" value="{{ start_time }}" type="hidden"/>
-                <strong><span class="has-background-orange-light mb-2">1. Relevance</span><span class="has-text-danger"> *</span></strong>
+                <strong><span class="has-background-orange-light mb-2">1. Relevance</span>
+                    {% if 'relevance' in review.obligatory_fields %}
+                        <span class="has-text-danger"> *</span>
+                    {% endif %}
+                </strong>
                 <div class="screen_paper_relevance control m-2 p-1 box">
                     <span class="tag is-light is-size-6">Domain relevance: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     <label class="ml-4">
                         {% if paper_decision.domain_relevance == 2 %}
-                            <input type="radio" name="domain_relevance" value="2" required checked="checked">
+                            <input type="radio" name="domain_relevance" value="2" {{ review|is_field_required:'relevance' }} checked="checked">
                         {% else %}
-                            <input type="radio" name="domain_relevance" value="2" required>
+                            <input type="radio" name="domain_relevance" value="2" {{ review|is_field_required:'relevance' }} >
                         {% endif %}
                         <span class="button is-small">very relevant</span>
                     </label>
@@ -86,9 +90,9 @@
                     <span class="tag is-light is-size-6">Relevance to the query: </span>
                     <label class="ml-4">
                         {% if paper_decision.topic_relevance == 2 %}
-                            <input type="radio" name="topic_relevance" value="2" required="required" checked="checked">
+                            <input type="radio" name="topic_relevance" value="2" {{ review|is_field_required:'relevance' }} checked="checked">
                         {% else %}
-                            <input type="radio" name="topic_relevance" value="2" required="required">
+                            <input type="radio" name="topic_relevance" value="2" {{ review|is_field_required:'relevance' }}>
                         {% endif %}
                         <span class="button is-small">very relevant</span>
                     </label>
@@ -112,16 +116,20 @@
                 <hr/>
                 <div class="columns">
                     <div class="column">
-                        <strong><span class="has-background-orange-light mb-2">2. Inclusion criteria</span><span class="has-text-danger"> *</span></strong>
+                        <strong><span class="has-background-orange-light mb-2">2. Inclusion criteria</span>
+                            {% if 'inclusion' in review.obligatory_fields %}
+                                <span class="has-text-danger"> *</span>
+                            {% endif %}
+                        </strong>
                         {% for criterion in review.criteria.inclusion %}
                             {%  if criterion.is_active %}
                             <div class="control m-2 p-1 box screen_paper_relevance">
                                 <span class="is-light tag is-size-6 eligibility_text_tag">{{ criterion.text }}</span>
                                 <label class="ml-1">
                                     {% if paper_decision.inclusion_decisions|_hash:criterion.id == 'yes' %}
-                                        <input type="radio" name="{{ criterion.id }}" value="yes" checked="checked">
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" {{ review|is_field_required:'inclusion' }}checked="checked">
                                     {% else %}
-                                        <input type="radio" name="{{ criterion.id }}" value="yes">
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" {{ review|is_field_required:'inclusion' }}>
                                     {% endif %}
                                     <span class="button is-small">Yes</span>
                                 </label>
@@ -146,16 +154,20 @@
                         {% endfor %}
                     </div>
                     <div class="column">
-                        <strong><span class="has-background-orange-light mb-2">3. Exclusion criteria</span><span class="has-text-danger"> *</span></strong>
+                        <strong><span class="has-background-orange-light mb-2">3. Exclusion criteria</span>
+                            {% if 'exclusion' in review.obligatory_fields %}
+                                <span class="has-text-danger"> *</span>
+                            {% endif %}
+                        </strong>
                         {% for criterion in review.criteria.exclusion %}
                             {%  if criterion.is_active %}
                             <div class="control m-2 p-1 box screen_paper_relevance">
                                 <span class="tag is-light is-size-6 eligibility_text_tag">{{ criterion.text }}</span>
                                 <label class="ml-1">
                                     {% if paper_decision.exclusion_decisions|_hash:criterion.id == 'yes' %}
-                                        <input type="radio" name="{{ criterion.id }}" value="yes" required checked="checked">
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" {{ review|is_field_required:'exclusion' }} checked="checked">
                                         {% else %}
-                                        <input type="radio" name="{{ criterion.id }}" value="yes" required>
+                                        <input type="radio" name="{{ criterion.id }}" value="yes" {{ review|is_field_required:'exclusion' }}>
                                     {% endif %}
                                     <span class="button is-small">Yes</span>
                                 </label>
@@ -190,12 +202,16 @@
                 {% endif %}
 
                 <div class="screen_paper_relevance control mt-4">
-                    <strong><span class="has-background-orange-light mb-2">5. Decision based on title and abstract</span><span class="has-text-danger"> *</span></strong>
+                    <strong><span class="has-background-orange-light mb-2">5. Decision based on title and abstract</span>
+                        {% if 'decision' in review.obligatory_fields %}
+                            <span class="has-text-danger"> *</span>
+                        {% endif %}
+                    </strong>
                     <label class="ml-4">
                         {% if paper_decision.decision == 1 %}
-                            <input type="radio" name="decision" value="1" required checked="checked">
+                            <input type="radio" name="decision" value="1" {{ review|is_field_required:'decision' }} checked="checked">
                         {% else %}
-                            <input type="radio" name="decision" value="1" required>
+                            <input type="radio" name="decision" value="1" {{ review|is_field_required:'decision' }}>
                         {% endif %}
                         <span class="button is-small">Include</span>
                     </label>
@@ -219,12 +235,16 @@
 
                 <hr/>
                 <div class="control pb-1 screen_paper_relevance">
-                    <strong><span class="has-background-orange-light mb-2">6. Did you know this paper before?</span><span class="has-text-danger"> *</span></strong>
+                    <strong><span class="has-background-orange-light mb-2">6. Did you know this paper before?</span>
+                        {% if 'past_knowledge' in review.obligatory_fields %}
+                            <span class="has-text-danger"> *</span>
+                        {% endif %}
+                    </strong>
                     <label class="m-3">
                         {% if paper_decision.paper_prior_knowledge == 2 %}
-                            <input type="radio" name="paper_prior_knowledge" value="2" required checked="checked">
+                            <input type="radio" name="paper_prior_knowledge" value="2" {{ review|is_field_required:'past_knowledge' }} checked="checked">
                         {% else %}
-                            <input type="radio" name="paper_prior_knowledge" value="2" required>
+                            <input type="radio" name="paper_prior_knowledge" value="2" {{ review|is_field_required:'past_knowledge' }}>
                         {% endif %}
                         <span class="button is-small">I knew and read the full paper before</span>
                     </label>
@@ -246,12 +266,16 @@
                     </label>
                 </div>
                 <div class="control pb-1 screen_paper_relevance">
-                    <strong><span class="has-background-orange-light mb-2">7. Did you know any of the authors before?</span><span class="has-text-danger"> *</span></strong>
+                    <strong><span class="has-background-orange-light mb-2">7. Did you know any of the authors before?</span>
+                        {% if 'past_knowledge' in review.obligatory_fields %}
+                            <span class="has-text-danger"> *</span>
+                        {% endif %}
+                    </strong>
                     <label class="m-3">
                         {% if paper_decision.authors_prior_knowledge == 1 %}
-                            <input type="radio" name="authors_prior_knowledge" value="1" required checked="checked">
+                            <input type="radio" name="authors_prior_knowledge" value="1" {{ review|is_field_required:'past_knowledge' }} checked="checked">
                         {% else %}
-                            <input type="radio" name="authors_prior_knowledge" value="1" required>
+                            <input type="radio" name="authors_prior_knowledge" value="1" {{ review|is_field_required:'past_knowledge' }}>
                         {% endif %}
                         <span class="button is-small">Yes, I knew at least one of the authors</span>
                     </label>

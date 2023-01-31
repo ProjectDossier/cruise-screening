@@ -48,5 +48,13 @@ def convert_papers_list(papers, data_format_version):
 
 
 @register.filter
+def is_field_required(review:dict, field:str) -> str:
+    """returns True if the field is required"""
+    if field in review.obligatory_fields:
+        return 'required'
+    else:
+        return ''
+
+@register.filter
 def _hash(h, key):
     return h[key]
