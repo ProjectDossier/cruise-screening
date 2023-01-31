@@ -1,4 +1,4 @@
-![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png)
+# ![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png) CRUISE-literature 
 
 ---
 
@@ -11,9 +11,18 @@
 
 ## <a name='installation' /> 1. Installation
 
+This project contains four parts:
+
+- Python Django backend serving the web application
+- Postgres database for storing user data
+- ElasticSearch database for documents with search API [docker]
+- Text2Text API for automatic screening
+
+As a minimum, you need to install the first two parts.
+
 ### 1.1 Python Django Backend
 
-Project was tested on Python 3.9+. 
+Project was tested on Python 3.9+. It will not run on Python 3.8 and below because of type hints for generics.
 
 Create [conda](https://docs.conda.io/en/latest/miniconda.html) environment:
 
@@ -39,15 +48,27 @@ If you have a GPU-enabled device:
 (cruise-literature)$ pip install -r requirements-gpu.txt
 ```
 
+### 1.2 Postgres database
 
-### 1.2 ElasticSearch and Search API
+[Install PostgreSQL](https://www.postgresql.org/download/)
 
-Checkout [the backend](src/backend/README.md)
+#### macOS
 
-In order to use [CORE search API](https://core.ac.uk/services/api) create a file `data/core_api_key.txt` and insert your API key.
-Next, change `SEARCH_WITH_CORE` to  `True` in `src/cruise_literature/cruise_literature/settings.py`. 
+*Based on this [gist](https://gist.github.com/phortuin/2fe698b6c741fd84357cec84219c6667)*
 
-### 1.3 Postgres database
+`brew install postgresql@14`
+
+Run server:
+
+`pg_ctl -D /opt/homebrew/var/postgresql@14 start`
+
+Note: if you’re on Intel, the /opt/homebrew probably is `/usr/local`.
+
+Start psql and open database `postgres`, which is the database postgres uses itself to store roles, permissions, and structure:
+
+```bash
+$ psql postgres
+```
 
 #### Ubuntu
 
@@ -65,7 +86,9 @@ Start postgres server
 $ sudo systemctl start postgresql.service
 ```
 
-##### Configuration
+#### Configuration
+
+Next steps common for Ubuntu and macOS.
 
 Replace `SYSTEM_USERNAME` with your system username and `YOUR_PASSWORD` with your desired database password.
 
@@ -87,8 +110,14 @@ Create new role for cruise application, set its name same as your `SYSTEM_USERNA
 postgres-# CREATE ROLE SYSTEM_USERNAME WITH LOGIN;
 postgres-# ALTER ROLE SYSTEM_USERNAME CREATEDB;
 postgres-# ALTER  USER SYSTEM_USERNAME WITH  PASSWORD 'YOUR_PASSWORD';
+```
+
+Quit psql, because we will log in with the new role (=cruise_literature_user) to create a database:
+
+```postgres
 postgres-# \q
 ```
+
 
 On shell, open psql with `postgres` database with our new user.
 
@@ -103,7 +132,7 @@ postgres-> CREATE DATABASE cruise_literature;
 postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO SYSTEM_USERNAME;
 ```
 
-Update the `DATABASES` entry  in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py):
+Update the [`DATABASES`](https://github.com/ProjectDossier/cruise-literature/blob/2b03bbcfe1491e6195b31bf596818b23ccd9ecb3/src/cruise_literature/cruise_literature/settings.py#L104) entry  in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py):
 
 ```python
     ...
@@ -112,21 +141,30 @@ Update the `DATABASES` entry  in [`cruise_literature/settings.py`](src/cruise_li
     ...
 ```
 
-#### 1.4 Text to text API
+### 1.3 ElasticSearch and Search API
+
+Check [backend API](src/backend/README.md) documentation to learn more about installation.
+
+In order to use [CORE search API](https://core.ac.uk/services/api) create a file `data/core_api_key.txt` and insert your API key.
+Next, change `SEARCH_WITH_CORE` to  `True` in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py).
+
+### 1.4 Text to text API
 
 It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) for a given text.
-It is not necessary and can be switched off in the [settings.py](src/cruise_literature/cruise_literature/settings.py):
+It is not necessary and can be switched off in the [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py) by setting:
 
 ```python
 TEXT_TO_TEXT_API = False
 ```
 
-Checkout [prompt api](src/backend/prompt_api/README.md) to learn more about installation.
+Check [prompt_API](src/backend/prompt_api/README.md) documentation to learn more about installation.
 
 
 ## <a name='running' /> 2. Running
 
-### 2.1 On a local host
+### 2.1 Before first run
+
+This fields will also apply after making some changes or updating the code, when the database could be out of sync with the code.
 
 Go into `src/cruise_literature/` directory: 
 
@@ -154,7 +192,18 @@ Fill in sample data into the database
 (cruise-literature)$ python manage.py loaddata search_engines.json
 ```
 
-Make sure that Django Desktop application is running. 
+
+### 2.2 On a local host
+
+#### Postgres database
+
+To start the Postgres database, run on macOS:
+
+```bash
+$ pg_ctl -D /opt/homebrew/var/postgresql@14 start
+```
+
+#### Django server
 
 Finally, run Django server
 
@@ -165,9 +214,15 @@ Finally, run Django server
 Server should be available at http://127.0.0.1:8000/
 
 
-### 2.2 Deployment on prod server
+### 2.3 Deployment on prod server
 
-Add `YOUR_IP` to `ALLOWED_HOSTS` in `cruise_literature/settings.py`
+Add `YOUR_IP` to [`ALLOWED_HOSTS`](https://github.com/ProjectDossier/cruise-literature/blob/2b03bbcfe1491e6195b31bf596818b23ccd9ecb3/src/cruise_literature/cruise_literature/settings.py#L31) in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py), for example:
+
+```python
+ALLOWED_HOSTS = ['123.456.789.0']
+```
+
+Run Django server:
 
 ```bash
 (cruise-literature)$ python manage.py runserver YOUR_IP:YOUR_PORT
