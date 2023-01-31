@@ -1,4 +1,4 @@
-![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo.png)
+![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png)
 
 ---
 
