@@ -1,4 +1,15 @@
-## 1. Installation
+# CRUISE-literature 
+
+---
+
+### Table of contents
+1. [Installation](#installation)
+2. [Running](#running)
+
+
+---
+
+## <a name='installation' /> 1. Installation
 
 ### 1.1 Python Django Backend
 
@@ -113,7 +124,7 @@ TEXT_TO_TEXT_API = False
 Checkout [prompt api](src/backend/prompt_api/README.md) to learn more about installation.
 
 
-## 2. Running
+## <a name='running' /> 2. Running
 
 ### 2.1 On a local host
 
@@ -161,23 +172,3 @@ Add `YOUR_IP` to `ALLOWED_HOSTS` in `cruise_literature/settings.py`
 ```bash
 (cruise-literature)$ python manage.py runserver YOUR_IP:YOUR_PORT
 ```
-
-## 3. Get Latest Version
-
-### 3.1 Update Your Local Code Version
-
-Before you start work, make sure you have the latest changes.
-Go into `src/cruise_literature/` directory: 
-
-	> git pull origin main
-
-## 4. Troubleshooting
-
-### 4.1 M1 Macbook
-
-If you are using a laptop with the M1 chip please change the following line in the [settings.py](src/cruise_literature/cruise_literature/settings.py) file:
-
-```python
-M1_CHIP = True
-```
-see [#130](https://github.com/ProjectDossier/cruise-literature/issues/130) for more details
