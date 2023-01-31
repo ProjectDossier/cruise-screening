@@ -11,13 +11,13 @@
                 {{ review.title }}
                 {% if review.papers|length > 0 %}
                     {% if review.ready_for_screening %}
-                        <a href="{% url 'citation_screening:screen_papers' review.id %}"
+                        <a href="{% url 'citation_screening:screening_home' review.id %}"
                            class="button is-success is-medium mt-1">
-                            Screen papers
+                            Screening home
                         </a>
                     {% else %}
                         <a class="button is-success is-medium mt-1 hover-text" disabled data-hover="Distribute papers first">
-                            Screen papers
+                            Screening home
                         </a>
                     {% endif %}
                 {% endif %}

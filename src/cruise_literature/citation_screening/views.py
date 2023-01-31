@@ -2,6 +2,7 @@ import time
 from typing import Optional
 
 import numpy as np
+from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -144,6 +145,50 @@ def make_decision(exclusions, inclusions):
 
 
 @login_required
+def screening_home(request, review_id):
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        _papers = list(review.papers.values())
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        if screening_task:
+            new = screening_task.tasks["new"].get(request.user.username, [])
+            new = [paper for paper in _papers if paper["id"] in new]
+            done = screening_task.tasks["done"].get(request.user.username, [])
+            done = [paper for paper in _papers if paper["id"] in done]
+
+            distributed_papers = {"To Do": new, "Done": done}
+            papers_to_screen: bool = len(new) > 0  # are there still some papers left?
+
+            return render(
+                request,
+                "literature_review/screening_home.html",
+                {
+                    "review": review,
+                    "distributed_papers": distributed_papers,
+                    "papers_to_screen": papers_to_screen,
+                },
+            )
+
+
+def move_paper_to_done(tasks, paper_id, username):
+    if username not in tasks["done"]:
+        tasks["done"][username] = []
+
+    # check if paper is already in done (i.e. we are editing a decision)
+    if paper_id in tasks["done"][username]:
+        return tasks
+
+    tasks["done"][username].append(paper_id)
+    tasks["new"][username].remove(paper_id)
+    return tasks
+
+
+@login_required
 def screen_papers(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
     if request.user not in review.members.all():
@@ -154,37 +199,53 @@ def screen_papers(request, review_id):
 
     _papers = list(review.papers.values())
     if request.method == "GET":
-        for paper in _papers:
-            if (
-                not paper.get("decisions")
-                or len(paper.get("decisions")) < review.annotations_per_paper
-            ):
-                return render(
-                    request,
-                    "literature_review/screen_paper.html",
-                    {"review": review, "paper": paper, "start_time": time.time()},
-                )
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        paper_id = screening_task.tasks["new"][request.user.username][0]
+        paper = review.papers[paper_id]
+
+        return render(
+            request,
+            "literature_review/screen_paper.html",
+            {"review": review, "paper": paper, "start_time": time.time()},
+        )
     elif request.method == "POST":
 
         paper_id = request.POST["paper_id"]
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
 
-        for paper in _papers:
-            if (
-                not paper.get("decisions")
-                or len(paper.get("decisions")) < review.annotations_per_paper
-            ):
-                return render(
-                    request,
-                    "literature_review/screen_paper.html",
-                    {
-                        "review": review,
-                        "paper": paper,
-                        "start_time": time.time(),
-                    },
-                )
-        return render(request, "literature_review/view_review.html", {"review": review})
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        screening_task.tasks = move_paper_to_done(
+            tasks=screening_task.tasks,
+            paper_id=paper_id,
+            username=request.user.username,
+        )
+        screening_task.save()
+
+        if not screening_task.tasks["new"][request.user.username]:
+            messages.success(
+                request,
+                "You have screened all papers. Thank you for your contribution!",
+            )
+            return render(
+                request, "literature_review/view_review.html", {"review": review}
+            )
+
+        paper_id = screening_task.tasks["new"][request.user.username][0]
+        paper = review.papers[paper_id]
+        return render(
+            request,
+            "literature_review/screen_paper.html",
+            {
+                "review": review,
+                "paper": paper,
+                "start_time": time.time(),
+            },
+        )
 
 
 def create_screening_decisions(request, review, paper_id):
@@ -275,6 +336,16 @@ def screen_paper(request, review_id, paper_id):
         paper_id = request.POST["paper_id"]
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
+
+        screening_task = CitationScreening.objects.filter(
+            literature_review=review, screening_level=1
+        ).first()
+        screening_task.tasks = move_paper_to_done(
+            tasks=screening_task.tasks,
+            paper_id=paper_id,
+            username=request.user.username,
+        )
+        screening_task.save()
 
         return redirect("literature_review:view_review", review_id=review_id)
 
