@@ -8,7 +8,7 @@ except fake_useragent.errors.FakeUserAgentError:
     scholarly = None
 
 from document_search.utils import SearchResultWithStatus
-from utils.article import Article
+from utils.article import Article, generate_uuid
 from utils.article import Author
 import re
 
@@ -76,9 +76,10 @@ def search_google_scholar(query: str, top_k: int) -> SearchResultWithStatus:
         except ValueError:
             publication_date = None
 
+        uuid = generate_uuid()
         retrieved_art = Article(
-            id=_id,
-            semantic_scholar_id=None,
+            id=uuid,
+            google_scholar_hash_id=_id,
             core_id=None,
             title=candidate["bib"].get("title"),
             url=candidate.get("pub_url"),

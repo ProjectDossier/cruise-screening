@@ -1,7 +1,7 @@
 import datetime
 import hashlib
 import json
-from typing import Dict, List
+from typing import Dict, List, Any
 
 import bibtexparser
 import rispy
@@ -12,10 +12,25 @@ from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 
 from users.models import User
+from utils.article import generate_uuid
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from utils.process_pdf import parse_doc_grobid
 from utils.django_tags import first_n_words
+
+
+def check_if_exist(article: dict[str, Any], articles_db: list[dict[str, Any]]) -> bool:
+    """
+    Checks if an article already exists in the database.
+
+    :param article:
+    :param articles_db:
+    :return:
+    """
+    for article_db in articles_db:
+        if article["title"] == article_db["title"]:
+            return True
+    return False
 
 
 @login_required
@@ -268,10 +283,10 @@ def import_ris(file_data):
             paper["url"] = f"https://www.doi.org/{paper['doi']}"
         paper["keywords"] = entry.get("keywords")
         paper["pdf"] = entry.get("pdf")
-        paper["id"] = entry.get("id")
+        paper["id"] = generate_uuid()
 
-        if paper["id"] is None:
-            paper["id"] = hashlib.md5(paper["title"].encode("utf-8")).hexdigest()
+        # if paper["id"] is None:
+        #     paper["id"] = hashlib.md5(paper["title"].encode("utf-8")).hexdigest()
         papers.append(paper)
 
     return papers
@@ -284,7 +299,7 @@ def import_bib(file_data):
         if entry.get("keywords"):
             keywords = entry.get("keywords").split(",")
         paper = {
-            "id": entry["ID"],
+            "id": generate_uuid(),
             "title": entry.get("title"),
             "authors": entry.get("author"),
             "publication_date": entry.get("year"),
@@ -339,6 +354,7 @@ def import_papers(request, review_id):
                 raise Http404("Invalid file type")
 
             for paper in _papers:
+                # todo: check if paper already exists using other method
                 if paper["id"] in review.papers:
                     continue
 

@@ -2,7 +2,7 @@ from typing import List, Dict, Tuple, Union
 import requests
 
 from document_search.utils import SearchResultWithStatus
-from utils.article import Article, Author
+from utils.article import Article, Author, generate_uuid
 
 API_ENDPOINT = "https://api.semanticscholar.org/graph/v1/paper/search?query="
 
@@ -44,8 +44,10 @@ def search_semantic_scholar(query: str, top_k: int) -> SearchResultWithStatus:
             authors = _get_authors(candidate.get("authors"))
             authors = ", ".join([a.display_name for a in authors])
             year = date[:4] if (date := candidate["publicationDate"]) else "   "
+
+            uuid = generate_uuid()
             retrieved_art = Article(
-                id=candidate["paperId"],
+                id=uuid,
                 semantic_scholar_id=candidate["paperId"],
                 core_id=None,
                 doi=doi,

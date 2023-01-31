@@ -1,7 +1,7 @@
 from Bio import Entrez, Medline
 from cruise_literature.settings import ENTREZ_EMAIL
 from document_search.utils import SearchResultWithStatus
-from utils.article import Article
+from utils.article import Article, generate_uuid
 from utils.article import Author
 
 Entrez.email = ENTREZ_EMAIL
@@ -40,8 +40,11 @@ def search_pubmed(query: str, top_k: int) -> SearchResultWithStatus:
                 ),
                 None,
             )
+
+            uuid = generate_uuid()
             retrieved_art = Article(
-                id=record["PMID"],
+                id=uuid,
+                pmid=record["PMID"],
                 semantic_scholar_id=None,
                 core_id=None,
                 doi=doi,

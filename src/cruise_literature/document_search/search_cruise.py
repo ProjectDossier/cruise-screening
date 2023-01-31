@@ -5,7 +5,7 @@ from typing import List
 import requests
 
 from document_search.utils import SearchResultWithStatus
-from utils.article import Article
+from utils.article import Article, generate_uuid
 
 
 def highlighter(doc: str, es_highlighted_texts: List[str]):
@@ -110,8 +110,10 @@ def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
             else:
                 keywords_rest[k] = v
 
+        uuid = generate_uuid()
         retrieved_art = Article(
-            id=candidate["_id"],
+            id=uuid,
+            cruise_id=candidate["_id"],
             title=candidate["_source"].get("title"),
             url=url,
             pdf=pdf,

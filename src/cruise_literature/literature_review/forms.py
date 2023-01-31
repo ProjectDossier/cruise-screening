@@ -310,7 +310,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
                     paper["outcome"] = None
                     paper["screened"] = False
                     results[paper["id"]] = paper
-        results = deduplicate(results=results)
+        results = deduplicate(results=results)  # todo: unify
         instance.papers = results
         instance.ready_for_screening = False
         instance.search_updated_at = search_time_now

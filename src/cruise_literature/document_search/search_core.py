@@ -5,7 +5,7 @@ import os
 from cruise_literature.settings import SEARCH_WITH_CORE
 from document_search.utils import SearchResultWithStatus
 
-from utils.article import Article
+from utils.article import Article, generate_uuid
 
 from utils.article import Author
 
@@ -80,9 +80,9 @@ def search_core(query: str, top_k: int) -> SearchResultWithStatus:
             if not citations_count:
                 citations_count = 0
 
+            uuid = generate_uuid()
             retrieved_art = Article(
-                id=candidate["id"],
-                semantic_scholar_id=None,
+                id=uuid,
                 core_id=candidate["id"],
                 doi=doi,
                 title=candidate.get("title"),

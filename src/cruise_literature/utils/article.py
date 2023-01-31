@@ -1,5 +1,11 @@
 from dataclasses import dataclass
 from typing import Union, Optional, Dict, List
+import uuid
+
+
+def generate_uuid() -> str:
+    """Assigns a UUID to an article."""
+    return str(uuid.uuid4())
 
 
 @dataclass
@@ -24,6 +30,8 @@ class Article:
     n_citations: Optional[int] = None  # citations count
 
     semantic_scholar_id: Optional[str] = None
+    cruise_id: Optional[str] = None
+    google_scholar_hash_id: Optional[str] = None
     core_id: Optional[str] = None
     doi: Optional[str] = None
     pmid: Optional[str] = None
