@@ -204,13 +204,13 @@ class NewLiteratureReviewForm(forms.ModelForm):
         forms.CharField(),
         delimiter="\n",
         widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
-        label="Type in your inclusion criteria, every one in a new line",
+        label="Type in your inclusion criteria, each one on a new line",
     )
     exclusion_criteria = ArrayFieldStripWhitespaces(
         forms.CharField(),
         delimiter="\n",
         widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
-        label="Type in your exclusion criteria, every one in a new line",
+        label="Type in your exclusion criteria, each one on a new line",
     )
     project_deadline = forms.DateField(
         initial=datetime.date.today,
@@ -350,13 +350,13 @@ class EditLiteratureReviewForm(forms.ModelForm):
         forms.CharField(),
         delimiter="\n",
         widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
-        label="Type in your inclusion criteria, every one in a new line",
+        label="Type in your inclusion criteria, each one on a new line",
     )
     exclusion_criteria = ArrayFieldStripWhitespaces(
         forms.CharField(),
         delimiter="\n",
         widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
-        label="Type in your exclusion criteria, every one in a new line",
+        label="Type in your exclusion criteria, each one on a new line",
     )
     tags = ArrayFieldStripWhitespaces(
         forms.CharField(),
