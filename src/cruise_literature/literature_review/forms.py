@@ -189,10 +189,12 @@ def create_criteria(
 
 class NewLiteratureReviewForm(forms.ModelForm):
     title = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "input form_required"})
+        widget=forms.TextInput(attrs={"class": "input form_required"}),
+        label="Literature review title",
     )
     description = forms.CharField(
-        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"})
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Literature review description",
     )
     search_queries = ArrayFieldStripWhitespaces(
         forms.CharField(),
@@ -212,16 +214,52 @@ class NewLiteratureReviewForm(forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
         label="Type in your exclusion criteria, each one on a new line",
     )
+
+    search_engines = forms.MultipleChoiceField(
+        label=r"""Select in which search engines you want to search for the papers""",
+        choices=SearchEngine.objects.filter(is_available_for_review=True).values_list(
+            "id", "name"
+        ),
+        initial=list(
+            SearchEngine.objects.filter(
+                name__in=["CRUISE", "SemanticScholar", "CORE"]
+            ).values_list("id", flat=True)
+        ),
+        widget=forms.SelectMultiple(
+            attrs={
+                "class": "select is-fullwidth is-multiple is-medium",
+                "style": "height: 130px;",
+            }
+        ),
+        help_text="""By default, it uses the internal CRUISE database, SemanticScholar and CORE.
+        Selecting Google Scholar will drastically increase the search time.
+        PubMed is the only search engine which supports Boolean operators in search queries.""",
+    )
+    top_k = forms.IntegerField(
+        initial=25,
+        max_value=500,
+        min_value=10,
+        label="Number of records retrieved per search query",
+        widget=forms.NumberInput(attrs={"class": "input"}),
+        help_text="The maximal value is 500.",
+    )
+
+    review_type = forms.ChoiceField(
+        choices=LiteratureReview.REVIEW_TYPES,
+        widget=forms.Select(attrs={"class": "select"}),
+        help_text="""The type of the review. This fields affect the requirements during the screening process.
+                  Literature review requires only filling final decision /todo/
+                  Annotation task requires filling all eligibility criteria fields manually.""",
+    )
+    annotations_per_paper = forms.ChoiceField(
+        choices=[(1, 1), (2, 2), (3, 3)],
+        widget=forms.Select(attrs={"class": "select"}),
+        help_text="By how many annotators each paper needs to be screened.",
+    )
+
     project_deadline = forms.DateField(
         initial=datetime.date.today,
         widget=forms.SelectDateWidget(years=range(2020, 2030)),
-    )
-    tags = ArrayFieldStripWhitespaces(
-        forms.CharField(),
-        delimiter=",",
-        widget=forms.TextInput(attrs={"class": "input"}),
-        label="Add optional tags, coma separated",
-        required=False,
     )
     discipline = forms.ModelChoiceField(
         queryset=KnowledgeArea.objects.all(),
@@ -233,28 +271,12 @@ class NewLiteratureReviewForm(forms.ModelForm):
         widget=forms.Select(attrs={"class": "select"}),
         required=False,
     )
-    annotations_per_paper = forms.ChoiceField(
-        choices=[(1, 1), (2, 2), (3, 3)], widget=forms.Select(attrs={"class": "select"})
-    )
-    search_engines = forms.MultipleChoiceField(
-        label="Select search engines where you want to search for papers. By default it searches in first three.",
-        choices=SearchEngine.objects.filter(is_available_for_review=True).values_list(
-            "id", "name"
-        ),
-        initial=list(
-            SearchEngine.objects.filter(
-                name__in=["CRUISE", "SemanticScholar", "CORE"]
-            ).values_list("id", flat=True)
-        ),
-        widget=forms.SelectMultiple(attrs={"class": "select is-multiple is-medium"}),
-        help_text="Selecting Google Scholar will drastically increase the search time.",
-    )
-    top_k = forms.IntegerField(
-        initial=25,
-        max_value=200,
-        min_value=10,
-        label="How many records do you want to retrieve?",
-        widget=forms.NumberInput(attrs={"class": "input"}),
+    tags = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter=",",
+        widget=forms.TextInput(attrs={"class": "input"}),
+        label="Add optional tags, coma separated",
+        required=False,
     )
 
     class Meta:
@@ -265,11 +287,14 @@ class NewLiteratureReviewForm(forms.ModelForm):
             "search_queries",
             "inclusion_criteria",
             "exclusion_criteria",
-            "project_deadline",
-            "tags",
-            "discipline",
+            "search_engines",
+            "top_k",
+            "review_type",
             "annotations_per_paper",
+            "project_deadline",
+            "discipline",
             "organisation",
+            "tags",
         )
 
     def __init__(self, *args, **kwargs):
@@ -327,8 +352,10 @@ class NewLiteratureReviewForm(forms.ModelForm):
         if commit:
             instance.save()
             member = LiteratureReviewMember(
-                member=self.user, literature_review=instance, role="AD",
-                added_by_id=self.user.id
+                member=self.user,
+                literature_review=instance,
+                role="AD",
+                added_by_id=self.user.id,
             )
             member.save()
 
