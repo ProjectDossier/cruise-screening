@@ -1,4 +1,4 @@
-# ![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png) CRUISE-literature 
+# ![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png) CRUISE-screening 
 
 ---
 
@@ -27,7 +27,8 @@ Project was tested on Python 3.9+. It will not run on Python 3.8 and below becau
 Create [conda](https://docs.conda.io/en/latest/miniconda.html) environment:
 
 ```bash
-$ conda create --name cruise-literature python==3.9.12
+$ conda create --name cruise-
+python==3.9.12
 ```
 
 Activate the environment:
