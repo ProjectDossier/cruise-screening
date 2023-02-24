@@ -35,7 +35,7 @@ def search_pubmed(query: str, top_k: int) -> SearchResultWithStatus:
             doi = next(
                 (
                     _potential_id[:-4].strip()
-                    for _potential_id in record.get("LID", [""]).split("]")
+                    for _potential_id in record.get("LID", "").split("]")
                     if _potential_id.strip().startswith("10.")
                 ),
                 None,
@@ -48,10 +48,11 @@ def search_pubmed(query: str, top_k: int) -> SearchResultWithStatus:
                 title=record["TI"],
                 url=f"https://pubmed.ncbi.nlm.nih.gov/{record['PMID']}/",
                 pdf=None,
-                snippet=record["AB"][:300],
-                abstract=record["AB"],
+                snippet=record.get("AB", "")[:300],
+                abstract=record.get("AB", ""),
                 authors="; ".join([a.display_name for a in authors]),
                 publication_date=record["MHDA"][:4],  # get full date
+                publication_year=record["MHDA"][:4],
                 venue=record["JT"],
                 keywords_snippet=record.get("OT", []),
                 keywords_rest=None,
