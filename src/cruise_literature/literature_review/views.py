@@ -1,7 +1,8 @@
 import datetime
 import hashlib
 import json
-from typing import Dict, List
+from dataclasses import asdict
+from typing import Dict, List, Any
 
 import bibtexparser
 import rispy
@@ -11,11 +12,14 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from requests import HTTPError
 
+from document_search.models import SearchEngine
 from users.models import User
-from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
+from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm, UpdateSearchForm, deduplicate
 from .models import LiteratureReview
 from utils.process_pdf import parse_doc_grobid
 from utils.django_tags import first_n_words
+from document_search.search_semantic_scholar import search_semantic_scholar
+from document_search.search_pubmed import search_pubmed
 
 
 @login_required
@@ -32,7 +36,9 @@ def create_new_review(request):
             form.save()
             title = form.cleaned_data.get("title")
             messages.success(request, f"New review created: {title}")
-            return redirect("literature_review:manage_review", review_id=form.instance.id)
+            return redirect(
+                "literature_review:manage_review", review_id=form.instance.id
+            )
         else:
             if "error_messages" in form:
                 for msg in form.error_messages:
@@ -492,4 +498,81 @@ def remove_review_member(request, review_id):
             request,
             "literature_review/manage_review.html",
             {"review": review},
+        )
+
+
+def _search(queries, search_engines, username:str,
+            last_search_time: int ):
+    results: Dict[str, Dict[str, Any]] = {}
+    search_time_now = str(datetime.datetime.now())
+    for query in queries:
+        for search_engine_name in search_engines:
+            search_engine = SearchEngine.objects.filter(
+                id=int(search_engine_name)
+            ).first()
+            search_method = eval(search_engine.search_method.split(".")[-1])
+
+            for paper in search_method(query=query, top_k=150)["results"]:
+                paper = asdict(paper)
+
+                if int(paper['publication_date']) < last_search_time:
+                    continue
+
+                paper["search_origin"] = [
+                    {
+                        "search_engine": search_engine.name,
+                        "query": query,
+                        "added_at": search_time_now,
+                        "added_by": username,
+                        "origin": "search",
+                        "id": paper["id"],
+                    }
+                ]
+                paper["decision"] = None
+                paper["outcome"] = None
+                paper["screened"] = False
+                results[paper["id"]] = paper
+    return results
+
+
+@login_required
+def update_search(request, review_id: int):
+    """This function calls selected search engines and updates the review papers"""
+    review = get_object_or_404(LiteratureReview, pk=review_id)
+    if request.user not in review.members.all():
+        raise Http404("Review not found")
+
+    if request.method == "GET":
+        form = UpdateSearchForm(
+            initial={
+                "search_queries": review.search_queries,
+                "search_engines": [2],  # only semantic scholar
+            }
+        )
+        return render(
+            request,
+            "literature_review/update_search.html",
+            {"review": review, "form": form},
+        )
+    elif request.method == "POST":
+        form = UpdateSearchForm(request.POST)
+        if form.is_valid():
+            search_engines = form.cleaned_data["search_engines"]
+            search_queries = form.cleaned_data["search_queries"]
+            year: int = review.search_updated_at.year
+            papers = _search(
+                search_queries, search_engines, username=request.user.username,
+                last_search_time=year
+            )
+            papers.update(review.papers)
+            papers = deduplicate(results=papers)
+
+            review.papers = papers
+            review.search_updated_at = str(datetime.datetime.now())
+            review.save()
+
+        return render(
+            request=request,
+            template_name="literature_review/view_review.html",
+            context={"review": review},
         )
