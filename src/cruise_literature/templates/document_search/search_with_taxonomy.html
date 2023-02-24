@@ -1,0 +1,16 @@
+{% extends '_base_templates/_base.html' %}
+{% block title %}
+    Cruise-literature: {{ search_query }}
+{% endblock %}
+
+{% block content %}
+    <div class="search-results">
+        <div>
+            {% include "document_search/_search_result_list.html" %}
+            {% include "_base_templates/_footer.html" %}
+        </div>
+        <div>
+            {% include "document_search/_concept_map.html" %}
+        </div>
+    </div>
+{% endblock %}

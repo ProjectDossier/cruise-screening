@@ -1,0 +1,197 @@
+{% extends '_base_templates/_base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header pl-4">
+            {% include 'literature_review/_review_header.html' %}
+        </div>
+        <div class="card-content">
+            <h1 class="title is-1">
+                {{ review.title }}
+                {% if review.papers|length > 0 %}
+                    {% if review.ready_for_screening %}
+                        <a href="{% url 'citation_screening:screen_papers' review.id %}"
+                           class="button is-success is-medium mt-1">
+                            Screen papers
+                        </a>
+                    {% elif papers_to_screen %}
+                        <a class="button is-success is-medium mt-1 hover-text" disabled
+                           data-hover="All papers screened">
+                            Screen papers
+                        </a>
+                    {% else %}
+                        <a class="button is-success is-medium mt-1 hover-text" disabled
+                           data-hover="Distribute papers first">
+                            Screen papers
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </h1>
+            <div x-data="{openReviewDescription: false}">
+                {% if review.description != review.description|first_n_words:35 %}
+                    <template x-if="openReviewDescription">
+                        <p class="title is-5"><strong>Description:</strong> {{ review.description }}
+                            <button type="button" class="card__show-more" x-on:click="openReviewDescription = false">
+                                Show less
+                            </button>
+                        </p>
+                    </template>
+                    <template x-if="!openReviewDescription" x-cloak>
+                        <p class="title is-5"><strong>Description:</strong> {{ review.description|first_n_words:35 }}
+                            ...
+                            <button type="button" class="card__show-more" x-on:click="openReviewDescription = true">Show
+                                full
+                                description
+                            </button>
+                        </p>
+                    </template>
+                {% else %}
+                    <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+                {% endif %}
+            </div>
+            <hr/>
+            <p>
+                <strong class="has-background-orange-light m-2">Inclusion criteria:</strong>
+                {% for criterion in review.criteria.inclusion %}
+                    {% if criterion.is_active %}
+                        <span class="tag is-success is-light">{{ criterion.text }}</span>
+                    {% endif %}
+                {% endfor %}
+            </p>
+            <p>
+                <strong class="has-background-orange-light m-2">Exclusion criteria:</strong>
+                {% for criterion in review.criteria.exclusion %}
+                    {% if criterion.is_active %}
+                        <span class="tag is-danger is-light">{{ criterion.text }}</span>
+                    {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+        {% for title, papers in distributed_papers.items %}
+            <div class="box">
+                <h4 class="title is-4">{{ title }}:</h4>
+                <div x-data="sortTable()" class="card-content">
+                    <table class="table is-striped is-fullwidth is-hoverable">
+                        <thead>
+                        <tr>
+                            <th @click="sortByColumn" class="cursor-pointer">#</th>
+                            <th @click="sortByColumn">Title</th>
+                            <th @click="sortByColumn">Authors</th>
+                            <th @click="sortByColumn">Year</th>
+                            <th @click="sortByColumn">Journal</th>
+                            <th @click="sortByColumn">Citations</th>
+                            <th @click="sortByColumn">Source</th>
+                            <th @click="sortByColumn">URL</th>
+                            <th @click="sortByColumn">PDF</th>
+                            <th @click="sortByColumn">Manual</th>
+                            <th @click="sortByColumn">Automatic</th>
+                            <th @click="sortByColumn"></th>
+                        </tr>
+                        </thead>
+                        <tbody x-ref="tbody">
+                        {% for paper in papers %}
+                            {% if paper.decision == "1" %}
+                                <tr class="has-text-success">
+                                    {% elif paper.decision == "-1" %}
+                                <tr class="has-text-orange">
+                                    {% elif paper.decision == "0" %}
+                                <tr class="has-text-grey-lighter">
+                                    {% else %}
+                                <tr class>
+                            {% endif %}
+                        <th>{{ forloop.counter }}</th>
+                        <td>
+                            <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
+                        </td>
+                        <td>{{ paper.authors }}</td>
+                        {% if paper.publication_date %}
+                            <td>{{ paper.publication_date }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        {% if paper.venue %}
+                            <td>{{ paper.venue }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        {% if paper.citations %}
+                            <td>{{ paper.citations }}</td>
+                        {% else %}
+                            <td>—</td>
+                        {% endif %}
+                        <td>
+                            {% for search_origin in paper.search_origin %}
+                                <span class="tag is-light hover-text"
+                                      data-hover="query:{{ search_origin.query }} at:{{ search_origin.added_at }}">{{ search_origin.search_engine }}</span>
+                            {% endfor %}
+                        </td>
+                        {% if paper.url %}
+                            <td class="has-text-centered"><a href="{{ paper.url }}">🌐</a></td>
+                        {% else %}
+                            <td class="has-text-centered">—</td>
+                        {% endif %}
+                        {% if paper.pdf %}
+                            <td class="has-text-centered"><a href="{{ paper.pdf }}"><img
+                                    src="{% static 'img/pdf-icon.svg' %}"
+                                    width="18" height="18"></a></td>
+                        {% else %}
+                            <td class="has-text-centered">—</td>
+                        {% endif %}
+                        {% if review.data_format_version > 2 %}
+                            {% if paper.screened %}
+                                <td>done</td>
+                            {% else %}
+                                <td>—</td>
+                            {% endif %}
+                        {% else %}
+                            <td>—</td>
+                        {% endif %}
+                        {% if paper.automatic_decisions|length > 0 %}
+                            <td>
+                                {% for decision in paper.automatic_decisions %}
+                                    {% if decision.decision == "yes" %}
+                                        <span class="tag is-success is-light hover-text"
+                                              data-hover="{{ decision.reviewer_id }}">Include</span>
+                                    {% elif decision.decision == "maybe" %}
+                                        <span class="tag is-warning is-light hover-text"
+                                              data-hover="{{ decision.reviewer_id }}">Maybe</span>
+                                    {% elif decision.decision == "no" %}
+                                        <span class="tag is-danger is-light hover-text"
+                                              data-hover="{{ decision.reviewer_id }}">Exclude</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% else %}
+                            <td>—</td>
+                        {% endif %}
+                        {% if not review.ready_for_screening %}
+                            <td></td>
+                        {% elif paper.screened %}
+                            <td><a
+                                    href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper.id %}">Edit</a>
+                            </td>
+                        {% else %}
+                            <td>
+                                <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper.id %}">Screen</a>
+                            </td>
+                        {% endif %}
+
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="card-footer pl-4">
+            <a href="{% url 'literature_review:literature_review_home' %}" class="button is-link is-small">
+                Back
+            </a>
+        </div>
+    </div>
+
+
+    {% include "_base_templates/_footer.html" %}
+{% endblock %}

@@ -252,3 +252,32 @@ search-results-one-column {
   height: auto !important;
   min-height: 2em !important;
 }
+
+.hover-text {
+  position: relative;
+}
+
+.hover-text:before {
+  content: attr(data-hover);
+  visibility: hidden;
+  opacity: 0;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  transition: opacity 1s ease-in-out;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 110%;
+}
+
+.hover-text:hover:before {
+  opacity: 80%;
+  visibility: visible;
+}
+
+.message {
+    margin: 0 auto !important;
+}

@@ -30,7 +30,7 @@
 <nav class="navbar is-light navbar-height" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
         <a class="navbar__logo" href="{% url 'home' %}">
-            <img src="{% static 'logo.png' %}" width="60" height="60">
+            <img src="{% static 'img/cruise-logo.png' %}" width="60" height="60">
         </a>
         <a role="button" data-target="userMenu" class="navbar-burger" aria-label="menu"
            aria-expanded="false">
@@ -65,6 +65,9 @@
     {% endif %}
     <div class="navbar-menu" id="userMenu">
         <div class="navbar-end">
+            <a href="{% url 'faq' %}" class="navbar-item">
+                FAQ
+            </a>
             {% if user.is_authenticated %}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a href="{% url 'user_profile' %}" class="navbar-link">
@@ -77,9 +80,6 @@
                         <a href="{% url 'literature_review:literature_review_home' %}" class="navbar-item">
                             My reviews
                         </a>
-                        <a href="{% url 'about' %}" class="navbar-item">
-                            About us
-                        </a>
                         <hr class="navbar-divider">
                         <a href="{% url 'logout' %}" class="navbar-item">
                             Logout
@@ -87,7 +87,7 @@
                     </div>
                 </div>
             {% else %}
-                <a href="{% url 'register' %}" class="navbar-item">
+                <a class="js-modal-trigger navbar-item" data-target="modal-sign-up">
                     <strong>Sign up</strong>
                 </a>
                 <a href="{% url 'login' %}" class="navbar-item">
@@ -105,4 +105,49 @@
             {% endfor %}
         </ul>
     {% endif %}
+</div>
+
+<div id="modal-sign-up" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">You are about to create an account in CRUISE</p>
+            <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="block">
+                CRUISE is a research project developed in the context of the <a href="https://dossier-project.eu/"
+                                                                               target="_blank">DoSSIER</a> project.
+                This project aims to develop a tool that will help researchers find and use the most relevant evidence in their work.
+                We want to understand why specific papers are included and excluded from a literature review.
+                To do this, we need to collect information about the literature review process by analysing how other researchers conduct their literature reviews.
+            </div>
+            <div class="block">
+                We will aggregate your data with all the other participants and use it to write papers for conferences and journals.
+                This data will also be published in a research data repository under a creative commons license.
+                This will also allow prospective researchers to utilise it and drive insights for the future of reviewing literature.
+            </div>
+            <div class="block">
+                There will be no data collected that allows for the revelation of your identity in any way.
+                As a result, all information you provide will remain anonymous without leading to your identity in reporting the study results.
+            </div>
+            <div class="block">
+                By creating an account, you acknowledge that you have read and understood the purpose of the project and
+                have had all of your questions and concerns addressed
+            </div>
+            <div class="block">
+                Do you have any further questions or concerns? If so please <a href="mailto:Wojciech.Kusa@tuwien.ac.at">contact us</a>.
+                If not, please review the following and formally indicate your willingness to proceed.
+            </div>
+            <div class="block">
+                Do you agree to the terms and conditions, and would you like to create an account?
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+                <a class="button is-info" href="{% url 'register' %}" >
+                    Yes, I agree and I would like to create an account
+                </a>
+            <button class="button ml-4">No, cancel</button>
+        </footer>
+    </div>
 </div>

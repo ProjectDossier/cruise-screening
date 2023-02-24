@@ -1,12 +1,11 @@
 import inspect
 
 from django.test import TestCase
+from rest_framework.test import APIClient
 
+from users.models import User
 from .classifiers.dummy import DummyClassifier
 from .registry import MLRegistry
-from users.models import User
-from django.test import TestCase
-from rest_framework.test import APIClient
 
 
 class MLRegistryTests(TestCase):
@@ -37,3 +36,13 @@ class MLRegistryTests(TestCase):
 
         # there should be one endpoint available
         self.assertEqual(len(registry.endpoints), 1)
+
+
+class EndpointTests(TestCase):
+    def test_predict_view(self):
+        user = User.objects.create_user("myuser", "myemail@test.com", "test_password")
+        client = APIClient()
+        input_data = ["This text should be included"]
+        classifier_url = "/api/v1/text_classification/predict"
+        response = client.post(classifier_url, input_data, format="json")
+        self.assertEqual(response.status_code, 404)

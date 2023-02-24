@@ -1,0 +1,18 @@
+{% extends "_base_templates/_base.html" %}
+{% load static %}
+{% block content %}
+
+    <div class="search-box">
+        <img src="{% static 'img/cruise-logo.png' %}" class="search-box__logo" width="300" height="300">
+
+        <form id="search_box" method="GET" action="/search">
+            <div class="search-box__input">
+                <input type="search" class="input mr-2" name="search_query" value="{{ default_query }}"
+                       placeholder="Search CRUISE" aria-label="Search"/>
+                <button class="button is-primary">Search</button>
+            </div>
+            <input type='hidden' name='source' value="main_search">
+        </form>
+    </div>
+    {% include "_base_templates/_footer.html" %}
+{% endblock %}

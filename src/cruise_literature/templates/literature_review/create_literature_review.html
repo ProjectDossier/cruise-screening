@@ -1,4 +1,4 @@
-{% extends '_base.html' %}
+{% extends '_base_templates/_base.html' %}
 
 {% block content %}
     <div class="card">
@@ -8,17 +8,34 @@
             </a>
         </div>
         <div class="register">
-            <h1 class="title is-1">Create new literature review</h1>
-            <form method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div>
-                    <button type="submit" class="button is-link mt-5 is-fullwidth">Create new literature review</button>
-                </div>
-            </form>
+            <h1 class="title is-1">Create a new literature review</h1>
+            <div>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="block">
+                            <label class="create-review-label"
+                                   for="{{ field.auto_id }}">{{ field.label }}:</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <p class="help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.name in "exclusion_criteria,top_k,annotations_per_paper" %}
+                                <hr/>
+                            {% endif %}
+                            {% if field.name == "annotations_per_paper" %}
+                                <h3 class="title is-5">Additional fields:</h3>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <div>
+                        <button type="submit" class="button is-link mt-5 is-fullwidth">Create</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    {% include "_footer.html" %}
+    {% include "_base_templates/_footer.html" %}
 
 {% endblock %}

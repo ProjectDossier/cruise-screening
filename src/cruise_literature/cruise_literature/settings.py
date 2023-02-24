@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "document_search",
     "concept_search",
     "users",
+    "literature_review",
     "citation_screening",
     "document_classification",
     "organisations",
@@ -156,3 +157,7 @@ AUTH_USER_MODEL = "users.User"
 
 # if True then also search inside CORE publications aggregator
 SEARCH_WITH_CORE = True
+
+TEXT_TO_TEXT_API = True
+
+ENTREZ_EMAIL = "YOUR_EMAIL@SERVER.COM"

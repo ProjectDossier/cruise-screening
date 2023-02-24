@@ -1,12 +1,19 @@
 from typing import List
-from scholarly import scholarly
 
+import fake_useragent
+
+try:
+    from scholarly import scholarly
+except fake_useragent.errors.FakeUserAgentError:
+    scholarly = None
+
+from document_search.utils import SearchResultWithStatus
 from utils.article import Article
 from utils.article import Author
 import re
 
 
-def get_authors(names: List[str], scholar_ids: List[str] = None) -> List[Author]:
+def _get_authors(names: List[str], scholar_ids: List[str] = None) -> List[Author]:
     _authors = []
     for index_i, _author_name in enumerate(names):
         scholar_id = None
@@ -17,11 +24,11 @@ def get_authors(names: List[str], scholar_ids: List[str] = None) -> List[Author]
     return _authors
 
 
-def revert_snippet(snippet):
+def revert_snippet(snippet: str) -> str:
     """snippet returned by scholarly contains double whitespaces both for newlines and
-    for parts when google scholar merged two results. This method reverts this process by trying
+    for parts when Google Scholar merged two results. This method reverts this process by trying
     to find the double whitespace in the middle and replace it with one space char, and after replaces
-    all other double spaces as elipsis."""
+    all other double spaces as ellipsis."""
     lower_bound = len(snippet) // 2 - 5
     upper_bound = len(snippet) // 2 + 5
     new_snippet = next(
@@ -37,7 +44,16 @@ def revert_snippet(snippet):
     return new_snippet
 
 
-def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
+def search_google_scholar(query: str, top_k: int) -> SearchResultWithStatus:
+    if scholarly is None:
+        return {
+            "results": [],
+            "status": "ERROR",
+            "status_code": 503,
+            "search_engine": "Google Scholar",
+            "search_query": query,
+        }
+
     pubs = scholarly.search_pubs(query, patents=False)
 
     candidate_list = []
@@ -50,7 +66,7 @@ def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
 
         _id = f"id_{hash(candidate['url_scholarbib'])}"  # no IDs in google scholar
 
-        authors = get_authors(
+        authors = _get_authors(
             names=candidate["bib"].get("author"), scholar_ids=candidate.get("author_id")
         )
         authors = ", ".join([a.display_name for a in authors])
@@ -75,9 +91,22 @@ def search_google_scholar(query: str, index: str, top_k: int) -> List[Article]:
             keywords_snippet=None,
             keywords_rest=None,
             CSO_keywords=None,
-            citations=candidate["num_citations"],
-            references=None,
+            n_citations=candidate["num_citations"],
+            n_references=None,
         )
         candidate_list.append(retrieved_art)
 
-    return candidate_list
+    if candidate_list:
+        _status = "OK"
+        _status_code = 200
+    else:
+        _status = "ERROR"
+        _status_code = 503
+
+    return {
+        "results": candidate_list,
+        "status": _status,
+        "status_code": _status_code,
+        "search_engine": "Google Scholar",
+        "search_query": query,
+    }

@@ -1,0 +1,49 @@
+{% extends '_base_templates/_base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="card">
+        <div class="card-header pl-4">
+            {% include 'literature_review/_review_header.html' %}
+        </div>
+        <div class="card-content">
+            <h1 class="title is-3">
+                Review: {{ review.title }}
+            </h1>
+            <h5 class="is-5">Remove user from review</h5>
+            <hr/>
+            <form method="POST" action="{% url 'literature_review:remove_review_member' review.id %}">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label">Username</label>
+                    <div class="control">
+                        <input class="input" type="text" name="username" placeholder="Username">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-link">Remove</button>
+                    </div>
+                </div>
+            </form>
+            <hr/>
+            <h5 class="is-5">Current members</h5>
+            <p>
+                {% for member in review.members.all %}
+                    {{ member.username }}
+                {% endfor %}
+            </p>
+
+        </div>
+
+        <div class="card-footer pl-4">
+            <a href="{% url 'literature_review:manage_review' review.id %}" class="button is-link is-small">
+                Back
+            </a>
+        </div>
+    </div>
+
+
+    {% include "_base_templates/_footer.html" %}
+{% endblock %}

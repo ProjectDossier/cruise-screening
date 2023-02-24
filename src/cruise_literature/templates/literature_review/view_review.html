@@ -1,4 +1,4 @@
-{% extends '_base.html' %}
+{% extends '_base_templates/_base.html' %}
 {% load static %}
 
 {% block content %}
@@ -9,14 +9,42 @@
         <div class="card-content">
             <h1 class="title is-1">
                 {{ review.title }}
-                {% if  review.papers|length > 0 %}
-                    <a href="{% url 'literature_review:screen_papers' review.id %}"
-                       class="button is-success is-medium mt-1">
-                        Screen papers
-                    </a>
+                {% if review.papers|length > 0 %}
+                    {% if review.ready_for_screening %}
+                        <a href="{% url 'citation_screening:screening_home' review.id %}"
+                           class="button is-success is-medium mt-1">
+                            Screening home
+                        </a>
+                    {% else %}
+                        <a class="button is-success is-medium mt-1 hover-text" disabled data-hover="Distribute papers first">
+                            Screening home
+                        </a>
+                    {% endif %}
                 {% endif %}
             </h1>
-            <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+            <div x-data="{openReviewDescription: false}">
+                {% if review.description != review.description|first_n_words:35 %}
+                    <template x-if="openReviewDescription">
+                        <p class="title is-5"><strong>Description:</strong> {{ review.description }}
+                            <button type="button" class="card__show-more" x-on:click="openReviewDescription = false">
+                                Show less
+                            </button>
+                        </p>
+                    </template>
+                    <template x-if="!openReviewDescription" x-cloak>
+                        <p class="title is-5"><strong>Description:</strong> {{ review.description|first_n_words:35 }}
+                            ...
+                            <button type="button" class="card__show-more" x-on:click="openReviewDescription = true">Show
+                                full
+                                description
+                            </button>
+                        </p>
+                    </template>
+                {% else %}
+                    <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>
+                {% endif %}
+            </div>
+            {#            <p class="title is-5"><strong>Description:</strong> {{ review.description }}</p>#}
             <p>Search queries:
                 {% for query in review.search_queries %}
                     <span class="tag is-light">{{ query }}</span>
@@ -25,47 +53,62 @@
             <hr/>
             <p>
                 <strong class="has-background-orange-light m-2">Inclusion criteria:</strong>
-                {% for criterion in review.inclusion_criteria %}
-                    <span class="tag is-success is-light">{{ criterion }}</span>
+                {% for criterion in review.criteria.inclusion %}
+                    {% if criterion.is_active %}
+                        <span class="tag is-success is-light">{{ criterion.text }}</span>
+                    {% endif %}
                 {% endfor %}
             </p>
             <p>
                 <strong class="has-background-orange-light m-2">Exclusion criteria:</strong>
-                {% for criterion in review.exclusion_criteria %}
-                    <span class="tag is-danger is-light">{{ criterion }}</span>
+                {% for criterion in review.criteria.exclusion %}
+                    {% if criterion.is_active %}
+                        <span class="tag is-danger is-light">{{ criterion.text }}</span>
+                    {% endif %}
                 {% endfor %}
             </p>
             <div x-data="{ openStatistics: false}">
                 <template x-if="openStatistics">
                     <table class="table is-striped is-hoverable">
                         <thead>
-                            <tr>
-                                <th><button type="button" class="card__show-more" x-on:click="openStatistics = false">Hide ▴</button></th>
-                                <th>Decisions so far</th>
-                            </tr>
+                        <tr>
+                            <th>
+                                <button type="button" class="card__show-more" x-on:click="openStatistics = false">Hide
+                                    ▴
+                                </button>
+                            </th>
+                            <th>Manual decisions so far</th>
+                            <th>Automatic decisions</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr class="has-text-success">
-                                <td>Includes</td>
-                                <td>{{ review.decisions_count.0 }}</td>
-                            </tr>
-                            <tr class="has-text-orange">
-                                <td>Maybe</td>
-                                <td>{{ review.decisions_count.1 }}</td>
-                            </tr>
-                            <tr class="has-text-grey-lighter">
-                                <td>Excludes</td>
-                                <td>{{ review.decisions_count.2 }}</td>
-                            </tr>
-                            <tr>
-                                <td>Missing judgements</td>
-                                <td>{{ review.decisions_count.3 }}</td>
-                            </tr>
+                        <tr class="has-text-success">
+                            <td>Includes</td>
+                            <td>{{ review.decisions_count.0 }}</td>
+                            <td>{{ review.automatic_decisions_count.0 }}</td>
+                        </tr>
+                        <tr class="has-text-orange">
+                            <td>Maybe</td>
+                            <td>{{ review.decisions_count.1 }}</td>
+                            <td>{{ review.automatic_decisions_count.1 }}</td>
+                        </tr>
+                        <tr class="has-text-grey-lighter">
+                            <td>Excludes</td>
+                            <td>{{ review.decisions_count.2 }}</td>
+                            <td>{{ review.automatic_decisions_count.2 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Missing judgements</td>
+                            <td>{{ review.decisions_count.3 }}</td>
+                            <td>{{ review.automatic_decisions_count.3 }}</td>
+                        </tr>
                         </tbody>
                     </table>
                 </template>
                 <template x-if="!openStatistics">
-                    <button type="button" class="m-2 card__show-more" x-on:click="openStatistics = true">Show review statistics ▾</button>
+                    <button type="button" class="m-2 card__show-more" x-on:click="openStatistics = true">Show review
+                        statistics ▾
+                    </button>
                 </template>
             </div>
         </div>
@@ -82,12 +125,13 @@
                     <th @click="sortByColumn">Source</th>
                     <th @click="sortByColumn">URL</th>
                     <th @click="sortByColumn">PDF</th>
-                    <th @click="sortByColumn">Screened</th>
+                    <th @click="sortByColumn">Manual</th>
                     <th @click="sortByColumn">Automatic</th>
+                    <th @click="sortByColumn"></th>
                 </tr>
                 </thead>
                 <tbody x-ref="tbody">
-                {% for paper in review.papers %}
+                {% for paper_id, paper in review.papers.items %}
                     {% if paper.decision == "1" %}
                         <tr class="has-text-success">
                             {% elif paper.decision == "-1" %}
@@ -99,7 +143,7 @@
                     {% endif %}
                 <th>{{ forloop.counter }}</th>
                 <td>
-                    <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">{{ paper.title }}</a>
+                    <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">{{ paper.title }}</a>
                 </td>
                 <td>{{ paper.authors }}</td>
                 {% if paper.publication_date %}
@@ -115,36 +159,63 @@
                 {% if paper.citations %}
                     <td>{{ paper.citations }}</td>
                 {% else %}
-                    <td>-</td>
+                    <td>—</td>
                 {% endif %}
-                <td>{{ paper.search_engine }}</td>
+                <td>
+                    {% for search_origin in paper.search_origin %}
+                        <span class="tag is-light hover-text"
+                              data-hover="query:{{ search_origin.query }} at:{{ search_origin.added_at }}">{{ search_origin.search_engine }}</span>
+                    {% endfor %}
+                </td>
                 {% if paper.url %}
                     <td class="has-text-centered"><a href="{{ paper.url }}">🌐</a></td>
                 {% else %}
                     <td class="has-text-centered">—</td>
                 {% endif %}
                 {% if paper.pdf %}
-                    <td class="has-text-centered"><a href="{{ paper.pdf }}"><img src="{% static 'pdf_icon.svg' %}"
+                    <td class="has-text-centered"><a href="{{ paper.pdf }}"><img src="{% static 'img/pdf-icon.svg' %}"
                                                                                  width="18" height="18"></a></td>
                 {% else %}
                     <td class="has-text-centered">—</td>
                 {% endif %}
-                {% if paper.screened %}
-                    <td>Yes, <a
-                            href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">edit</a>
+                {% if review.data_format_version > 2 %}
+                    {% if paper.screened %}
+                        <td>done</td>
+                    {% else %}
+                        <td>—</td>
+                    {% endif %}
+                {% else %}
+                    <td>—</td>
+                {% endif %}
+                {% if paper.automatic_decisions|length > 0 %}
+                    <td>
+                        {% for decision in paper.automatic_decisions %}
+                            {% if decision.decision == "yes" %}
+                                <span class="tag is-success is-light hover-text"
+                                      data-hover="{{ decision.reviewer_id }}">Include</span>
+                            {% elif decision.decision == "maybe" %}
+                                <span class="tag is-warning is-light hover-text"
+                                      data-hover="{{ decision.reviewer_id }}">Maybe</span>
+                            {% elif decision.decision == "no" %}
+                                <span class="tag is-danger is-light hover-text" data-hover="{{ decision.reviewer_id }}">Exclude</span>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                {% else %}
+                    <td>—</td>
+                {% endif %}
+                 {% if not review.ready_for_screening %}
+                    <td></td>
+                {% elif paper.screened %}
+                    <td><a
+                            href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Edit</a>
                     </td>
                 {% else %}
                     <td>
-                        <a href="{% url 'literature_review:screen_papers' review_id=review.id paper_id=paper.id %}">No</a>
+                        <a href="{% url 'citation_screening:screen_paper' review_id=review.id paper_id=paper_id %}">Screen</a>
                     </td>
                 {% endif %}
-                {% if paper.automatic_decisions.decision == 1 %}
-                    <td class="has-text-success">Include ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
-                {% elif paper.automatic_decisions.decision == 0 %}
-                    <td class="has-text-grey-lighter">Exclude ({{ paper.automatic_decisions.probability|stringformat:".4s" }})</td>
-                {% else %}
-                    <td></td>
-                {% endif %}
+
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -159,5 +230,5 @@
     </div>
 
 
-    {% include "_footer.html" %}
+    {% include "_base_templates/_footer.html" %}
 {% endblock %}

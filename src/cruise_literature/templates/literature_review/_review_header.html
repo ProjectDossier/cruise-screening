@@ -1,23 +1,25 @@
+{% if review.data_format_version > 2 %}
 <a href="{% url 'literature_review:literature_review_home' %}" class="button is-info is-small">
     All reviews
 </a>
 <a href="{% url 'literature_review:review_details' review.id %}" class="button is-info is-small ml-4">
     Review home
 </a>
-{% if review.can_screen_automatically %}
-    <a href="{% url 'literature_review:automatic_screening' review.id %}" class="ml-4 button is-info is-outlined is-small">
-        Screen automatically
-    </a>
-{% else %}
-    <a class="ml-4 button is-info is-outlined is-small" disabled>
-        Screen automatically
-    </a>
-{% endif %}
+<button class="js-modal-trigger ml-4 button is-info is-outlined is-small align-button-to-right"
+    data-target="modal-screen-automatically-review-{{ review.id }}">
+    Screen automatically
+</button>
+<a href="{% url 'literature_review:manage_review' review.id %}" class="ml-4 button is-info is-outlined is-small">
+    Manage review
+</a>
 <a href="{% url 'literature_review:edit_review' review.id %}" class="ml-4 button is-info is-outlined is-small">
     Edit review
 </a>
 <a href="{% url 'literature_review:add_seed_studies' review.id %}" class="ml-4 button is-info is-outlined is-small">
     Add seed study
+</a>
+<a href="{% url 'literature_review:import_papers' review.id %}" class="ml-4 button is-info is-outlined is-small">
+    Import papers
 </a>
 <a class="ml-4 button is-info is-outlined is-small" disabled>
     Update search
@@ -26,7 +28,103 @@
     Export results
 </a>
 {% if request.resolver_match.view_name == 'literature_review:review_details' %}
-<a class="button is-danger disabled light is-small align-button-to-right" disabled>
-    Delete review {#  TODO   #}
-</a>
+<button class="js-modal-trigger button is-danger disabled light is-small align-button-to-right"
+        data-target="modal-delete-review-{{ review.id }}">
+    Delete review
+</button>
 {% endif %}
+{%  else %}
+<a href="{% url 'literature_review:literature_review_home' %}" class="button is-info is-small">
+    All reviews
+</a>
+<a href="{% url 'literature_review:review_details' review.id %}" class="button is-info is-small ml-4">
+    Review home
+</a>
+<a class="ml-4 button is-info is-outlined is-small" disabled>
+    Edit review
+</a>
+<a class="ml-4 button is-info is-outlined is-small" disabled>
+    Add seed study
+</a>
+<a class="ml-4 button is-info is-outlined is-small" disabled>
+    Update search
+</a>
+<a href="{% url 'literature_review:export_review' review.id %}" class="ml-4 button is-light is-small">
+    Export results
+</a>
+<button class="js-modal-trigger button is-danger disabled light is-small align-button-to-right"
+        data-target="modal-delete-review-{{ review.id }}">
+    Delete review
+</button>
+{% endif %}
+
+<div id="modal-screen-automatically-review-{{ review.id }}" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Screen papers automatically</p>
+            <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="block">
+                This will screen all the studies in the review using the screening criteria.
+            </div>
+            <div class="block">
+                This may take a while. Approximately, to screen all documents it will take:
+                <ul>
+                    <li>For a binary classifier: around 30 seconds</li>
+                    <li>For a prompt-based model: around {% widthratio review.number_of_papers 1 3 %} seconds</li>
+            </div>
+            <div class="block">
+                As the process is based on the language model, you should check the results. You can access the original
+                document by clicking on the title of the study or the 🌐 icon next to each study.
+            </div>
+            <div class="block">
+                The results will be saved automatically. Sometimes the process will be interrupted. If this happens, you can
+                resume the process by restarting the process. It will pick up where it left off.
+            </div>
+            <div class="block">
+                Are you sure you want to continue?
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            {% if review.can_screen_automatically %}
+                <a href="{% url 'citation_screening:automatic_screening' review.id %}" class="button is-info">
+                    Use binary text classifier
+                </a>
+            {% else %}
+                <a class="button is-info" disabled>
+                    Use binary text classifier
+                </a>
+            {% endif %}
+            <a href="{% url 'citation_screening:prompt_based_screening' review.id %}" class="ml-4 button is-info">
+                Use prompt-based model
+            </a>
+            <button class="button ml-4">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+
+<div id="modal-delete-review-{{ review.id }}" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Are you sure that you want to delete this review?</p>
+            <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="block">
+                Review title: <strong>'{{ review.title }}'</strong>
+            </div>
+            <div class="block">
+                This will delete all papers, together with their eligibility decisions.
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <a href="{% url 'literature_review:delete_review' review.id %}"
+                   class="button is-danger">Yes, delete this review</a>
+            <button class="button ml-4">Cancel</button>
+        </footer>
+    </div>
+</div>
