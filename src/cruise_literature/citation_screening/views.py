@@ -198,7 +198,6 @@ def screen_papers(request, review_id):
     if not review.ready_for_screening:
         raise Http404("Review not ready for manual screening. Distribute papers first.")
 
-    _papers = list(review.papers.values())
     if request.method == "GET":
         screening_task = CitationScreening.objects.filter(
             literature_review=review, screening_level=1

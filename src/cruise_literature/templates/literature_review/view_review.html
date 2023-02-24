@@ -178,15 +178,24 @@
                 {% else %}
                     <td class="has-text-centered">—</td>
                 {% endif %}
-                {% if review.data_format_version > 2 %}
-                    {% if paper.screened %}
-                        <td>done</td>
+                <td>
+                    {% if paper.decisions|length > 0 %}
+                    {% for decision in paper.decisions %}
+                        {% if decision.decision == 1 %}
+                            <span class="tag is-success is-light hover-text"
+                                  data-hover="reviewer: {{ decision.reviewer_id }}">◉</span>
+                        {% elif decision.decision == -1 %}
+                            <span class="tag is-warning is-light hover-text"
+                                  data-hover="reviewer: {{ decision.reviewer_id }}">◉</span>
+                        {% elif decision.decision == 0 %}
+                            <span class="tag is-danger is-light hover-text"
+                                  data-hover="reviewer: {{ decision.reviewer_id }}">◉</span>
+                        {% endif %}
+                    {% endfor %}
                     {% else %}
-                        <td>—</td>
+                        <span class="tag is-light">◯</span>
                     {% endif %}
-                {% else %}
-                    <td>—</td>
-                {% endif %}
+                </td>
                 {% if paper.automatic_decisions|length > 0 %}
                     <td>
                         {% for decision in paper.automatic_decisions %}
