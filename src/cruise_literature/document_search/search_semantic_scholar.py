@@ -27,7 +27,8 @@ def search_semantic_scholar(query: str, top_k: int) -> SearchResultWithStatus:
 
     candidate_list = []
     if response.status_code == 200:
-        for index_i, candidate in enumerate(response.json()["data"]):
+        search_results = response.json()["data"] if response.json()["total"] > 0 else []
+        for index_i, candidate in enumerate(search_results):
             try:
                 snippet = candidate.get("abstract")[:300]
                 abstract = candidate.get("abstract")
@@ -49,7 +50,7 @@ def search_semantic_scholar(query: str, top_k: int) -> SearchResultWithStatus:
                 semantic_scholar_id=candidate["paperId"],
                 core_id=None,
                 doi=doi,
-                title=candidate.get("title"),
+                title=candidate.get("title", ""),
                 url=candidate["url"],
                 pdf=pdf,
                 snippet=snippet,
