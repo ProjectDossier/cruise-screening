@@ -112,7 +112,7 @@ def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
 
         retrieved_art = Article(
             id=candidate["_id"],
-            title=candidate["_source"].get("title"),
+            title=candidate["_source"].get("title", ""),
             url=url,
             pdf=pdf,
             snippet=snippet,
