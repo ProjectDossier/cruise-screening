@@ -80,7 +80,7 @@ def search_google_scholar(query: str, top_k: int) -> SearchResultWithStatus:
             id=_id,
             semantic_scholar_id=None,
             core_id=None,
-            title=candidate["bib"].get("title"),
+            title=candidate["bib"].get("title", ""),
             url=candidate.get("pub_url"),
             pdf=candidate.get("eprint_url"),
             snippet=snippet,
