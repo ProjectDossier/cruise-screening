@@ -6,6 +6,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
 
 from .forms import NewUserForm, EditUserForm
+from utils.django_tags import add_class
 
 
 def register(request):
