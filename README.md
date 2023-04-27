@@ -49,6 +49,9 @@ If you have a GPU-enabled device:
 (cruise-literature)$ pip install -r requirements-gpu.txt
 ```
 
+npm install bulma-calendar
+
+
 ### 1.2 Postgres database
 
 [Install PostgreSQL](https://www.postgresql.org/download/)
