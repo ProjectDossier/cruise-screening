@@ -3,24 +3,23 @@
 {% block content %}
     <div class="container">
         <div class="columns is-centered">
-            <div class="column is-half">
-                <h1 class="title is-1">{{ user.get_full_name }}</h1>
-                <p>Username: {{ user.username }}</p>
-                <p>Email: {{ user.email }}</p>
-                <p>First name: {{ user.first_name }}</p>
-                <p>Last name: {{ user.last_name }}</p>
+            <div class="column is-half content">
+                <h1 class="is-1">{{ user.username }}</h1>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>First name:</strong> {{ user.first_name }}</p>
+                <p><strong>Last name:</strong> {{ user.last_name }}</p>
                 <hr/>
 
-                <p>Date of birth: {{ user.date_of_birth }}</p>
-                <p>Location: {{ user.location }}</p>
-                <p>Languages: {{ user.user_languages }}</p>
-                <p>Knowledge areas: {{ user.user_knowledge_areas }}</p>
-                <p>System preferences</p>
-                <p>Allow personalised logging: {{ user.allow_logging }}</p>
+                <p><strong>Date of birth:</strong> {{ user.date_of_birth }}</p>
+                <p><strong>Location:</strong> {{ user.location }}</p>
+                <p><strong>Languages:</strong> {{ user.user_languages }}</p>
+                <p><strong>Knowledge areas:</strong> {{ user.user_knowledge_areas }}</p>
+
+                <p><strong>Allow personalised logging:</strong> {{ user.allow_logging }}</p>
                 <div x-data="{user_organisations: []}"
                      x-init="user_organisations = await (await fetch('find_organisations/{{ user.id }}')).json()">
 
-                    <span>User organisations:</span>
+                    <span><strong>User organisations:</strong></span>
                     <template x-for="organisation in user_organisations">
                         <a class="tag m-2" :href="'/view_organisation/' + organisation.id"
                            x-text="organisation.title"></a>
@@ -28,8 +27,55 @@
                 </div>
                 <hr/>
                 <a class="button is-link" href="{% url 'edit_user_profile' %}">Edit user</a>
+                <a class="button is-danger js-modal-trigger"
+                   data-target="modal-delete-user">Delete user account</a>
             </div>
         </div>
     </div>
     {% include "_base_templates/_footer.html" %}
+
+    <div id="modal-delete-user" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Are you sure that you want to delete your user account?</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="block">
+                    This will delete all your data. This action cannot be undone.
+                    To confirm, please type your username: <strong>{{ user.username }}</strong> below.
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="input" type="text" placeholder="Username" id="username-input">
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <form method="post" action="{% url 'delete_user' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="button is-danger" id="delete-button" disabled>Yes, delete my user
+                        account
+                    </button>
+                </form>
+
+                <button class="button ml-4">Cancel</button>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        const usernameInput = document.getElementById('username-input');
+        const deleteButton = document.getElementById('delete-button');
+
+        usernameInput.addEventListener('input', () => {
+            if (usernameInput.value === '{{ user.username }}') {
+                deleteButton.removeAttribute('disabled');
+            } else {
+                deleteButton.setAttribute('disabled', '');
+            }
+        });
+    </script>
+
 {% endblock %}
