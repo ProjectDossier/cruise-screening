@@ -1,18 +1,36 @@
 {% extends "_base_templates/_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/bulma-calendar.min.css' %}">
+    <script src="{% static 'js/bulma-calendar.min.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var dateInputs = bulmaCalendar.attach('.bulma-calendar', {
+                showFooter: true,
+                showHeader: false,
+                isRange: false,
+                color: 'link',
+            });
+        });
+    </script>
+{% endblock %}
 
 {% block content %}
-    <div class="user-profile">
-        <h1 class="title is-1">{{ user.get_full_name }}</h1>
-        <div class="user-profile__text">
-            <form method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div>
-                    <button type="submit" class="button is-link">Save changes</button>
-                    <a class="button is-warning" href="{% url 'user_profile' %}">Cancel</a>
-                </div>
-            </form>
-
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <h1 class="title is-1">{{ user.get_full_name }}</h1>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div>
+                        <button type="submit" class="button is-link">Save changes</button>
+                        <a class="button is-warning" href="{% url 'user_profile' %}">Cancel</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

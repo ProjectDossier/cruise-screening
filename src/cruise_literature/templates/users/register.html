@@ -1,21 +1,28 @@
 {% extends '_base_templates/_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
 
 {% block content %}
-    <div class="register">
-        <h1 class="title is-1">Create an account</h1>
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <h1 class="title is-1">Create a new account</h1>
 
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
+                <form method="POST" class="block">
+                    {% csrf_token %}
+                    {{ form | crispy }}
 
-            <div>
-                <button type="submit" class="button is-link">Sign Up!</button>
+                    <div>
+                        <button type="submit" class="button is-link">Sign Up!</button>
+                    </div>
+                </form>
+
+                <p class="block">
+                    If you already have an account <a href="/login"><strong>sign in</strong></a> instead.
+                </p>
             </div>
-        </form>
-
-        <p>
-            If you already have an account <a href="/login"><strong>sign in</strong></a> instead.
-        </p>
+        </div>
     </div>
 
     {% include "_base_templates/_footer.html" %}
