@@ -17,7 +17,6 @@
                 <p>Knowledge areas: {{ user.user_knowledge_areas }}</p>
                 <p>System preferences</p>
                 <p>Allow personalised logging: {{ user.allow_logging }}</p>
-                <p>Preferred taxonomies: {{ user.preferred_taxonomies }}</p>
                 <div x-data="{user_organisations: []}"
                      x-init="user_organisations = await (await fetch('find_organisations/{{ user.id }}')).json()">
 
