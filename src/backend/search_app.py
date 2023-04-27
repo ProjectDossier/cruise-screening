@@ -1,14 +1,11 @@
 import json
 import logging
-from typing import Dict, List
-
-# from elasticsearch import Elasticsearch
+from typing import Dict
 
 import requests
 from flask import Flask, request, render_template
 
 app = Flask(__name__)
-
 
 ##########################################################
 ### CONFIG
@@ -18,6 +15,12 @@ CONFIG_PATH = "/config/search_app_config.json"
 
 with open(CONFIG_PATH, "r") as fp:
     config = json.load(fp)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
 
 
 def build_query(query_text: str, top_k: int):
@@ -59,8 +62,6 @@ def search_es(query: str, index_name: str, top_k: int):
     return results, query_data
 
 
-# todo: keep only one route
-@app.route("/search", methods=["POST"])
 @app.route("/api/v1/search", methods=["POST"])
 def search() -> Dict[str, str]:
     if request.method == "POST":
@@ -73,6 +74,17 @@ def search() -> Dict[str, str]:
         results = "Only POST allowed"
         query_data = {}
     return {"results": results, "query": query_data}
+
+
+@app.route("/api/v1/status", methods=["GET"])
+def status() -> Dict[str, str]:
+    """Return the status of the API and underlying elasticsearch."""
+    host = config["host"]
+    try:
+        r = requests.get(f"{host}/_cat/health")
+    except requests.exceptions.ConnectionError:
+        return {"status": "ERROR", "message": "Connection error to ElasticSearch"}
+    return {"status": "OK", "message": r.text}
 
 
 @app.route("/api/v1/indices", methods=["GET"])
@@ -104,7 +116,7 @@ def indices() -> Dict[str, str]:
         r = requests.get(f"{host}/_cat/indices?v")
         return {
             "status": "OK",
-            "message": _convert_response_to_json(r.content.decode()),
+            "indices": _convert_response_to_json(r.content.decode()),
         }
     else:
         return {"status": "ERROR", "message": "Only GET allowed"}
@@ -122,9 +134,8 @@ def add_docs() -> Dict[str, str]:
         # check if index exists
         r = requests.get(f"{host}/_cat/indices?v")
         indices = r.content.decode().split("\n")
-        indices = [i.split()[2] for i in indices]
+        indices = [i.split()[2] for i in indices[1:-1]]
         if index_name not in indices:
-            # create index
             mapping = {
                 "mappings": {
                     "properties": {
@@ -146,117 +157,48 @@ def add_docs() -> Dict[str, str]:
         return {"status": "ERROR", "message": "Only POST allowed"}
 
 
-@app.route("/api/v1/status", methods=["GET"])
-def status() -> Dict[str, str]:
-    """Return the status of the API and underlying elasticsearch."""
-    host = config["host"]
-    try:
-        r = requests.get(f"{host}/_cat/health")
-    except requests.exceptions.ConnectionError:
-        return {"status": "ERROR", "message": "Connection error to ElasticSearch"}
-    return {"status": "OK", "message": r.text}
-
-
-@app.route("/api/v1/concept_search/create_lexical_index", methods=["POST"])
-def concept_search_create_lexical_index() -> Dict[str, str]:
+@app.route("/api/v1/create_index", methods=["POST"])
+def create_index() -> Dict[str, str]:
     """Check if index exist with a provided index_name.
-    If not, then create the index with the provided index_name and fill with docs."""
-    host = config["host"]
-    if request.method == "POST":
-        in_data = request.get_json()
-        index_name = in_data["index_name"]
+    If not, then create the index with the provided index_name."""
+    if request.method != "POST":
+        return {"status": "ERROR", "message": "Only POST allowed"}
+    in_data = request.get_json()
+    index_name = in_data["index_name"]
 
-        index_config = {
-            "mappings": {
-                "properties": {
-                    "id": {"type": "text"},
-                    "contents": {
-                        "type": "text",
-                        "analyzer": "whitespace",
-                        "similarity": "ranking_function",
-                    },
+    index_config = {
+        "mappings": {
+            "properties": {
+                "id": {"type": "text"},
+                "contents": {
+                    "type": "text",
+                    "analyzer": "whitespace",
+                    "similarity": "ranking_function",
+                },
+            }
+        },
+        "settings": {
+            "number_of_shards": 1,
+            "index": {
+                "similarity": {
+                    "ranking_function": {"type": "BM25", "b": 0.75, "k1": 1.2}
                 }
             },
-            "settings": {
-                "number_of_shards": 1,
-                "index": {
-                    "similarity": {
-                        "ranking_function": {"type": "BM25", "b": 0.75, "k1": 1.2}
-                    }
-                },
-            },
-        }
-        # check if index exist
-        r = requests.get(f"{host}/_cat/indices?v")
-        indices = r.content.decode().split("\n")
-        indices = [i.split()[2] for i in indices]
-        if index_name not in indices:
-            # create index
-            # self.es_client.indices.create(index=index_name, body=index_config)
-            r = requests.put(f"{host}/{index_name}", json=index_config)
-            logging.info(f"Created index {index_name} with mapping {index_config}")
+        },
+    }
+    host = config["host"]
 
-        # return status if all succeeded
+    r = requests.get(f"{host}/_cat/indices?v")
+    indices = r.content.decode().split("\n")
+    indices = [i.split()[2] for i in indices[1:-1]]
+
+    if index_name not in indices:
+        r = requests.put(f"{host}/{index_name}", json=index_config)
+        logging.info(f"Created index {index_name} with mapping {index_config}")
         return {"status": "OK", "message": r.text}
 
-
-
-
-@app.route("/api/v1/concept_search/add_concepts", methods=["POST"])
-def concept_search_add_concepts() -> Dict[str, str]:
-    """Add concepts to the index"""
-    host = config["host"]
-    threads = 8
-    in_data = request.get_json()
-    index_name = in_data["index_name"]
-    concepts: List[str] = in_data["concepts"]
-
-    def _doc_generator(concepts, index_name):
-        for idx, text in enumerate(concepts):
-            yield {"_index": index_name, "_source": {"id": idx, "document": text}}
-
-    # replace with request
-    # helpers.parallel_bulk(
-    #     self.es_client,
-    #     _doc_generator(concepts=concepts,
-    #     index_name=index_name),
-    #     thread_count=threads,
-    #     chunk_size=500,
-    #     raise_on_error=True,
-    #     request_timeout=10000,
-    # ),
-    # add items to index
-    r = requests.post(
-        f"{host}/{index_name}/_bulk",
-        data=_doc_generator(concepts=concepts, index_name=index_name),
-        headers={"Content-Type": "application/json"},
-    )
-    return {"status": "OK", "message": r.text}
-
-
-@app.route("/api/v1/concept_search/lexical_search", methods=["POST"])
-def concept_search_lexical_search() -> Dict[str, str]:
-    host = config["host"]
-    in_data = request.get_json()
-    index_name = in_data["index_name"]
-    query: str = in_data["query"]
-
-    # replace with request
-    # res = self.es_client.search(
-    #     index=index_name,
-    #     body={"size": 1, "query": {"match": {"document": query}}},
-    # )["hits"]["hits"][0]
-    body = {"size": 1, "query": {"match": {"document": query}}}
-    r = requests.post(f"{host}/{index_name}/_search", json=body)
-    res = r.json()["hits"]["hits"][0]
-
-    score = res["_score"]
-    res = res["_source"]["id"]
-
-    if score > 7:
-        return res
-    else:
-        return -100
+    logging.warning(f"Index {index_name} already exists")
+    return {"status": "OK", "message": "index already exists"}
 
 
 @app.route("/")
