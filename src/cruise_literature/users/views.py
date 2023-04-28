@@ -6,6 +6,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
 
 from .forms import NewUserForm, EditUserForm
+from utils.django_tags import add_class
 
 
 def register(request):
@@ -69,12 +70,11 @@ def user_profile(request):
     """
     User profile page
     """
-    if request.method == "GET":
-        if request.user.is_authenticated:
-            return render(
-                request,
-                "users/user_profile.html",
-            )
+    if request.method == "GET" and request.user.is_authenticated:
+        return render(
+            request,
+            "users/user_profile.html",
+        )
 
     return HttpResponseNotFound("<h1>Page not found</h1>")
 
@@ -84,35 +84,39 @@ def edit_profile(request):
     """
     Edit user profile page
     """
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            form = EditUserForm(request.POST, instance=request.user)
-            if form.is_valid():
-                form.save()
-                messages.success(request, f"Your profile was updated successfully.")
-                return redirect("user_profile")
-            else:
-                for msg in form.error_messages:
-                    messages.error(request, f"{msg}: {form.error_messages[msg]}")
-
-                return render(
-                    request=request,
-                    template_name="users/user_profile.html",
-                    context={"form": form},
-                )
+    if not request.user.is_authenticated:
+        return
+    if request.method == "POST":
+        form = EditUserForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile was updated successfully.")
+            return redirect("user_profile")
         else:
-            form = EditUserForm(
-                initial={
-                    "first_name": request.user.first_name,
-                    "last_name": request.user.last_name,
-                    "email": request.user.email,
-                    "location": request.user.location,
-                    "allow_logging": request.user.allow_logging,
-                    "preferred_taxonomies": request.user.preferred_taxonomies,
-                }
-            )
+            for msg in form.error_messages:
+                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+
             return render(
                 request=request,
-                template_name="users/edit_user_profile.html",
+                template_name="users/user_profile.html",
                 context={"form": form},
             )
+    else:
+        form = EditUserForm(instance=request.user)
+        return render(
+            request=request,
+            template_name="users/edit_user_profile.html",
+            context={"form": form},
+        )
+
+
+@login_required
+def delete_user(request):
+    """Delete user account"""
+    if request.method == "POST":
+        request.user.delete()
+        logout(request)
+        messages.success(request, "Your account was deleted successfully.")
+        return redirect("home")
+
+    return redirect("user_profile")

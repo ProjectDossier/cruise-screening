@@ -80,12 +80,16 @@ def search_core(query: str, top_k: int) -> SearchResultWithStatus:
             if not citations_count:
                 citations_count = 0
 
+            title = candidate.get("title")
+            if not title:
+                title = ""
+
             retrieved_art = Article(
                 id=candidate["id"],
                 semantic_scholar_id=None,
                 core_id=candidate["id"],
                 doi=doi,
-                title=candidate.get("title"),
+                title=title,
                 url=url,
                 pdf=candidate.get("downloadUrl"),
                 snippet=snippet,

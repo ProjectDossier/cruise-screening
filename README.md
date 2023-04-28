@@ -1,4 +1,4 @@
-# ![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png) CRUISE-literature 
+# ![cruise-logo.png](src%2Fcruise_literature%2Fstatic%2Fimg%2Fcruise-logo-small.png) CRUISE-screening 
 
 ---
 
@@ -47,6 +47,9 @@ If you have a GPU-enabled device:
 ```bash
 (cruise-literature)$ pip install -r requirements-gpu.txt
 ```
+
+npm install bulma-calendar
+
 
 ### 1.2 Postgres database
 
@@ -132,14 +135,12 @@ postgres-> CREATE DATABASE cruise_literature;
 postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO SYSTEM_USERNAME;
 ```
 
-Update the [`DATABASES`](https://github.com/ProjectDossier/cruise-literature/blob/2b03bbcfe1491e6195b31bf596818b23ccd9ecb3/src/cruise_literature/cruise_literature/settings.py#L104) entry  in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py):
+Update the DATABASE_URL entry in the `.env` file (see 2.1 Before first run). Replace `SYSTEM_USERNAME` with your system username and `YOUR_PASSWORD` with your desired database password.
 
-```python
-    ...
-    "USER": "SYSTEM_USERNAME",
-    "PASSWORD": "YOUR_PASSWORD",
-    ...
+```text
+DATABASE_URL=postgres://SYSTEM_USERNAME:YOUR_PASSWORD@localhost:5432/cruise_literature
 ```
+
 
 ### 1.3 ElasticSearch and Search API
 
@@ -170,6 +171,15 @@ Go into `src/cruise_literature/` directory:
 
 ```bash
 (cruise-literature)$ cd src/cruise_literature/
+```
+
+Create `.env` file in that directory and fill it with the following fields ([read more](https://django-environ.readthedocs.io/en/latest/quickstart.html)):
+
+```text
+DEBUG=True
+SECRET_KEY=your-secret-django-key
+ALLOWED_HOSTS=
+DATABASE_URL=postgres://user:password@host:port/dbname
 ```
 
 Make migrations and migrate the database
@@ -216,10 +226,10 @@ Server should be available at http://127.0.0.1:8000/
 
 ### 2.3 Deployment on prod server
 
-Add `YOUR_IP` to [`ALLOWED_HOSTS`](https://github.com/ProjectDossier/cruise-literature/blob/2b03bbcfe1491e6195b31bf596818b23ccd9ecb3/src/cruise_literature/cruise_literature/settings.py#L31) in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py), for example:
+Add `YOUR_IP` to `ALLOWED_HOSTS` in `.env` file, for example:
 
-```python
-ALLOWED_HOSTS = ['123.456.789.0']
+```text
+ALLOWED_HOSTS=123.456.789.0
 ```
 
 Run Django server:
