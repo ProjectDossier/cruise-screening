@@ -101,7 +101,9 @@ def search_results(request):
 
     source_taxonomy = request.GET.get("source_taxonomy", None)
     if not source_taxonomy:
-        source_taxonomy = list(taxonomies.keys())[0]
+        _taxonomies_names = list(taxonomies.keys())
+        source_taxonomy = _taxonomies_names[0] if _taxonomies_names else 'none'
+
 
     engine_logger.log_query(
         search_query=search_query,
