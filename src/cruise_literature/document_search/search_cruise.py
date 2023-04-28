@@ -33,7 +33,7 @@ def search_cruise(query: str, top_k: int) -> SearchResultWithStatus:
     headers = {"Content-type": "application/json"}
     try:
         res = requests.post(
-            "http://localhost:9880" + "/search",
+            "http://localhost:9880" + "/api/v1/search",
             data=json.dumps(
                 {"query": query, "es_index": index_name, "es_top_k": top_k}
             ),

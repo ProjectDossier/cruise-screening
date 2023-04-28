@@ -7,6 +7,8 @@ RUN pip install -r requirements.txt
 
 ENV FLASK_APP=/app/search_app.py
 
+COPY templates templates/
+
 COPY search_app.py .
 ARG config_file
 COPY $config_file /config/search_app_config.json

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUISE Backend API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 10px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .content {
+            padding: 20px;
+        }
+        .endpoint-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .endpoint {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #f5f5f5;
+            padding-bottom: 20px;
+        }
+        .endpoint-link {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: bold;
+            border: 2px solid #2c3e50;
+            padding: 5px;
+            margin-right: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .endpoint-link:hover {
+            color: #fff;
+            background-color: #2c3e50;
+        }
+        .endpoint-type {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .endpoint-params {
+            margin-bottom: 5px;
+            list-style: disc;
+            margin-left: 20px;
+        }
+        .param-name {
+            font-weight: bold;
+        }
+        .param-type {
+            font-style: italic;
+        }
+        .return-value {
+            margin-top: 5px;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CRUISE Backend API</h1>
+    </div>
+    <div class="content">
+        <p>Available endpoints:</p>
+        <ul class="endpoint-list">
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/status">/api/v1/status</a>
+                <span class="endpoint-type">GET</span>
+                <div class="endpoint-params">
+                    No parameters
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the status of ElasticSearch and the API.
+                </div>
+            </li>
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/indices">/api/v1/indices</a>
+                <span class="endpoint-type">GET</span>
+                <div class="endpoint-params">
+                    No parameters
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the list of indices in ElasticSearch.
+                </div>
+            </li>
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/search">/api/v1/search</a>
+                <span class="endpoint-type">POST</span>
+                <div class="endpoint-params">
+                    <ul>
+                        <li>
+                            <span class="param-name">query:</span>
+                            <span class="param-type">string</span>
+                            <div>The query string to search for in ElasticSearch.</div>
+                        </li>
+                        <li>
+                            <span class="param-name">es_index:</span>
+                            <span class="param-type">string</span>
+                            <div>The name of the ElasticSearch index.</div>
+                        </li>
+                        <li>
+                            <span class="param-name">es_top_k:</span>
+                            <span class="param-type">integer</span>
+                            <div>Top k first results to return.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the search results from ElasticSearch and their status.
+                </div>
+            </li>
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/add_docs">/api/v1/add_docs</a>
+                <span class="endpoint-type">POST</span>
+                <div class="endpoint-params">
+                    <ul>
+                        <li>
+                            <span class="param-name">docs:</span>
+                            <span class="param-type">JSON</span>
+                            <div>List with documents that you want to add to ElasticSearch.</div>
+                        </li>
+                        <li>
+                            <span class="param-name">index_name:</span>
+                            <span class="param-type">string</span>
+                            <div>The name of the ElasticSearch index.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the status of the operation: 'OK' if added successfully.
+                </div>
+            </li>
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/concept_search/create_lexical_index">/api/v1/concept_search/create_lexical_index</a>
+                <span class="endpoint-type">POST</span>
+                <div class="endpoint-params">
+                    <ul>
+                        <li>
+                            <span class="param-name">index_name:</span>
+                            <span class="param-type">string</span>
+                            <div>The name of the ElasticSearch index.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the status of the operation: 'OK' if created successfully.
+                </div>
+            </li>
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/concept_search/add_concepts">/api/v1/concept_search/add_concepts</a>
+                <span class="endpoint-type">POST</span>
+                <div class="endpoint-params">
+                    <ul>
+                        <li>
+                            <span class="param-name">concepts:</span>
+                            <span class="param-type">JSON</span>
+                            <div>List with cocnepts that you want to add to ElasticSearch.</div>
+                        </li>
+                        <li>
+                            <span class="param-name">index_name:</span>
+                            <span class="param-type">string</span>
+                            <div>The name of the ElasticSearch index.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the status of the operation: 'OK' if added successfully.
+                </div>
+            </li>
+            <li class="endpoint">
+                <a class="endpoint-link" href="/api/v1/concept_search/lexical_search">/api/v1/concept_search/lexical_search</a>
+                <span class="endpoint-type">POST</span>
+                <div class="endpoint-params">
+                    <ul>
+                        <li>
+                            <span class="param-name">query:</span>
+                            <span class="param-type">string</span>
+                            <div>The query string to search for in ElasticSearch.</div>
+                        </li>
+                        <li>
+                            <span class="param-name">index_name:</span>
+                            <span class="param-type">string</span>
+                            <div>The name of the ElasticSearch index.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="return-value">
+                    Returns a JSON object with the search results from ElasticSearch and their status.
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
