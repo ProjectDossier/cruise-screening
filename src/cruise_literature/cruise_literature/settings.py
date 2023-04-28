@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # external apps
     "rest_framework",
+    "crispy_forms",
+    "crispy_bulma",
     # apps
     "home",
     "document_search",
@@ -96,6 +99,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "cruise_literature.wsgi.application"
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = ("bulma",)
+
+CRISPY_TEMPLATE_PACK = "bulma"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

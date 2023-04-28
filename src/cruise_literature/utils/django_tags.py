@@ -1,6 +1,12 @@
 from django.template.defaulttags import register
 
 
+@register.filter(name='add_class')
+def add_class(value, arg):
+    css_class = value.field.widget.attrs.get('class', '')
+    return value.as_widget(attrs={'class': f'{css_class} {arg}'})
+
+
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
