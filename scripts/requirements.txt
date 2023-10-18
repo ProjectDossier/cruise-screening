@@ -1,0 +1,13 @@
+# scripts
+pycld3~=0.22
+tqdm~=4.64.0
+beautifulsoup4~=4.11.1
+elasticsearch~=7.15.1
+keybert==0.5.1
+cso-classifier==3.0
+scholarly~=1.7.2
+fasttext~=0.9.2
+joblib~=1.1.0
+openai~=0.24.0
+rispy~=0.7.1
+scikit-learn~=1.1.0
