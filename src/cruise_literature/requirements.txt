@@ -4,7 +4,7 @@ fuzzywuzzy~=0.18.0
 requests~=2.25.1
 click==7.1.2
 torch>=1.13.1
-transformers==4.14.1
+transformers==4.30.0
 rdflib~=6.1.1
 faiss-cpu~=1.7.2
 numpy~=1.22.3
