@@ -4,10 +4,9 @@ from transformers import AutoModel, AutoTokenizer
 
 
 def get_words_similarity(
-    cvs: List[Tuple[str, torch.Tensor]],
-    dvs: List[Tuple[str, torch.Tensor]],
+        cvs: List[Tuple[str, torch.Tensor]],
+        dvs: List[Tuple[str, torch.Tensor]],
 ):
-
     C = torch.stack([v[1] for v in cvs])
     C = C / C.norm(dim=-1)[:, None]
 
@@ -19,9 +18,9 @@ def get_words_similarity(
 
 
 def get_words_score(
-    cts: List[str],
-    dts: List[str],
-    similarities: torch.Tensor,
+        cts: List[str],
+        dts: List[str],
+        similarities: torch.Tensor,
 ):
     M = similarities
     assert tuple(M.shape) == (len(cts), len(dts))
@@ -38,9 +37,9 @@ def get_words_score(
 
 class ConceptRate:
     def __init__(
-        self,
-        model_name: str = "allenai/scibert_scivocab_cased",
-        mount_on_gpu: bool = False,
+            self,
+            model_name: str = "allenai/scibert_scivocab_cased",
+            mount_on_gpu: bool = False,
     ):
         self.model = AutoModel.from_pretrained(
             model_name, output_hidden_states=True
@@ -77,7 +76,7 @@ class ConceptRate:
                 and it was shown that later layers (before the last) were the most effective word representations 
                 for multiple language tasks [2] that use contextual embeddings 
                 as features.
-                
+
                 [1] BERT: Pre-training of deep bidirectional transformers for language understanding
                 [2] To tune or not to tune? adapting pretrained representations to diverse tasks
                 """
@@ -89,7 +88,7 @@ class ConceptRate:
         return result
 
     def concept_score(
-        self, concepts: List[str], documents: List[str], lengths: List[int]
+            self, concepts: List[str], documents: List[str], lengths: List[int]
     ):
 
         concepts_vectors = self.get_vectors(sum(concepts, []))
@@ -98,12 +97,12 @@ class ConceptRate:
         split_concepts_vectors = []
         count = 0
         for length in lengths:
-            split_concepts_vectors.append(concepts_vectors[count : count + length])
+            split_concepts_vectors.append(concepts_vectors[count: count + length])
             count += length
 
         agg_scores = []
         for concepts_vectors, doc_vector, concepts_ in zip(
-            split_concepts_vectors, doc_vectors, concepts
+                split_concepts_vectors, doc_vectors, concepts
         ):
             scores_ = {}
             for keyword_vector, concept in zip(concepts_vectors, concepts_):

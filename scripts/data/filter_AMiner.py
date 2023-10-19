@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from os.path import join as join_path
 from time import mktime
-from src.cruise_literature.concept_search.concept_rate import ConceptRate
+from concept_rate import ConceptRate
 from cso_classifier import CSOClassifier
 from keybert import KeyBERT
 from tqdm import tqdm

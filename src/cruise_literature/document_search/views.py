@@ -3,7 +3,6 @@ import time
 
 from django.db.models import QuerySet
 
-from concept_search.views import taxonomies
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaulttags import register
@@ -47,7 +46,6 @@ def search_results(request):
         return
     search_query = request.GET.get("search_query", None)
     query_type = get_query_type(source=request.GET.get("source", None))
-    search_with_taxonomy = request.GET.get("search_type", False)
 
     if not search_query.strip():
         return HttpResponseRedirect("index")
@@ -71,45 +69,10 @@ def search_results(request):
         search_result=search_result, page=request.GET.get("page", 1)
     )
 
-    if not search_with_taxonomy and query_type in [
-        "main_search",
-        "reformulate_search",
-    ]:
-        # TODO: after document keyword click it will always use taxonomy
-        engine_logger.log_query(
-            search_query=search_query,
-            query_type=query_type,
-            search_time=search_time,
-            tax_results={},
-            matched_wiki_page=get_wiki_logger(matched_wiki_page),
-        )
-
-        context = {
-            "search_result_list": search_result_list,
-            "matched_wiki_page": matched_wiki_page,
-            "unique_searches": len(search_result),
-            "search_time": f"{search_time:.2f}",
-            "search_query": search_query,
-            "search_type": "",
-            "paginator": paginator,
-        }
-        return render(
-            request=request,
-            template_name="document_search/plain_search.html",
-            context=context,
-        )
-
-    source_taxonomy = request.GET.get("source_taxonomy", None)
-    if not source_taxonomy:
-        _taxonomies_names = list(taxonomies.keys())
-        source_taxonomy = _taxonomies_names[0] if _taxonomies_names else 'none'
-
-
     engine_logger.log_query(
         search_query=search_query,
         query_type=query_type,
         search_time=search_time,
-        tax_results={},
         matched_wiki_page=get_wiki_logger(matched_wiki_page),
     )
 
@@ -119,14 +82,12 @@ def search_results(request):
         "unique_searches": len(search_result),
         "search_time": f"{search_time:.2f}",
         "search_query": search_query,
-        "search_type": "checked",
-        "default_taxonomy": source_taxonomy,
+        "search_type": "",
         "paginator": paginator,
     }
-    # assign value of default taxonomy based on selected javascript box...
     return render(
         request=request,
-        template_name="document_search/search_with_taxonomy.html",
+        template_name="document_search/plain_search.html",
         context=context,
     )
 
