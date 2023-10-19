@@ -48,8 +48,8 @@ class EngineLogger:
         search_query: str,
         query_type: str,
         search_time: float,
-        tax_results: dict,
         matched_wiki_page: str,
+        tax_results: dict = {},
     ):
         """Method responsible for logging user queries along with some metadata."""
         concepts = "|".join(
