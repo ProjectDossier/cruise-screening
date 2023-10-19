@@ -42,12 +42,6 @@ Use pip to install requirements (you will need `g++` to install fasttext):
 (cruise-literature)$ pip install -r requirements.txt
 ```
 
-If you have a GPU-enabled device:
-
-```bash
-(cruise-literature)$ pip install -r requirements-gpu.txt
-```
-
 npm install bulma-calendar
 
 
