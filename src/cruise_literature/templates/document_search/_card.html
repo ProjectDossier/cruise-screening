@@ -16,25 +16,27 @@
         <p>
             <span class="is-size-6 p-0 m-0 has-text-primary">{{ search_result.publication_date }} - {{ search_result.venue }}</span>
             {% if search_result.doi %}
-                <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a href="https://doi.org/{{ search_result.doi }}">{{ search_result.doi }}</a></span>
+                <span class="has-text-grey-light is-size-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;<a
+                        href="https://doi.org/{{ search_result.doi }}">{{ search_result.doi }}</a></span>
             {% endif %}
         </p>
     </div>
     <div class="card-content pt-1">
         <div class="content">
-        {% if search_result.abstract != search_result.abstract|first_n_char:500  %}
-            <template x-if="openAbstract">
-                <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract | safe }}
-                    <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less
-                    </button>
-                </p>
-            </template>
-            <template x-if="!openAbstract" x-cloak>
-                <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract|first_n_char:500 }}...
-                    <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show full abstract
-                    </button>
-                </p>
-            </template>
+            {% if search_result.abstract != search_result.abstract|first_n_char:500 %}
+                <template x-if="openAbstract">
+                    <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract | safe }}
+                        <button type="button" class="card__show-more" x-on:click="openAbstract = false">Show less
+                        </button>
+                    </p>
+                </template>
+                <template x-if="!openAbstract" x-cloak>
+                    <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract|first_n_char:500 }}...
+                        <button type="button" class="card__show-more" x-on:click="openAbstract = true">Show full
+                            abstract
+                        </button>
+                    </p>
+                </template>
             {% elif search_result.abstract %}
                 <p class="is-5"><strong>Abstract:</strong> {{ search_result.abstract | safe }}</p>
             {% elif search_result.snippet %}
@@ -44,63 +46,32 @@
             {% endif %}
             <p>
                 {% for keyword, score in search_result.keywords_snippet.items %}
-                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
+                    <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords"
+                       class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
                 {% endfor %}
 
                 {% if search_result.keywords_rest|length > 0 %}
                     <template x-if="!openKeywords">
-                        <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more</button>
+                        <button type="button" class="card__show-more" x-on:click="openKeywords = true">Show more
+                        </button>
                     </template>
                     <template x-if="openKeywords">
                         <span>
                             {% for keyword, score in search_result.keywords_rest.items %}
-                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
+                                <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords"
+                                   class="button is-light is-small mb-2 {{ score|keywords_threshold }}">{{ keyword }}</a>
                             {% endfor %}
-                            <button type="button" class="card__show-more" x-on:click="openKeywords = false">Show less</button>
+                            <button type="button" class="card__show-more"
+                                    x-on:click="openKeywords = false">Show less</button>
                         </span>
                     </template>
                 {% endif %}
             </p>
             <p class="has-text-info">
-                Cited by {{ search_result.citations }}&nbsp;&nbsp; - &nbsp;&nbsp;{{ search_result.references }} references
+                Cited by {{ search_result.citations }}&nbsp;&nbsp; - &nbsp;&nbsp;{{ search_result.references }}
+                references
             </p>
-            {% if search_result.CSO_keywords|length > 0 %}
-                <h6>
-                    <template x-if="!showCSOKeywords">
-                        <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
-                    </template>
-                    <template x-if="showCSOKeywords">
-                        <button type="button" class="card__show-more" x-on:click="showCSOKeywords = false">CSO keywords ▴</button>
-                    </template>
-                </h6>
-                <template x-if="showCSOKeywords" x-cloak>
-                    <p>
-                        {% for keyword in search_result.CSO_keywords %}
-                            <a href="{% url 'search_results' %}?search_query={{ keyword | urlencode }}&source=keywords" class="button is-light is-small mb-2">{{ keyword }}</a>
-                        {% endfor %}
-                    </p>
-                </template>
-            {% else %}
-                <div x-data="{cso_keywords: []}">
-                    <h6>
-                        <template x-if="!showCSOKeywords">
-                            <button type="button" class="card__show-more" x-on:click="showCSOKeywords = true">CSO keywords ▾</button>
-                        </template>
-                        <template x-if="showCSOKeywords">
-                            <button type="button" class="card__show-more" x-on:click="showCSOKeywords = false">CSO keywords ▴</button>
-                        </template>
-                    </h6>
-                    <template x-if="showCSOKeywords" x-cloak>
-                        {#  TODO: request below fails when paper contains '/' character in title or abstract. Need to escape remove it. #}
-                        <p x-init="cso_keywords = await (await fetch('classify_concepts/{{ search_result.title | escapejs }}/{{ search_result.abstract | escapejs }}/')).json();">
-                            <template x-for="_cso_keyword in cso_keywords">
-                                <a x-bind:href="'{% url 'search_results' %}?search_query=' + _cso_keyword + '&source=keywords'" x-text="_cso_keyword" class="button is-light is-small mb-2 mr-1"></a>
-                            </template>
-                        </p>
-                    </template>
-                </div>
-            {% endif %}
 
         </div>
-      </div>
+    </div>
 </article>

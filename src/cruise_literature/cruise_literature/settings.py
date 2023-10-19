@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     # apps
     "home",
     "document_search",
-    "concept_search",
     "users",
     "literature_review",
     "citation_screening",
