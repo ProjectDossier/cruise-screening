@@ -89,7 +89,7 @@ class ViewTests(TestCase):
             papers={_fake_paper["id"]: _fake_paper},
         )
         cls.member = LiteratureReviewMember.objects.create(
-            member=cls.user, literature_review=cls.lit_rev
+            member=cls.user, literature_review=cls.lit_rev, added_by=cls.user
         )
 
     def setUp(self):
@@ -117,6 +117,7 @@ class ViewTests(TestCase):
             "top_k": 10,
             "search_engines": [SearchEngine.objects.filter(name="CRUISE").first().id],
             "annotations_per_paper": 1,
+            "review_type": "AN",
         }
 
     def test_literature_review_list_GET(self):
@@ -171,7 +172,7 @@ class ViewTests(TestCase):
     def test_create_new_review_POST_success_test_redirect(self):
         response = self.client.post(self.create_new_review_url, self.new_review_params)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/")
+        self.assertRedirects(response, "/manage_review/3/")
 
     def test_create_new_review_POST_success_test_db(self):
         self.client.post(self.create_new_review_url, self.new_review_params)

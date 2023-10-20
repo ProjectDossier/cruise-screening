@@ -32,7 +32,9 @@ def create_new_review(request):
             form.save()
             title = form.cleaned_data.get("title")
             messages.success(request, f"New review created: {title}")
-            return redirect("literature_review:manage_review", review_id=form.instance.id)
+            return redirect(
+                "literature_review:manage_review", review_id=form.instance.id
+            )
         else:
             if "error_messages" in form:
                 for msg in form.error_messages:
@@ -406,8 +408,9 @@ def add_seed_studies(request, review_id):
                 review.papers[doc.pdf_md5] = _new_papers
                 review.save()
                 added_studies.append(seed_studies_url)
-            except HTTPError:
-                print("HTTPError")
+            except (HTTPError, ValueError) as e:
+                print(e)
+                messages.error(request, f"Error adding {seed_studies_url}")
 
         if added_studies:
             messages.success(
