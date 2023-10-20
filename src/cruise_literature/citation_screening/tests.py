@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from django.test import TestCase, Client
@@ -5,6 +6,7 @@ from django.urls import reverse
 from django.utils.datastructures import MultiValueDictKeyError
 
 from literature_review.models import LiteratureReview, LiteratureReviewMember
+from .models import CitationScreening
 from users.models import User
 from .views import (
     screen_papers,
@@ -86,9 +88,21 @@ class ViewTests(TestCase):
                 ],
             },
             papers={_fake_paper["id"]: _fake_paper},
+            ready_for_screening=True,
         )
         cls.member = LiteratureReviewMember.objects.create(
-            member=cls.user, literature_review=cls.lit_rev
+            member=cls.user, literature_review=cls.lit_rev, added_by=cls.user
+        )
+        cls.cs_for_review = CitationScreening.objects.create(
+            literature_review=cls.lit_rev,
+            tasks={
+                "new": {cls.user.username: [_fake_paper["id"]]},
+                "in_progress": {},
+                "done": {},
+            },
+            screening_level=1,
+            tasks_updated_at=datetime.datetime.now(),
+            distributed_papers=[_fake_paper["id"]],
         )
 
     def setUp(self):

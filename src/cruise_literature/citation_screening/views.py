@@ -158,7 +158,9 @@ def screening_home(request, review_id):
         ).first()
         if screening_task:
             new = screening_task.tasks["new"].get(request.user.username, [])
-            new = [paper for paper in _papers if str(paper["id"]) in new]  # todo: fix paper ID type
+            new = [
+                paper for paper in _papers if str(paper["id"]) in new
+            ]  # todo: fix paper ID type
             done = screening_task.tasks["done"].get(request.user.username, [])
             done = [paper for paper in _papers if str(paper["id"]) in done]
 
@@ -212,7 +214,6 @@ def screen_papers(request, review_id):
             {"review": review, "paper": paper, "start_time": time.time()},
         )
     elif request.method == "POST":
-
         paper_id = request.POST["paper_id"]
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
@@ -265,11 +266,15 @@ def create_screening_decisions(request, review, paper_id):
     }
 
     reason = request.POST["reason"]
-    topic_relevance : Optional[int] = request.POST.get("topic_relevance", None)
-    domain_relevance : Optional[int] = request.POST.get("domain_relevance", None)
+    topic_relevance: Optional[int] = request.POST.get("topic_relevance", None)
+    domain_relevance: Optional[int] = request.POST.get("domain_relevance", None)
     decision = request.POST["decision"]
-    paper_prior_knowledge : Optional[int] = request.POST.get("paper_prior_knowledge", None)
-    authors_prior_knowledge : Optional[int] = request.POST.get("authors_prior_knowledge", None)
+    paper_prior_knowledge: Optional[int] = request.POST.get(
+        "paper_prior_knowledge", None
+    )
+    authors_prior_knowledge: Optional[int] = request.POST.get(
+        "authors_prior_knowledge", None
+    )
 
     review.papers[paper_id]["decisions"] = [
         {
@@ -279,10 +284,18 @@ def create_screening_decisions(request, review, paper_id):
             "exclusion_decisions": exclusion_decisions,
             "inclusion_decisions": inclusion_decisions,
             "stage": "title_abstract",
-            "domain_relevance": int(domain_relevance) if domain_relevance else domain_relevance,
-            "topic_relevance": int(topic_relevance) if topic_relevance else topic_relevance,
-            "paper_prior_knowledge": int(paper_prior_knowledge) if paper_prior_knowledge else paper_prior_knowledge,
-            "authors_prior_knowledge": int(authors_prior_knowledge) if authors_prior_knowledge else authors_prior_knowledge,
+            "domain_relevance": int(domain_relevance)
+            if domain_relevance
+            else domain_relevance,
+            "topic_relevance": int(topic_relevance)
+            if topic_relevance
+            else topic_relevance,
+            "paper_prior_knowledge": int(paper_prior_knowledge)
+            if paper_prior_knowledge
+            else paper_prior_knowledge,
+            "authors_prior_knowledge": int(authors_prior_knowledge)
+            if authors_prior_knowledge
+            else authors_prior_knowledge,
             "screening_time": screening_time,
         }
     ]
@@ -333,7 +346,6 @@ def screen_paper(request, review_id, paper_id):
             },
         )
     if request.method == "POST":
-
         paper_id = request.POST["paper_id"]
         review, request = create_screening_decisions(request, review, paper_id)
         review.save()
