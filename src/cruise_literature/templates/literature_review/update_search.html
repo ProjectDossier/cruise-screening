@@ -1,0 +1,24 @@
+{% extends '_base_templates/_base.html' %}
+{% block content %}
+    <div class="card">
+        <div class="card-header pl-4">
+            {% include 'literature_review/_review_header.html' %}
+        </div>
+        <div class="card-content">
+        </div>
+    </div>
+    <div class="register">
+        <h1 class="title is-1">
+            Update search for: {{ review.title }}
+        </h1>
+                <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div>
+                    <button type="submit" class="button is-link mt-5 is-fullwidth">Update search</button>
+                </div>
+            </form>
+    </div>
+
+    {% include "_base_templates/_footer.html" %}
+{% endblock %}

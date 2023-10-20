@@ -200,7 +200,7 @@ class NewLiteratureReviewForm(forms.ModelForm):
         forms.CharField(),
         delimiter="\n",
         widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
-        label="Type in your search queries, every query in a new line",
+        label="Type in your search queries, each query on a new line",
     )
     inclusion_criteria = ArrayFieldStripWhitespaces(
         forms.CharField(),
@@ -408,3 +408,24 @@ class EditLiteratureReviewForm(forms.ModelForm):
             "tags",
             "organisation",
         )
+
+
+class UpdateSearchForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super(UpdateSearchForm, self).__init__(*args, **kwargs)
+
+    search_queries = ArrayFieldStripWhitespaces(
+        forms.CharField(),
+        delimiter="\n",
+        widget=forms.Textarea(attrs={"class": "textarea is-small form_required"}),
+        label="Type in your search queries, each query one a new line",
+    )
+    search_engines = forms.MultipleChoiceField(
+        # only SemanticScholar and PubMed
+        choices=SearchEngine.objects.filter(name__in=["SemanticScholar", 'PubMed']).values_list(
+            "id", "name"
+        ),
+        widget=forms.CheckboxSelectMultiple(),
+        label="Select the search engines you want to use",
+    )

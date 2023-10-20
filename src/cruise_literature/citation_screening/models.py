@@ -28,7 +28,7 @@ class CitationScreening(models.Model):
     )
     distributed_papers = models.JSONField(
         null=True,
-        help_text="List of papers which were already distributed amoung reviewers.",
+        help_text="List of papers which were already distributed among reviewers.",
     )
 
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
