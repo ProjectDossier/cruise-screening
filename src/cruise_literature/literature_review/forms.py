@@ -217,10 +217,10 @@ class NewLiteratureReviewForm(forms.ModelForm):
 
     search_engines = forms.MultipleChoiceField(
         label=r"""Select in which search engines you want to search for the papers""",
-        choices=SearchEngine.objects.filter(is_available_for_review=True).values_list(
+        choices=lambda: SearchEngine.objects.filter(is_available_for_review=True).values_list(
             "id", "name"
         ),
-        initial=list(
+        initial=lambda: list(
             SearchEngine.objects.filter(
                 name__in=["CRUISE", "SemanticScholar", "CORE"]
             ).values_list("id", flat=True)
