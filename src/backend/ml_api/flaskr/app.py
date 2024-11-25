@@ -26,10 +26,9 @@ logging.info("Model loaded")
 
 def get_response(text: str) -> str:
     inputs = tokenizer.encode(text, return_tensors="pt")
-    # inputs = inputs.to("cuda")
+    inputs = inputs.to("cuda")
     outputs = model.generate(inputs, max_length=32, num_beams=4, early_stopping=True)
-    # out_text = tokenizer.decode(outputs[0].to("cpu"))
-    out_text = tokenizer.decode(outputs[0])
+    out_text = tokenizer.decode(outputs[0].to("cpu"))
 
     out_text = out_text.replace("<pad>", "")
     out_text = out_text.replace("<s>", "")
