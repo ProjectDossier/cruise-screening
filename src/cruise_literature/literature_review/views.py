@@ -15,7 +15,6 @@ from users.models import User
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
 from utils.process_pdf import parse_doc_grobid
-from utils.django_tags import first_n_words
 
 
 @login_required

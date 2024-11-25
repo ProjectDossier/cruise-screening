@@ -1,6 +1,6 @@
 from typing import List, Dict, Union
 import random
-from .base import BaseClassifier
+from flaskr.classifiers.base import BaseClassifier
 
 
 class DummyClassifier(BaseClassifier):

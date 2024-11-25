@@ -190,13 +190,13 @@
                 {% if paper.automatic_decisions|length > 0 %}
                     <td>
                         {% for decision in paper.automatic_decisions %}
-                            {% if decision.decision == "yes" %}
+                            {% if decision.decision == "yes" or decision.decision == 1 %}
                                 <span class="tag is-success is-light hover-text"
                                       data-hover="{{ decision.reviewer_id }}">Include</span>
-                            {% elif decision.decision == "maybe" %}
+                            {% elif decision.decision == "maybe" or decision.decision == -1 %}
                                 <span class="tag is-warning is-light hover-text"
                                       data-hover="{{ decision.reviewer_id }}">Maybe</span>
-                            {% elif decision.decision == "no" %}
+                            {% elif decision.decision == "no" or decision.decision == 0 %}
                                 <span class="tag is-danger is-light hover-text" data-hover="{{ decision.reviewer_id }}">Exclude</span>
                             {% endif %}
                         {% endfor %}

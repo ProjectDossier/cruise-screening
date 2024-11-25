@@ -4,8 +4,8 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from users.models import User
-from .classifiers.dummy import DummyClassifier
-from .registry import MLRegistry
+from src.backend.ml_api.classifiers.dummy import DummyClassifier
+from src.backend.ml_api.registry import MLRegistry
 
 
 class MLRegistryTests(TestCase):

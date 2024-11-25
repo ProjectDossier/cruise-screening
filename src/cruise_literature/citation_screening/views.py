@@ -1,13 +1,18 @@
+import inspect
+import json
 import time
-from typing import Optional
+from typing import Optional, Dict, Any
 
 import numpy as np
+import requests
+from django.conf import settings
 from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 import datetime
 
+from document_classification.registry import MLRegistry
 from document_classification.views import (
     predict_papers,
     prediction_reason,
@@ -15,19 +20,14 @@ from document_classification.views import (
     predict_relevance,
 )
 from literature_review.models import LiteratureReview
-import inspect
-from document_classification.registry import MLRegistry
-from document_classification.classifiers.dummy import DummyClassifier
-from document_classification.classifiers.fasttext_classifier import FastTextClassifier
 from .models import CitationScreening
-from utils.django_tags import is_field_required
 
 
 def _distribute_papers_for_reviewers(
-    papers: list[str],
-    members: list[str],
-    min_decisions: int,
-    papers_per_member: Optional[dict[str, int]] = None,
+        papers: list[str],
+        members: list[str],
+        min_decisions: int,
+        papers_per_member: Optional[dict[str, int]] = None,
 ) -> dict[str, dict[str, list[str]]]:
     """Distribute papers to review members for screening
 
@@ -52,11 +52,11 @@ def _distribute_papers_for_reviewers(
 
     for paper in papers:
         for member in np.random.choice(
-            members,
-            min_decisions,
-            replace=False,
-            p=np.array(list(papers_per_member.values()))
-            / sum(papers_per_member.values()),
+                members,
+                min_decisions,
+                replace=False,
+                p=np.array(list(papers_per_member.values()))
+                  / sum(papers_per_member.values()),
         ):
             if papers_per_member[member] > 0:
                 tasks["new"][member].append(paper)
@@ -65,8 +65,8 @@ def _distribute_papers_for_reviewers(
 
 
 def _update_tasks(
-    old_tasks: dict[str, dict[str, list[str]]],
-    new_tasks: dict[str, dict[str, list[str]]],
+        old_tasks: dict[str, dict[str, list[str]]],
+        new_tasks: dict[str, dict[str, list[str]]],
 ) -> dict[str, dict[str, list[str]]]:
     """Tasks have a format of {status: member: [paper1, ...]}, where status: 'new', 'in_progress', 'done'
 
@@ -363,6 +363,24 @@ def screen_paper(request, review_id, paper_id):
         return redirect("literature_review:view_review", review_id=review_id)
 
 
+def use_classify_api(xy_train: Dict, x_pred: Dict, review_id: int) -> Optional[Dict[str, Any]]:
+    if not settings.ML_API:
+        return None
+
+    headers = {"Content-type": "application/json"}
+    try:
+        print("xy_train", xy_train)
+        print("x_pred", x_pred)
+        res = requests.post(
+            "http://localhost:5000" + "/classify",
+            data=json.dumps({"xy_train": xy_train, "x_pred": x_pred, "review_id": review_id}),
+            headers=headers,
+        )
+        return res.json()
+    except requests.exceptions.ConnectionError:
+        return {"status": "error", "reason": "ML API is not available"}
+
+
 @login_required
 def automatic_screening(request, review_id):
     review = get_object_or_404(LiteratureReview, pk=review_id)
@@ -370,25 +388,27 @@ def automatic_screening(request, review_id):
         raise Http404("Review not found")
 
     if request.method == "GET":
-        try:
-            registry = MLRegistry()  # create ML registry
-            # add to ML registry
-            registry.add_algorithm(
-                endpoint_name=review.id,
-                algorithm_object=DummyClassifier(),
-                algorithm_name="dummy classifier",
-                algorithm_status="production",
-                algorithm_version="0.0.1",
-                owner=request.user,
-                algorithm_description="Dummy classifier always predicting '1'.",
-                algorithm_code=inspect.getsource(DummyClassifier),
-            )
-        except Exception as e:
-            print("Exception while loading the algorithms to the registry,", e)
+
+        # try:
+        #     registry = MLRegistry()  # create ML registry
+        #     # add to ML registry
+        #     registry.add_algorithm(
+        #         endpoint_name=review_id,
+        #         algorithm_object=DummyClassifier(),
+        #         algorithm_name="dummy classifier",
+        #         algorithm_status="production",
+        #         algorithm_version="0.0.1",
+        #         owner=request.user,
+        #         algorithm_description="Dummy classifier always predicting '1'.",
+        #         algorithm_code=inspect.getsource(DummyClassifier),
+        #     )
+        # except Exception as e:
+        #     print("Exception while loading the algorithms to the registry,", e)
 
         xy_train = {}
         x_pred = {}
-        for key, paper in review.papers:
+        print(type(review.papers))
+        for key, paper in review.papers.items():
             if paper.get("decisions") and paper.get("screened"):
                 decision = paper["decisions"][0]["decision"]
                 if decision == "-1":
@@ -399,28 +419,33 @@ def automatic_screening(request, review_id):
                 }  # TODO: convert -1 (maybe) to 1
             else:
                 x_pred[paper["id"]] = {"title": f'{paper["title"]} {paper["abstract"]}'}
-        algorithm_object = FastTextClassifier()
-        # algorithm_object = DummyClassifier()
-        algorithm_object.train(
-            input_data=[x["title"] for x in xy_train.values()],
-            true_labels=[x["decision"] for x in xy_train.values()],
-        )
-        y_pred = algorithm_object.predict([x["title"] for x in x_pred.values()])
-        print(y_pred)
 
+        if classification_result := use_classify_api(xy_train, x_pred, review_id):
+            algorithm_id = classification_result["algorithm_id"]
+            y_pred = classification_result["y_pred"]
+        else:
+            return render(
+                request=request,
+                template_name="literature_review/view_review.html",
+                context={"review": review},
+            )
         if y_pred["status"] == "OK":
             for paper_id, predicted_label in zip(x_pred.keys(), y_pred["predictions"]):
-                edited_index = [
-                    index_i
-                    for index_i, x in enumerate(review.papers)
-                    if str(x["id"]) == str(paper_id)
+                edited_keys = [
+                    key
+                    for key, paper in review.papers.items()
+                    if str(key) == str(paper_id)
                 ][0]
-                review.papers[edited_index]["automatic_decisions"] = {
-                    "algorithm_id": str(algorithm_object),
-                    "decision": predicted_label["label"],
-                    "probability": float(predicted_label["probability"]),
-                    "time": str(datetime.datetime.now()),
-                }
+                if not review.papers[edited_keys].get("automatic_decisions"):
+                    review.papers[edited_keys]["automatic_decisions"] = []
+                review.papers[edited_keys]["automatic_decisions"].append(
+                    {
+                        "reviewer_id": algorithm_id,
+                        "decision": predicted_label["label"],
+                        "probability": float(predicted_label["probability"]),
+                        "time": str(datetime.datetime.now()),
+                    }
+                )
 
                 review.save()
         return render(
