@@ -85,7 +85,7 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
-STATIC_ROOT = "/home/mstrzezon/university/DevelopmentWorkshop/cruise-screening/tmp"
+STATIC_ROOT = env("STATIC_ROOT")
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -170,7 +170,7 @@ M1_CHIP = False
 AUTH_USER_MODEL = "users.User"
 
 # if True then also search inside CORE publications aggregator
-SEARCH_WITH_CORE = False
+SEARCH_WITH_CORE = True
 
 ML_API = False
 

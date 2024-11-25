@@ -407,7 +407,6 @@ def automatic_screening(request, review_id):
 
         xy_train = {}
         x_pred = {}
-        print(type(review.papers))
         for key, paper in review.papers.items():
             if paper.get("decisions") and paper.get("screened"):
                 decision = paper["decisions"][0]["decision"]
