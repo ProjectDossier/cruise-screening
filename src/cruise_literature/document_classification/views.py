@@ -89,7 +89,7 @@ def query_text2text_api(query: str) -> Dict[str, Any]:
 
 
 def predict_papers(review: LiteratureReview, paper: Dict[str, Any]) -> Optional[str]:
-    if not settings.TEXT_TO_TEXT_API:
+    if not settings.ML_API:
         return None
 
     prompt = f"""
@@ -108,7 +108,7 @@ def predict_papers(review: LiteratureReview, paper: Dict[str, Any]) -> Optional[
 
 
 def prediction_reason(review: LiteratureReview, paper: Dict[str, Any]) -> Optional[str]:
-    if not settings.TEXT_TO_TEXT_API:
+    if not settings.ML_API:
         return None
 
     prompt = f"""
@@ -127,7 +127,7 @@ def prediction_reason(review: LiteratureReview, paper: Dict[str, Any]) -> Option
 
 
 def predict_criterion(paper: Dict[str, Any], criterion: [str, str]) -> Optional[str]:
-    if not settings.TEXT_TO_TEXT_API:
+    if not settings.ML_API:
         return None
 
     prompt = f"""
@@ -145,7 +145,7 @@ def predict_criterion(paper: Dict[str, Any], criterion: [str, str]) -> Optional[
 
 
 def predict_relevance(review: LiteratureReview, paper: Dict[str, Any]) -> Optional[str]:
-    if not settings.TEXT_TO_TEXT_API:
+    if not settings.ML_API:
         return None
 
     prompt = f"""
