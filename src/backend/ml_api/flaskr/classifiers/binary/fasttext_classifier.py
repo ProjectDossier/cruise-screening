@@ -42,12 +42,10 @@ class FastTextClassifier(BaseClassifier):
 
     def train(self, input_data: List[str], true_labels: List[int]) -> None:
         input_data = self.preprocessing(input_data=input_data)
-        print("Preprocessing done")
         write_temp_fasttext_train_file(
             input_data=input_data, outfile=self.temp_file_path, labels=true_labels
         )
         self.model = fasttext.train_supervised(input=self.temp_file_path, epoch=70)
-        print("Model trained")
         delete_temp_fasttext_train_file(self.temp_file_path)
 
     def predict(self, input_data: List[str]) -> List[Tuple[int, float]]:
