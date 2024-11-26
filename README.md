@@ -138,21 +138,22 @@ DATABASE_URL=postgres://SYSTEM_USERNAME:YOUR_PASSWORD@localhost:5432/cruise_lite
 
 ### 1.3 ElasticSearch and Search API
 
-Check [backend API](src/backend/README.md) documentation to learn more about installation.
+Check [backend API](src/backend/search_app/README.md) documentation to learn more about installation.
 
 In order to use [CORE search API](https://core.ac.uk/services/api) create a file `data/core_api_key.txt` and insert your API key.
 Next, change `SEARCH_WITH_CORE` to  `True` in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py).
 
 ### 1.4 Text to text API
 
-It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) for a given text.
+It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) 
+for a given text and classify texts using binary classification.
 It is not necessary and can be switched off in the [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py) by setting:
 
 ```python
-TEXT_TO_TEXT_API = False
+ML_API = False
 ```
 
-Check [prompt_API](src/backend/prompt_api/README.md) documentation to learn more about installation.
+Check [prompt_API](src/backend/ml_api/README.md) documentation to learn more about installation.
 
 
 ## <a name='running' /> 2. Running

@@ -1,8 +1,12 @@
+import json
 import logging
 from typing import Dict
 
+import numpy as np
 from flask import Flask, request
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+from flaskr.classifiers.binary.fasttext_classifier import FastTextClassifier
 
 app = Flask(__name__)
 
@@ -31,7 +35,6 @@ def get_response(text: str) -> str:
     out_text = out_text.replace("</s>", "")
     return out_text.strip()
 
-
 @app.route("/")
 def index():
     page = """
@@ -55,7 +58,25 @@ def index():
     </style>
     </head>
     <body>
-    <h1>Text to text models server</h1>
+    <h1>Machine learning classification models server</h1>
+    <h2>Binary models</h2>
+    <p>Route: <span class="code">/classify</span></p>
+    <p>Methods allowed: <span class="code">POST</span></p>
+    <p>POST data: <span class="code">{
+        "xy_train": {
+            "1": {"title": "title 1", "decision": "Label1"},
+            "2": {"title": "title 2", "decision": "Label2"}
+        },
+        "x_pred": {
+            "1": {"title": "Prediction text 1"},
+            "2": {"title": "Prediction text 2"}
+        }
+    }</span></p>
+    <p>POST response: <span class="code">{
+        "y_pred": {"status": "OK", "predictions": [{"probability": 0.9, "label": 1}, {"probability": 0.1, "label": 0}]},
+        "algorithm_id": "FastTextClassifier object at ..."
+    }</span></p>
+    <h2>Prompt-based models</h2>
     <p>Route: <span class="code">/summarize</span></p>
     <p>Methods allowed: <span class="code">POST</span></p>
     <p>POST data: <span class="code">{"text": "text to be summarized"}</span></p>
@@ -72,6 +93,38 @@ def index():
     """
     return page
 
+
+@app.route("/classify", methods=["POST"])
+def classify() -> Dict:
+    if request.method == "POST":
+        try:
+            in_data = request.get_json()
+            # save to file in_data
+            with open("in_data.json", "w") as f:
+                f.write(str(in_data))
+
+
+            review_id = in_data["review_id"]
+            xy_train = in_data["xy_train"]
+            x_pred = in_data["x_pred"]
+
+            algorithm_object = FastTextClassifier()
+            algorithm_object.train(
+                input_data=[x["title"] for x in xy_train.values()],
+                true_labels=[x["decision"] for x in xy_train.values()],
+            )
+            y_pred = algorithm_object.predict([x["title"] for x in x_pred.values()])
+            response = {"y_pred": y_pred, "algorithm_id": str(algorithm_object)}
+        except Exception as e:
+            response = str(e)
+    else:
+        response = "Only POST allowed"
+    return json.dumps(response, default=numpy_encoder)
+
+def numpy_encoder(obj):
+    if isinstance(obj, np.generic):
+        return obj.item()  # Converts np.float32 to float
+    raise TypeError("Type not serializable")
 
 @app.route("/summarize", methods=["POST"])
 def summarize() -> Dict:
@@ -100,7 +153,6 @@ def question() -> Dict[str, str]:
         response = "Error"
         status = "ERROR"
     return {"response": response, "status": status}
-
 
 logging.info("App started")
 logging.info("Waiting for requests at /search")
