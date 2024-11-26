@@ -20,7 +20,15 @@ This project contains four parts:
 
 As a minimum, you need to install the first two parts.
 
-### 1.1 Python Django Backend
+### 1.1 Fast installation for Ubuntu/WSL
+
+Replace placeholders (YOUR_PASSWORD, your-secret-django-key, etc.) in the script `setup_cruise.sh` with your actual configurations.
+```
+chmod +x setup_cruise.sh
+bash setup_cruise.sh
+```
+
+### 1.2 Python Django Backend
 
 Project was tested on Python 3.9+. It will not run on Python 3.8 and below because of type hints for generics.
 
@@ -45,7 +53,7 @@ Use pip to install requirements (you will need `g++` to install fasttext):
 npm install bulma-calendar
 
 
-### 1.2 Postgres database
+### 1.3 Postgres database
 
 [Install PostgreSQL](https://www.postgresql.org/download/)
 
@@ -136,14 +144,14 @@ DATABASE_URL=postgres://SYSTEM_USERNAME:YOUR_PASSWORD@localhost:5432/cruise_lite
 ```
 
 
-### 1.3 ElasticSearch and Search API
+### 1.4 ElasticSearch and Search API
 
 Check [backend API](src/backend/README.md) documentation to learn more about installation.
 
 In order to use [CORE search API](https://core.ac.uk/services/api) create a file `data/core_api_key.txt` and insert your API key.
 Next, change `SEARCH_WITH_CORE` to  `True` in [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py).
 
-### 1.4 Text to text API
+### 1.5 Text to text API
 
 It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) for a given text.
 It is not necessary and can be switched off in the [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py) by setting:
