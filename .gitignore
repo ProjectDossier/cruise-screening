@@ -2,6 +2,8 @@ data/
 .idea/
 *.DS_Store
 src/backend/docker-compose-local.yml
+miniconda.sh
+es_data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
