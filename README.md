@@ -145,11 +145,12 @@ Next, change `SEARCH_WITH_CORE` to  `True` in [`cruise_literature/settings.py`](
 
 ### 1.4 Text to text API
 
-It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) for a given text.
+It is a separate `flask` application that can be used to generate text predictions (question answering, summarisation) 
+for a given text and classify texts using binary classification.
 It is not necessary and can be switched off in the [`cruise_literature/settings.py`](src/cruise_literature/cruise_literature/settings.py) by setting:
 
 ```python
-TEXT_TO_TEXT_API = False
+ML_API = False
 ```
 
 Check [prompt_API](src/backend/ml_api/README.md) documentation to learn more about installation.
