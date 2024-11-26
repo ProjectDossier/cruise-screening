@@ -132,3 +132,27 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+## Frontend
+# dependencies
+frontendApp/node_modules
+frontendApp/.pnp
+frontendApp/.pnp.js
+
+# testing
+frontendApp/coverage
+
+# production
+frontendApp/build
+
+# misc
+frontendApp/.DS_Store
+frontendApp/.env.local
+frontendApp/.env.development.local
+frontendApp/.env.test.local
+frontendApp/.env.production.local
+
+frontendApp/npm-debug.log*
+frontendApp/yarn-debug.log*
+frontendApp/yarn-error.log*

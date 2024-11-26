@@ -1,0 +1,265 @@
+/* 
+  TODO: This file should be refactored (split) into smaller files. Depending
+        on CSS expertise it can be done in one of two ways:
+  
+        1. Move it to postcss and use imports;
+        2. Split it into home.css, search-results.css and common.css.
+*/
+
+.footer {
+  background: transparent;
+  padding: 16px;
+  text-align: center;
+}
+
+.search-box {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: column;
+  min-height: calc(100vmin - 160px);
+  max-width: 500px;
+  margin: 16px auto;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.search-box__logo {
+  display: block;
+  margin: 0 auto;
+  max-width: 250px;
+}
+
+.search-box__input {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+@media screen and (min-width: 600px) {
+  .search-results {
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .search-results > div {
+    overflow-y: auto;
+  }
+
+  .search-results > div:first-child {
+    border-right: 1px solid #efefef;
+  }
+
+  .search-results > div:last-child {
+    border-left: 1px solid #efefef;
+    margin-left: -1px;
+  }
+}
+
+search-results-one-column {
+    display: grid;
+    height: 100vh;
+}
+
+
+.search-results-one-column > div {
+    overflow-y: auto;
+}
+
+.search-results-one-column > div:first-child {
+    border-right: 1px solid #efefef;
+}
+
+.search-results-one-column > div:last-child {
+    border-left: 1px solid #efefef;
+    margin-left: -1px;
+}
+
+.search-results__list {
+  padding: 16px;
+}
+
+.search-small {
+  border-bottom: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.5rem;
+}
+
+.search-small__logo {
+  margin-right: 10px;
+  width: 60px;
+}
+
+.search-small__input {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 550px;
+}
+
+.card__text em {
+  background: #ffeaa7;
+  border-radius: 8px;
+}
+
+.card__show-more {
+  background: transparent;
+  border: 0;
+  color: #3498db;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  line-height: inherit;
+  text-decoration: underline;
+}
+
+.card__show-more:hover {
+  text-decoration: none;
+}
+
+.card--wiki {
+  outline: 3px solid;
+}
+
+[x-cloak] {
+  display: none;
+}
+
+.concept-map-page {
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.concept-map-page__taxonomies {
+  padding: 1em 1em 1em 2em;
+}
+
+.concept-map {
+  overflow-x: hidden;
+}
+
+@media screen and (min-width: 600px) {
+  .concept-map {
+    display: flex;
+    flex-direction: column;
+    height: 75%;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.concept-map > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.concept-map__row {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.concept-map__row a {
+  margin: 0 5px;
+}
+
+.about {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.about__logo {
+  display: block;
+  margin: 0 auto;
+}
+
+.about__text {
+  line-height: 1.5;
+}
+
+.about__text p {
+  margin: 16px 0;
+}
+
+.navbar__logo {
+  height: 60px;
+}
+
+.screen_paper_relevance input[type="radio"] {
+    opacity: 0;
+}
+
+.screen_paper_relevance span:hover {
+  background: #DDD;
+}
+
+.screen_paper_relevance input[type="radio"]:checked+span {
+  background: rgba(224, 158, 59, 0.68);
+  color: #565656;
+}
+
+.has-text-orange {
+  color: #e8b167;
+}
+
+.has-background-orange-light {
+    background: rgba(252, 204, 145, 0.41);
+}
+
+.align-button-to-right {
+  margin-left: auto;
+}
+
+.form_required {
+  border-color: rgba(253, 113, 113, 0.76);
+}
+
+.eligibility_text_tag {
+  /* make sure that all criteria have the same length */
+  word-break: break-all;
+  white-space: normal !important;
+  width: 40ch;
+  text-align: left;
+  height: auto !important;
+  min-height: 2em !important;
+}
+
+.hover-text {
+  position: relative;
+}
+
+.hover-text:before {
+  content: attr(data-hover);
+  visibility: hidden;
+  opacity: 0;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  transition: opacity 1s ease-in-out;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 110%;
+}
+
+.hover-text:hover:before {
+  opacity: 80%;
+  visibility: visible;
+}
+
+.message {
+    margin: 0 auto !important;
+}
