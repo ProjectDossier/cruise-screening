@@ -241,19 +241,21 @@ Run Django server:
 ```
 
 
-### 3. Running forntend
+## 3. React frontend
 
+### Installation
 1. NPM instalation
    Make sure you have npm installed!
    - WSL: https://stackoverflow.com/questions/49919063/installing-npm-node-on-bash-on-ubuntu-on-windows-wsl-what-architecture-does-u
 2. Dependency installation
 ```bash
-cd src/frontendApp/
+cd src/frontend/
 npm ci
 ```
 
-1. Running
-```
-cd src/frontendApp/
+### Running
+```bash
+cd src/frontend/
 npm start
 ```
+The project should open at `http://localhost:3000/`
