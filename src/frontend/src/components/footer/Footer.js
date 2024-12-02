@@ -6,7 +6,7 @@ function Footer() {
             <link rel="stylesheet" href="style.css" />
             <footer class="footer">
                 <p>
-                    © 2023 DoSSIER Project | <a href="">About</a> {/* TODO */}
+                    © 2023 DoSSIER Project | <a href="/about">About</a> {/* TODO */}
                 </p>
             </footer>
 

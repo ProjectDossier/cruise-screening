@@ -1,12 +1,10 @@
 import React from 'react'
 import Base from '../base/Base'
-import Footer from '../footer/Footer';
 
 function Home({ searchQuery }) {
     return (
-        <>
+        <Base>
             <link rel="stylesheet" href="style.css" />
-            <Base />
             <div class="search-box">
                 <img src="cruise-logo.png" class="search-box__logo" width="300" height="300" />
 
@@ -19,8 +17,7 @@ function Home({ searchQuery }) {
                     <input type='hidden' name='source' value="main_search" />
                 </form>
             </div>
-            <Footer />
-        </>
+        </Base>
     );
 }
 
