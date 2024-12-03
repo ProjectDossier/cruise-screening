@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '../header/Header';
+import Footer from '../footer/Footer';
 
 function Base({ title = 'Cruise-literature', children }) {
     return (
@@ -22,6 +23,8 @@ function Base({ title = 'Cruise-literature', children }) {
             </head>
             <body>
                 <Header />
+                {children}
+                <Footer />
             </body>
         </html>
     );

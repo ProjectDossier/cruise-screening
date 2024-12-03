@@ -1,6 +1,5 @@
 import React from 'react';
 import Base from '../base/Base';
-import Footer from '../footer/Footer';
 
 const faqData = [
     {
@@ -39,8 +38,7 @@ const faqData = [
 
 function Faq() {
     return (
-        <>
-            <Base />
+        <Base>
             <div className="max-w-3xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-lg my-12">
                 <h1 className="text-3xl font-bold text-orange-600 text-center mb-8">Frequently Asked Questions</h1>
                 
@@ -55,8 +53,7 @@ function Faq() {
                     </div>
                 ))}
             </div>
-            <Footer />
-        </>
+        </Base>
     );
 }
 
