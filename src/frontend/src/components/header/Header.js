@@ -113,8 +113,7 @@ function Header({ user, messages, searchQuery, isSearchResultsPage}) {
                                 <a className="js-modal-trigger navbar-item" data-target="modal-sign-up">
                                     <strong>Sign up</strong>
                                 </a>
-                                {/* TODO */}
-                                <a href="" className="navbar-item">
+                                <a href="/accounts/login" className="navbar-item">
                                     Log in
                                 </a>
                             </>

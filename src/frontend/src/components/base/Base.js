@@ -19,8 +19,6 @@ function Base({ title = 'Cruise-literature', children }) {
                     />
                     <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
                     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-                    <script src="sort-paginate-table.js"></script>
-                    <script src="modal.js"></script>
                 </Helmet>
                 <Header />
                 {children}
