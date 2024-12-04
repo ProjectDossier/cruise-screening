@@ -9,6 +9,7 @@ import Register from './components/user/Register';
 import UserProfile from './components/user/UserProfile';
 import { AuthProvider } from './components/auth/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import EditUserProfile from './components/user/EditUserProfile';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/edit_user_profile" element={<EditUserProfile />} />
           <Route path="/profile"
             element={
                 <ProtectedRoute>

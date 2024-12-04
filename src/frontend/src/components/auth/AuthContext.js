@@ -12,6 +12,12 @@ export function AuthProvider({ children }) {
     );
 }
 
-export function useAuth() {
-    return useContext(AuthContext);
-}
+export const MockAuthProvider = ({ children, mockUser }) => {
+  const value = { user: mockUser, isAuthenticated: !!mockUser };
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+// Custom hook to use the mock context
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

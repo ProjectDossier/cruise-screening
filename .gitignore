@@ -159,3 +159,5 @@ frontendApp/.env.production.local
 frontendApp/npm-debug.log*
 frontendApp/yarn-debug.log*
 frontendApp/yarn-error.log*
+
+*storybook.log

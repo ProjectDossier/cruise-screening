@@ -259,3 +259,10 @@ cd src/frontend/
 npm start
 ```
 The project should open at `http://localhost:3000/`
+
+### Testing
+```bash
+npm run storybook
+```
+
+Navigate to `http://localhost:6006` and view the component rendered with mock data.
