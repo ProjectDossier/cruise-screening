@@ -96,7 +96,7 @@ function Register() {
                     </form>
                     <p className="block">
                         If you already have an account,{' '}
-                        <a href="/accounts/login">
+                        <a href="/login">
                             <strong>sign in</strong>
                         </a>{' '}
                         instead.

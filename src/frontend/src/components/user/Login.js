@@ -1,7 +1,9 @@
 import Base from '../base/Base';
 import React, { useState } from 'react';
+import { useAuth } from '../auth/AuthContext';
 
 function Login() {
+    const { setIsAuthenticated } = useAuth();
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -18,7 +20,8 @@ function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
         // TODO
-        console.log('Form submitted:', formData);
+        // if logged properly
+        setIsAuthenticated(true);
     };
 
     return (

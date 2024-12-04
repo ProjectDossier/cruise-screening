@@ -6,19 +6,30 @@ import About from './components/about/About';
 import './index.css';
 import Login from './components/user/Login';
 import Register from './components/user/Register';
+import UserProfile from './components/user/UserProfile';
+import { AuthProvider } from './components/auth/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
   return (
     <div className="App">
+      <AuthProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/about" element={<About />} />
-          <Route path="/accounts/login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile"
+            element={
+                <ProtectedRoute>
+                    <UserProfile />
+                </ProtectedRoute>
+            }/>
         </Routes>
       </Router>
+      </AuthProvider>
     </div>
   );
 }
