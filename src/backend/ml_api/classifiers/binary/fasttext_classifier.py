@@ -6,7 +6,7 @@ from typing import List, Any, Tuple
 import re
 import fasttext
 
-from flaskr.classifiers.binary.base import BaseClassifier
+from classifiers.binary.base import BaseClassifier
 
 
 def write_temp_fasttext_train_file(
