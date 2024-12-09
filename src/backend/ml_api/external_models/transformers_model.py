@@ -19,3 +19,9 @@ class TransformersModel:
         outputs = self.model.generate(inputs, max_length=max_length, num_beams=num_beams, early_stopping=True)
         response = self.tokenizer.decode(outputs[0].to("cpu"))
         return response.replace("<pad>", "").replace("<s>", "").replace("</s>", "").strip()
+
+models = {
+    "bigscience/T0_3B" : TransformersModel("bigscience/T0_3B"),
+    "google/flan-t5-small" : TransformersModel("google/flan-t5-small"),
+    "geektech/flan-t5-base-gpt4-relation" : TransformersModel("geektech/flan-t5-base-gpt4-relation"),
+}

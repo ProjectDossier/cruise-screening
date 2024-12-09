@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from routers import classify, summarize, question
+from routers import classify, summarize, question, model
 from utils.logging_config import setup_logging
 
 setup_logging()
@@ -10,8 +10,9 @@ app = FastAPI()
 app.include_router(classify.router, prefix="/classify", tags=["Classification"])
 app.include_router(summarize.router, prefix="/summarize", tags=["Summarization"])
 app.include_router(question.router, prefix="/question", tags=["Question Answering"])
+app.include_router(model.router, prefix="/model", tags=["Models"])
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def index():
     return """
     <html>

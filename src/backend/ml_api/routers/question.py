@@ -1,14 +1,14 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from externalModels.transformers_model import TransformersModel
+from external_models.transformers_model import models
 from typing import Dict
 
 router = APIRouter()
-model = TransformersModel("bigscience/T0_3B")
 
 class QuestionInput(BaseModel):
     text: str
+    model: str
     
 class QuestionResponse(BaseModel):
     response: str
@@ -16,6 +16,7 @@ class QuestionResponse(BaseModel):
 @router.post("/")
 async def question(data: QuestionInput) -> QuestionResponse:
     try:
+        model = models[data.model]
         response = model.generate_response(data.text)
         logging.debug("text: %s, response: %s", data.text, response)
         return QuestionResponse(response=response)
