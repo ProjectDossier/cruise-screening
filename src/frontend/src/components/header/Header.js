@@ -1,19 +1,18 @@
-import React, { useEffect} from "react";
-import { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-function Header({ user, messages, searchQuery, isSearchResultsPage}) {
-    const [isMenuActive] = useState(false);
+function Header({ messages, searchQuery, isSearchResultsPage }) {
+    const { isAuthenticated, user, logout } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // Get all "navbar-burger" elements
         const navbarBurgers = document.querySelectorAll('.navbar-burger');
         navbarBurgers.forEach((burger) => {
             burger.addEventListener('click', () => {
-                // Get the target from the "data-target" attribute
                 const target = burger.dataset.target;
                 const targetElement = document.getElementById(target);
 
-                // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
                 burger.classList.toggle('is-active');
                 if (targetElement) targetElement.classList.toggle('is-active');
             });
@@ -26,9 +25,13 @@ function Header({ user, messages, searchQuery, isSearchResultsPage}) {
         };
     }, []);
 
+    const handleLogout = () => {
+        logout(); 
+        navigate('/');
+    };
+
     return (
         <>
-            <link rel="stylesheet" href="style.css" />
             <nav className="navbar is-light navbar-height" role="navigation" aria-label="main navigation">
                 <div className="navbar-brand">
                     <a className="navbar__logo" href="/">
@@ -37,7 +40,7 @@ function Header({ user, messages, searchQuery, isSearchResultsPage}) {
 
                     <a
                         role="button"
-                        className={`navbar-burger ${isMenuActive ? 'is-active' : ''}`}
+                        className="navbar-burger"
                         aria-label="menu"
                         aria-expanded="false"
                         data-target="userMenu"
@@ -47,15 +50,11 @@ function Header({ user, messages, searchQuery, isSearchResultsPage}) {
                         <span aria-hidden="true"></span>
                     </a>
 
-                    {user?.is_authenticated && (
-                        // TODO
-                        <a href="">My reviews</a>
+                    {isAuthenticated && (
+                        <a href="/reviews">My reviews</a>
                     )}
                     {user?.is_superuser && (
-                        // TODO
-                        <a href="">
-                            Organisations
-                        </a>
+                        <a href="/organisations">Organisations</a>
                     )}
                 </div>
 
@@ -82,39 +81,33 @@ function Header({ user, messages, searchQuery, isSearchResultsPage}) {
 
                 <div className="navbar-menu" id="userMenu">
                     <div className="navbar-end">
-                        {/* TODO */}
                         <a href="/faq" className="navbar-item">
                             FAQ
                         </a>
-                        {user?.is_authenticated ? (
+                        {isAuthenticated ? (
                             <div className="navbar-item has-dropdown is-hoverable">
-                                {/* TODO */}
-                                <a href="" className="navbar-link">
+                                <a href="/profile" className="navbar-link">
                                     {user.username}
                                 </a>
                                 <div className="navbar-dropdown">
-                                    {/* TODO */}
-                                    <a href="" className="navbar-item">
+                                    <a href="/profile" className="navbar-item">
                                         My profile
                                     </a>
-                                    {/* TODO */}
-                                    <a href="" className="navbar-item">
+                                    <a href="/reviews" className="navbar-item">
                                         My reviews
                                     </a>
                                     <hr className="navbar-divider" />
-                                    {/* TODO */}
-                                    <a href="" className="navbar-item">
+                                    <a onClick={handleLogout} className="navbar-item">
                                         Logout
                                     </a>
                                 </div>
                             </div>
                         ) : (
                             <>
-                                <a className="js-modal-trigger navbar-item" data-target="modal-sign-up">
+                                <a href="/register" className="navbar-item">
                                     <strong>Sign up</strong>
                                 </a>
-                                {/* TODO */}
-                                <a href="" className="navbar-item">
+                                <a href="/login" className="navbar-item">
                                     Log in
                                 </a>
                             </>
@@ -134,6 +127,7 @@ function Header({ user, messages, searchQuery, isSearchResultsPage}) {
                 </div>
             )}
         </>
-    )
+    );
 }
+
 export default Header;
