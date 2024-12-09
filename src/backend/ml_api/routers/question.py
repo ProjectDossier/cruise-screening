@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from externalModels.transformers_model import TransformersModel
 from typing import Dict
@@ -9,13 +9,16 @@ model = TransformersModel("bigscience/T0_3B")
 
 class QuestionInput(BaseModel):
     text: str
+    
+class QuestionResponse(BaseModel):
+    response: str
 
 @router.post("/")
-async def question(data: QuestionInput) -> Dict[str, str]:
+async def question(data: QuestionInput) -> QuestionResponse:
     try:
         response = model.generate_response(data.text)
         logging.debug("text: %s, response: %s", data.text, response)
-        return {"response": response, "status": "OK"}
+        return QuestionResponse(response=response)
     except Exception as e:
         logging.error(f"Error during question answering: {e}")
-        return {"response": "Error", "status": "ERROR"}
+        raise HTTPException(status_code=503, detail="Service Unavailable: Unable to process the request.")
