@@ -19,7 +19,13 @@ function UserProfile({ userId }) {
         }
     };
 
-    if (!user) return <div>Loading...</div>;
+    if (!user)  return (
+        <Base>
+            <div className="max-w-3xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-lg my-12 flex justify-center items-center">
+                <div className="spinner is-centered animate-spin border-t-4 border-orange-600 border-solid rounded-full w-16 h-16"></div>
+            </div>
+        </Base>
+    );
 
     return (
         <Base>

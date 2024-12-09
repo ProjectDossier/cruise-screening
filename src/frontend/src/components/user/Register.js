@@ -1,10 +1,16 @@
 import Base from '../base/Base';
 import React, { useState } from 'react';
+import { useAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
+    const navigate = useNavigate();
+    const { register } = useAuth();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
+        first_name: '',
+        last_name: '',
         password1: '',
         password2: '',
     });
@@ -17,10 +23,11 @@ function Register() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO
         console.log('Registration form submitted:', formData);
+        await register(formData);
+        navigate('/login')
     };
 
     return (
@@ -54,6 +61,34 @@ function Register() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     placeholder="Enter your email"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="field">
+                            <label className="label">First name</label>
+                            <div className="control">
+                                <input
+                                    type="text"
+                                    name="first_name"
+                                    className="input"
+                                    value={formData.first_name}
+                                    onChange={handleChange}
+                                    placeholder="Enter your first name"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="field">
+                            <label className="label">Last name</label>
+                            <div className="control">
+                                <input
+                                    type="text"
+                                    name="last_name"
+                                    className="input"
+                                    value={formData.last_name}
+                                    onChange={handleChange}
+                                    placeholder="Enter your last name"
                                     required
                                 />
                             </div>

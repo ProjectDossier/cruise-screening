@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 function EditUserProfile() {
-    const { user } = useAuth();
+    const { is_authenticated, user } = useAuth();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -15,7 +15,7 @@ function EditUserProfile() {
     });
     
     useEffect(() => {
-        if (!user || !user.is_authenticated) {
+        if (!is_authenticated) {
             // Redirect unauthenticated users
             navigate('/login');
         } else {

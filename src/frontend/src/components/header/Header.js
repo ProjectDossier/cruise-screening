@@ -25,8 +25,8 @@ function Header({ messages, searchQuery, isSearchResultsPage }) {
         };
     }, []);
 
-    const handleLogout = () => {
-        logout(); 
+    const handleLogout = async () => {
+        await logout(); 
         navigate('/');
     };
 

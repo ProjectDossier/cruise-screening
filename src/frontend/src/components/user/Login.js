@@ -1,13 +1,15 @@
 import Base from '../base/Base';
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
-    const { setIsAuthenticated } = useAuth();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         username: '',
         password: '',
     });
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -17,11 +19,11 @@ function Login() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO
-        // if logged properly
-        setIsAuthenticated(true);
+        console.log('Login form submitted:', formData);
+        await login(formData);
+        navigate('/')
     };
 
     return (
