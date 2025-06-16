@@ -170,7 +170,7 @@ M1_CHIP = False
 AUTH_USER_MODEL = "users.User"
 
 # if True then also search inside CORE publications aggregator
-SEARCH_WITH_CORE = True
+SEARCH_WITH_CORE = False
 
 ML_API = False
 
