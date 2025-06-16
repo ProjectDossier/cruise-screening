@@ -8,7 +8,7 @@ RUN apt-get install -y python3-pip python3.12
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
-RUN python -v
+RUN python3.12 -v
 RUN apt-get update -y && \
     pip install --no-cache-dir -r /app/requirements.txt
 
