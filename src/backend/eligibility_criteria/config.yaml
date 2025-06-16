@@ -1,0 +1,27 @@
+host: 0.0.0.0
+port: 5000
+debug: true
+MAX_CONTENT_LENGTH: 8192
+
+instruction: "<instruction> You are an expert in evidence-based medicine. Based on the provided abstract, extract the PICO eligibility criteria in XML format. Do not include explanations or reasoning. </instruction> <output><PICO><Population>...</Population><Intervention>...</Intervention><Comparison>...</Comparison><Outcome>...</Outcome></PICO></output>"
+
+# External API settings
+api_url: "gemini-1.5-flash"
+api_key: "..."
+
+logging:
+  version: 1
+  formatters:
+    default:
+      format: "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+  handlers:
+    file:
+      class: logging.handlers.RotatingFileHandler
+      formatter: default
+      filename: flask/logs/app.log
+      maxBytes: 1048576
+      backupCount: 5
+      level: ERROR
+  root:
+    level: ERROR
+    handlers: [file]
