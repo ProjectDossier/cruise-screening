@@ -5,6 +5,7 @@ RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 RUN apt-get update -y
 RUN apt-get install -y python3-pip python3.12
+RUN pip install google-genai==1.20.0
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
