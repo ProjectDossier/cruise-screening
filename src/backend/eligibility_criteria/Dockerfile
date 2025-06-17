@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-runtime-ubuntu20.04
+FROM nvidia/cuda:12.9.1-cudnn-devel-ubuntu20.04
 
 RUN apt-get update -y
 RUN apt-get install -y software-properties-common
