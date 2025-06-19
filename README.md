@@ -22,117 +22,28 @@ As a minimum, you need to install the first two parts.
 
 ### 1.1 Python Django Backend
 
-Project was tested on Python 3.9+. It will not run on Python 3.8 and below because of type hints for generics.
 
-Create [conda](https://docs.conda.io/en/latest/miniconda.html) environment:
-
-```bash
-$ conda create --name cruise-literature python==3.9.12
-```
-
-Activate the environment:
-
-```bash
-$ source activate cruise-literature
-```
-
-Use pip to install requirements (you will need `g++` to install fasttext):
-
-```bash
-(cruise-literature)$ pip install -r requirements_external.txt
-```
+Project was tested on Python 3.12. It will not run on Python 3.8 and below because of type hints for generics. You need to install `uv` in order to run the project. 
 
 npm install bulma-calendar
 
 
 ### 1.2 Postgres database
 
-[Install PostgreSQL](https://www.postgresql.org/download/)
-
-#### macOS
-
-*Based on this [gist](https://gist.github.com/phortuin/2fe698b6c741fd84357cec84219c6667)*
-
-`brew install postgresql@14`
-
-Run server:
-
-`pg_ctl -D /opt/homebrew/var/postgresql@14 start`
-
-Note: if you’re on Intel, the /opt/homebrew probably is `/usr/local`.
-
-Start psql and open database `postgres`, which is the database postgres uses itself to store roles, permissions, and structure:
-
-```bash
-$ psql postgres
-```
-
-#### Ubuntu
-
-```bash
-$ sudo apt install postgresql postgresql-contrib
-```
-
-```bash
-$ service postgresql start
-```
-
-Start postgres server
-
-```bash
-$ sudo systemctl start postgresql.service
-```
 
 #### Configuration
 
-Next steps common for Ubuntu and macOS.
-
-Replace `SYSTEM_USERNAME` with your system username and `YOUR_PASSWORD` with your desired database password.
-
-You can check what is your `SYSTEM_USERNAME` with the following command:
-
-```bash
-$ whoami
-```
 
 Start psql and open database:
 
 ```bash
-$ sudo -u postgres psql
-```
-
-Create new role for cruise application, set its name same as your `SYSTEM_USERNAME`, give `LOGIN` and `CREATEDB` permissions; set `YOUR_PASSWORD` password:
-
-```postgres
-postgres-# CREATE ROLE SYSTEM_USERNAME WITH LOGIN;
-postgres-# ALTER ROLE SYSTEM_USERNAME CREATEDB;
-postgres-# ALTER  USER SYSTEM_USERNAME WITH  PASSWORD 'YOUR_PASSWORD';
-```
-
-Quit psql, because we will log in with the new role (=cruise_literature_user) to create a database:
-
-```postgres
-postgres-# \q
-```
-
-
-On shell, open psql with `postgres` database with our new user.
-
-```bash
-$ psql postgres
-```
-
-Note that the postgres prompt looks different, because you’re not logged in as a root user anymore. Create a `cruise_literature` database and grant all privileges to our `SYSTEM_USERNAME` user:
-
-```postgres
-postgres-> CREATE DATABASE cruise_literature;
-postgres-> GRANT ALL PRIVILEGES ON DATABASE cruise_literature TO SYSTEM_USERNAME;
+$ bash setup.sh
 ```
 
 Update the DATABASE_URL entry in the `.env` file (see 2.1 Before first run). Replace `SYSTEM_USERNAME` with your system username and `YOUR_PASSWORD` with your desired database password.
 
 ```text
-DATABASE_URL=postgres://SYSTEM_USERNAME:YOUR_PASSWORD@localhost:5432/cruise_literature
+DATABASE_URL=postgres://SYSTEM_USERNAME:YOUR_PASSWORD@localhost:5433/cruise_literature
 ```
 
 
@@ -161,6 +72,12 @@ Check [prompt_API](src/backend/ml_api/README.md) documentation to learn more abo
 ### 2.1 Before first run
 
 This fields will also apply after making some changes or updating the code, when the database could be out of sync with the code.
+
+In the top level directory of the project, create a `.env` file and fill it with the following fields:
+
+```text
+DATABASE_URL=postgres://user:password@host:port/dbname
+```
 
 Go into `src/cruise_literature/` directory: 
 
@@ -225,6 +142,12 @@ Add `YOUR_IP` to `ALLOWED_HOSTS` in `.env` file, for example:
 
 ```text
 ALLOWED_HOSTS=123.456.789.0
+```
+
+In the `src/backend/search_app/docker-compose.yml` file modify the IP address in the following line:
+
+```text
+network.host=0.0.0.0
 ```
 
 Run Django server:

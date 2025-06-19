@@ -1,4 +1,5 @@
 """Simple script for adding documents to the elastic db"""
+
 import json
 import argparse
 
@@ -43,22 +44,21 @@ if __name__ == "__main__":
     else:
         total_docs = len(docs_list)
 
-    es = Elasticsearch([{"host": args.host, "port": args.port}])
-
+    es = Elasticsearch(
+        [{"host": args.host, "port": args.port, "scheme": "http"}],
+    )
+    es._verified_elasticsearch = True
     if not es.indices.exists(index=args.index):
         mapping = {
             "mappings": {
                 "properties": {
-                    "keywords": {"type": "object",  "enabled": "false"},
+                    "keywords": {"type": "object", "enabled": "false"},
                     "CSO_keywords": {"type": "object", "enabled": "false"},
                 }
             }
         }
-        response = es.indices.create(
-            index=args.index, body=mapping
-        )
+        response = es.indices.create(index=args.index, body=mapping)
 
     for index_i, json_str in tqdm(enumerate(docs_list), total=total_docs):
         item = json.loads(json_str)
-        res = es.index(index=args.index,
-                       document=item)
+        res = es.index(index=args.index, document=item)

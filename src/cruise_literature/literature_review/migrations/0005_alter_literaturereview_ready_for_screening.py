@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('literature_review', '0004_remove_literaturereview_min_decisions'),
+        ("literature_review", "0004_remove_literaturereview_min_decisions"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='literaturereview',
-            name='ready_for_screening',
-            field=models.BooleanField(default=False, help_text='If True, than papers were distributed between reviewers for manual screening.'),
+            model_name="literaturereview",
+            name="ready_for_screening",
+            field=models.BooleanField(
+                default=False,
+                help_text="If True, than papers were distributed between reviewers for manual screening.",
+            ),
         ),
     ]

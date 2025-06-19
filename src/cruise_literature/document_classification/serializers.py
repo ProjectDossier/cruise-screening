@@ -11,7 +11,6 @@ class EndpointSerializer(serializers.ModelSerializer):
 
 
 class MLAlgorithmSerializer(serializers.ModelSerializer):
-
     current_status = serializers.SerializerMethodField(read_only=True)
 
     def get_current_status(self, mlalgorithm):

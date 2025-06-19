@@ -14,6 +14,11 @@ from requests import HTTPError
 from users.models import User
 from .forms import NewLiteratureReviewForm, EditLiteratureReviewForm
 from .models import LiteratureReview
+from document_search.search_core import search_core  # noqa
+from document_search.search_cruise import search_cruise  # noqa
+from document_search.search_google_scholar import search_google_scholar  # noqa
+from document_search.search_semantic_scholar import search_semantic_scholar  # noqa
+from document_search.search_pubmed import search_pubmed  # noqa
 from utils.process_pdf import parse_doc_grobid
 
 

@@ -1,10 +1,10 @@
 from django.template.defaulttags import register
 
 
-@register.filter(name='add_class')
+@register.filter(name="add_class")
 def add_class(value, arg):
-    css_class = value.field.widget.attrs.get('class', '')
-    return value.as_widget(attrs={'class': f'{css_class} {arg}'})
+    css_class = value.field.widget.attrs.get("class", "")
+    return value.as_widget(attrs={"class": f"{css_class} {arg}"})
 
 
 @register.filter
@@ -54,12 +54,13 @@ def convert_papers_list(papers, data_format_version):
 
 
 @register.filter
-def is_field_required(review:dict, field:str) -> str:
+def is_field_required(review: dict, field: str) -> str:
     """returns True if the field is required"""
     if field in review.obligatory_fields:
-        return 'required'
+        return "required"
     else:
-        return ''
+        return ""
+
 
 @register.filter
 def _hash(h, key):

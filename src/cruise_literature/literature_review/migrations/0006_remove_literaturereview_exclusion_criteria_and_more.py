@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('literature_review', '0005_alter_literaturereview_ready_for_screening'),
+        ("literature_review", "0005_alter_literaturereview_ready_for_screening"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='literaturereview',
-            name='exclusion_criteria',
+            model_name="literaturereview",
+            name="exclusion_criteria",
         ),
         migrations.RemoveField(
-            model_name='literaturereview',
-            name='inclusion_criteria',
+            model_name="literaturereview",
+            name="inclusion_criteria",
         ),
     ]

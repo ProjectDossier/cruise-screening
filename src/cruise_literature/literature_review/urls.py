@@ -33,7 +33,15 @@ urlpatterns = [
     path("export_review/<int:review_id>/", views.export_review, name="export_review"),
     path("delete_review/<int:review_id>/", views.delete_review, name="delete_review"),
     path("manage_review/<int:review_id>/", views.manage_review, name="manage_review"),
-    path("add_review_member/<int:review_id>", views.add_review_member, name="add_review_member"),
-    path("remove_review_member/<int:review_id>", views.remove_review_member, name="remove_review_member"),
+    path(
+        "add_review_member/<int:review_id>",
+        views.add_review_member,
+        name="add_review_member",
+    ),
+    path(
+        "remove_review_member/<int:review_id>",
+        views.remove_review_member,
+        name="remove_review_member",
+    ),
     path("create_review/", views.create_new_review, name="create_new_review"),
 ]

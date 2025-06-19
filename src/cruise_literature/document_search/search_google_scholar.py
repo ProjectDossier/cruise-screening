@@ -33,7 +33,7 @@ def revert_snippet(snippet: str) -> str:
     upper_bound = len(snippet) // 2 + 5
     new_snippet = next(
         (
-            f"{snippet[:newline_candidate.span()[0]]} {snippet[newline_candidate.span()[1]:]}"
+            f"{snippet[: newline_candidate.span()[0]]} {snippet[newline_candidate.span()[1] :]}"
             for newline_candidate in re.finditer("  ", snippet)
             if lower_bound < newline_candidate.span()[0] < upper_bound
         ),

@@ -5,9 +5,9 @@ from django.core.validators import (
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from literature_review.models import LiteratureReview, LiteratureReviewMember
-from organisations.models import Organisation
-from users.models import KnowledgeArea
+from literature_review.models import LiteratureReview, LiteratureReviewMember  # noqa
+from organisations.models import Organisation  # noqa
+from users.models import KnowledgeArea  # noqa
 
 
 class CitationScreening(models.Model):

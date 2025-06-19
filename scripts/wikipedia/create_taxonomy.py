@@ -97,8 +97,7 @@ class Crawler:
 
             child_key = f"/wiki/{url[39:]}"
             if children.get(child_key):
-
-                new_url = f'{"/".join(url.split("/")[:3])}{child_key}'
+                new_url = f"{'/'.join(url.split('/')[:3])}{child_key}"
                 category_page_result = self.crawl(
                     new_url, depth=depth - 1, first_n_links=first_n_links
                 )
@@ -143,7 +142,7 @@ class Crawler:
             if link.startswith("https://") and link not in self.global_parsed_urls:
                 new_url = link
             elif link.startswith("/"):
-                new_url = f'{"/".join(url.split("/")[:3])}{link}'
+                new_url = f"{'/'.join(url.split('/')[:3])}{link}"
                 if new_url in self.global_parsed_urls:
                     continue
             else:

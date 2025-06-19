@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("citation_screening", "0013_remove_literaturereview_discipline_and_more"),
         ("literature_review", "0001_initial"),

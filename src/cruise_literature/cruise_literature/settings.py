@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
-from pathlib import Path
-
+from pathlib import Path  # noqa
 import environ
-from django.conf import settings
+
+from django.conf import settings  # noqa
 
 env = environ.Env(
     # set casting, default value
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "citation_screening",
     "document_classification",
     "organisations",
+    "cruise_rag",
 ]
 
 MIDDLEWARE = [
@@ -85,7 +86,8 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
-STATIC_ROOT = env("STATIC_ROOT")
+# STATIC_ROOT = env("STATIC_ROOT")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -172,6 +174,6 @@ AUTH_USER_MODEL = "users.User"
 # if True then also search inside CORE publications aggregator
 SEARCH_WITH_CORE = False
 
-ML_API = False
+ML_API = True
 
 ENTREZ_EMAIL = "YOUR_EMAIL@SERVER.COM"

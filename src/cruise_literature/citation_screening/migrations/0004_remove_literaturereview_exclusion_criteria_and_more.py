@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("citation_screening", "0003_literaturereview_exclusion_criteria_and_more"),
     ]

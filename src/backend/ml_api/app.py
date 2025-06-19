@@ -12,6 +12,7 @@ app.include_router(summarize.router, prefix="/summarize", tags=["Summarization"]
 app.include_router(question.router, prefix="/question", tags=["Question Answering"])
 app.include_router(model.router, prefix="/model", tags=["Models"])
 
+
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def index():
     return """

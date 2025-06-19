@@ -19,7 +19,7 @@ def create_organisation(request):
         form = OrganisationForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
-            return redirect("organisations:view_organisations")
+            return redirect("organisations:view_all_organisations")
     else:
         form = OrganisationForm(user=request.user)
     return render(request, "organisations/create_organisation.html", {"form": form})

@@ -4,15 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('literature_review', '0006_remove_literaturereview_exclusion_criteria_and_more'),
+        (
+            "literature_review",
+            "0006_remove_literaturereview_exclusion_criteria_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='literaturereview',
-            name='review_type',
-            field=models.CharField(choices=[('RE', 'Literature Review'), ('AN', 'Annotation Task')], default='AN', max_length=2),
+            model_name="literaturereview",
+            name="review_type",
+            field=models.CharField(
+                choices=[("RE", "Literature Review"), ("AN", "Annotation Task")],
+                default="AN",
+                max_length=2,
+            ),
         ),
     ]

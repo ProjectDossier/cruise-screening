@@ -40,7 +40,6 @@ class MLRegistryTests(TestCase):
 
 class EndpointTests(TestCase):
     def test_predict_view(self):
-        user = User.objects.create_user("myuser", "myemail@test.com", "test_password")
         client = APIClient()
         input_data = ["This text should be included"]
         classifier_url = "/api/v1/text_classification/predict"

@@ -7,7 +7,7 @@ First install [docker](https://www.digitalocean.com/community/tutorials/how-to-i
 To persist the elasticsearch database, create a folder `[your/directory/on/your/local/]`.
 Use `chmod 777 [your/directory/on/your/local/]` to set the correct permissions for elastic search.
 
-Also, select a port number PORT_ES (default `9200`) which is used to connect to elasticsearch and a port number PORT_API (default `9880`) to connect to the search app API.
+Also, select a port number PORT_ES (default `9200`) which is used to connect to elasticsearch and a port number PORT_API (default `8880`) to connect to the search app API.
 
 Create a `docker-compose-local.yml` file containing the following:
 ```
@@ -26,7 +26,7 @@ services:
 The first time, you need to build the images using:
 
 ```bash
-$ docker-compose -f docker-compose.yml -f docker-compose-local.yml  build
+$ 
 ```
 By typing `-f docker-compose.yml` and then `-f docker-compose-local.yml` the data from the local file overwrites the default.
 
@@ -73,3 +73,4 @@ The API accepts the following requests:
     }
 }
 ```
+docker-compose -f docker-compose.yml -f docker-compose-local.yml  build

@@ -3,8 +3,6 @@ from typing import Dict, Any, Optional
 
 import requests
 from django.db import transaction
-from django.http import Http404
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins
 from rest_framework.exceptions import APIException
 
@@ -79,11 +77,15 @@ def query_text2text_api(query: str) -> Dict[str, Any]:
     headers = {"Content-type": "application/json"}
     try:
         res = requests.post(
-            "http://localhost:5000" + "/question",
-            data=json.dumps({"text": query}),
+            "http://localhost:8000" + "/question",
+            data=json.dumps({"text": query, "model": "default"}),
             headers=headers,
         )
-        return res.json()
+        if res.status_code != 200:
+            raise APIException(f"Text-to-text API error: {res.status_code}")
+        response = res.json()
+        response["status"] = "OK"
+        return response
     except requests.exceptions.ConnectionError:
         return {"status": "error", "reason": "Text-to-text API is not available"}
 
@@ -93,14 +95,18 @@ def predict_papers(review: LiteratureReview, paper: Dict[str, Any]) -> Optional[
         return None
 
     prompt = f"""
+    You are a research assistant. You are given a paper and a systematic review.
+    Your task is to determine whether the paper is relevant to the review.
     Is the following paper relevant to the review?
-    Paper Title: {paper['title']}
-    Paper Abstract: {paper['abstract']}
-    Paper Authors: {paper['authors']}
+    Paper Title: {paper["title"]}
+    Paper Abstract: {paper["abstract"]}
+    Paper Authors: {paper["authors"]}
     
     Review: {review.title}
     Review abstract: {review.description}
     Please answer with either "yes", "no" or "not sure".
+    Do NOT write anything except for one of the three options.
+    Select: "yes", "no" or "not sure".
     """
     res = query_text2text_api(prompt)
 
@@ -112,10 +118,12 @@ def prediction_reason(review: LiteratureReview, paper: Dict[str, Any]) -> Option
         return None
 
     prompt = f"""
+    You are a research assistant. You are given a paper and a systematic review.
+    Your task is to determine whether the paper is relevant to the review.
     Why is the following paper relevant to the review?
-    Paper Title: {paper['title']}
-    Paper Abstract: {paper['abstract']}
-    Paper Authors: {paper['authors']}
+    Paper Title: {paper["title"]}
+    Paper Abstract: {paper["abstract"]}
+    Paper Authors: {paper["authors"]}
     
     Review: {review.title}
     Review abstract: {review.description}
@@ -126,19 +134,28 @@ def prediction_reason(review: LiteratureReview, paper: Dict[str, Any]) -> Option
     return res["response"] if res["status"] == "OK" else None
 
 
-def predict_criterion(paper: Dict[str, Any], criterion: [str, str]) -> Optional[str]:
+def predict_criterion(
+    paper: Dict[str, Any], criterion: list[str, str]
+) -> Optional[str]:
     if not settings.ML_API:
         return None
 
     prompt = f"""
+    You are a research assistant. You are given a paper and a systematic review criterion.
+    Your task is to determine whether the paper is relevant to the criterion described below.
+    If you think the paper is relevant to the criterion, please answer with "yes".
+    If you are sure that the paper is not relevant to the criterion, please answer with "no".
+    Otherwise, please answer with "not sure".
     Is the following paper relevant to the criterion?
-    Paper Title: {paper['title']}
-    Paper Abstract: {paper['abstract']}
-    Paper Authors: {paper['authors']}
+    Paper Title: {paper["title"]}
+    Paper Abstract: {paper["abstract"]}
+    Paper Authors: {paper["authors"]}
     
-    Criterion: {criterion['text']}
-    Please answer with either "yes", "no" or "not sure".
+    Systematic review criterion: {criterion["text"]}
+    Please answer with either "yes", "no" or "not sure". Do NOT write anything except for one of the three options.
+    Select: "yes", "no" or "not sure".
     """
+
     res = query_text2text_api(prompt)
 
     return res["response"] if res["status"] == "OK" else None
@@ -149,15 +166,23 @@ def predict_relevance(review: LiteratureReview, paper: Dict[str, Any]) -> Option
         return None
 
     prompt = f"""
+    You are a research assistant. You are given a paper and a systematic review search query.
+    Your task is to determine whether the paper is relevant to the query.
+    If you think the paper is relevant to the query, please answer with "Highly relevant".
+    If you are sure that the paper is not relevant to the query, please answer with "Not relevant".
+    Otherwise, please answer with "Somewhat relevant".
+    Sometimes, one or more of the elements of the paper description are not available. In this case, you should answer by analysing the rest of the provided data.
     Is the following paper relevant to the queries?
-    Paper Title: {paper['title']}
-    Paper Abstract: {paper['abstract']}
-    Paper Authors: {paper['authors']}
+    Paper Title: {paper["title"]}
+    Paper Abstract: {paper["abstract"]}
+    Paper Authors: {paper["authors"]}
     
-    Review search queries: {', '.join(review.search_queries)}
+    Systematic review search queries: {", ".join(review.search_queries)}
 
-    Please answer with either "Highly relevant", "Somewhat relevant" or "Not relevant".
+    Please answer with either "Highly relevant", "Somewhat relevant" or "Not relevant". Do NOT write anything except for one of the three options.
+    Select: "Highly relevant", "Somewhat relevant" or "Not relevant".
     """
+
     res = query_text2text_api(prompt)
 
     return res["response"] if res["status"] == "OK" else None

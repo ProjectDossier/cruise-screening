@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("citation_screening", "0012_alter_literaturereview_data_format_version"),
     ]

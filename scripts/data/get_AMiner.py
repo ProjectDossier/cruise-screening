@@ -4,6 +4,8 @@ import json
 import re
 from os.path import join as join_path
 
+from tqdm import tqdm
+
 parser = argparse.ArgumentParser(description='jsonl formater')
 parser.add_argument('-p',
                     dest='path',
@@ -12,10 +14,14 @@ parser.add_argument('-p',
 
 
 def get_jsonl_data(path_in, path_out):
+    num_lines = 0
+    with open(path_in, "rbU") as f:
+        num_lines = sum(1 for _ in f)
+
     with open(path_in, "r") as f_in:
         with open(path_out, "w") as f_out:
 
-            for line in f_in:
+            for line in tqdm(f_in, total=num_lines):
                 if line[0] == "{":
                     paper_line = []
 

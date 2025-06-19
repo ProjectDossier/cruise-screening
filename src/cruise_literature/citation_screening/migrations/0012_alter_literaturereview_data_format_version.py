@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("citation_screening", "0011_remove_literaturereview_creation_date_and_more"),
     ]

@@ -6,13 +6,16 @@ from classifiers.binary.fasttext_classifier import FastTextClassifier
 
 router = APIRouter()
 
+
 class ClassifyInput(BaseModel):
     xy_train: Dict[str, Dict[str, str]]
     x_pred: Dict[str, Dict[str, str]]
-    
+
+
 class ClassifyOutput(BaseModel):
     y_pred: Dict[str, str]
     algorithm_id: str
+
 
 @router.post("/")
 async def classify(data: ClassifyInput) -> ClassifyOutput:
@@ -30,4 +33,7 @@ async def classify(data: ClassifyInput) -> ClassifyOutput:
         return ClassifyOutput(y_pred=predictions, algorithm_id="FastText")
     except Exception as e:
         logging.error(f"Error during classification: {e}")
-        raise HTTPException(status_code=503, detail="Service Unavailable: Unable to process the request.")
+        raise HTTPException(
+            status_code=503,
+            detail="Service Unavailable: Unable to process the request.",
+        )

@@ -1,6 +1,7 @@
 import torch
 import logging
 
+
 def get_device():
     if torch.cuda.is_available():
         logging.info("CUDA is available.")

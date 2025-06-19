@@ -50,7 +50,6 @@ def search_core(query: str, top_k: int) -> SearchResultWithStatus:
     candidate_list = []
     if response.status_code == 200:
         for index_i, candidate in enumerate(response.json()["results"]):
-
             try:
                 snippet = candidate.get("abstract")[:300]
                 abstract = candidate.get("abstract")

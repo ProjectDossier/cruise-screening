@@ -61,17 +61,17 @@ class LiteratureReview(models.Model):
     review_type = models.CharField(
         max_length=2,
         choices=REVIEW_TYPES,
-        default='AN',
+        default="AN",
     )
 
     @property
     def obligatory_fields(self):
-        if self.review_type == 'AN':
-            return ['inclusion', 'exclusion', 'relevance', 'decision', 'past_knowledge']
-        elif self.review_type == 'RE':
-            return ['decision']
+        if self.review_type == "AN":
+            return ["inclusion", "exclusion", "relevance", "decision", "past_knowledge"]
+        elif self.review_type == "RE":
+            return ["decision"]
         else:
-            raise ValueError(f'Unknown review type: {self.review_type}')
+            raise ValueError(f"Unknown review type: {self.review_type}")
 
     project_deadline = models.DateField()
     organisation = models.ForeignKey(

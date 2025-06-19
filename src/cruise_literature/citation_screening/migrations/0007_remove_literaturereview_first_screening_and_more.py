@@ -8,7 +8,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0002_user_allow_logging_user_preferred_taxonomies"),
         ("citation_screening", "0006_remove_literaturereviewmember_user_and_more"),

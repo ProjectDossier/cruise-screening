@@ -3,7 +3,6 @@ import time
 import openai
 import os
 from typing import Dict, List, Tuple
-from sklearn.metrics import accuracy_score
 
 CURRENT_FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 api_key_file = f"{CURRENT_FILE_DIRECTORY}/../../../../data/open_ai_api_key.txt"

@@ -1,0 +1,19 @@
+name: Ruff Lint and Format Check
+
+on: [push]
+
+jobs:
+  lint_and_format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12.0"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Run ruff linter
+        run: ruff check src/
+      - name: Run ruff formatter check
+        run: ruff format --check src/

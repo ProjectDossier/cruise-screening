@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('citation_screening', '0015_citationscreening_tasks_updated_at'),
+        ("citation_screening", "0015_citationscreening_tasks_updated_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='citationscreening',
-            name='distributed_papers',
-            field=models.JSONField(help_text='List of papers which were already distributed amoung reviewers.', null=True),
+            model_name="citationscreening",
+            name="distributed_papers",
+            field=models.JSONField(
+                help_text="List of papers which were already distributed amoung reviewers.",
+                null=True,
+            ),
         ),
     ]

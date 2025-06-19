@@ -8,11 +8,11 @@ from django.shortcuts import render
 from django.template.defaulttags import register
 
 from .engine_logger import EngineLogger, get_query_type, get_wiki_logger
-from .search_core import search_core
-from .search_cruise import search_cruise
-from .search_google_scholar import search_google_scholar
-from .search_semantic_scholar import search_semantic_scholar
-from .search_pubmed import search_pubmed
+from .search_core import search_core  # noqa
+from .search_cruise import search_cruise  # noqa
+from .search_google_scholar import search_google_scholar  # noqa
+from .search_semantic_scholar import search_semantic_scholar  # noqa
+from .search_pubmed import search_pubmed  # noqa
 from .search_wikipedia import search_wikipedia
 from .utils import paginate_results, merge_results, Articles
 from .models import SearchEngine
