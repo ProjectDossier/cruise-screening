@@ -1,11 +1,10 @@
 services:
-  app:
+  eligibility-criteria:
+    image: eligibility-criteria-backend:latest
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
+    container_name: eligibility-criteria-backend-app
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
     deploy:

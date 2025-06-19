@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 def main() -> None:
     """Main function for the setup.py file."""
 
-    with open('./pyproject.toml', 'rb', encoding='utf-8') as toml_file:
+    with open('./pyproject.toml', 'rb') as toml_file:
         project_data: dict = load(toml_file)
 
     authors_data: dict = project_data['project']['authors']
@@ -18,13 +18,9 @@ def main() -> None:
     setup(
         name=project_data['project']['name'],
         description=project_data['project']['description'],
-        url=project_data['project']['urls']['Homepage'],
-
         version=project_data['project']['version'],
-
         author=authors,
         author_email=emails,
-
         packages=find_packages(where='src'),
         package_dir={'': 'src'},
         package_data={

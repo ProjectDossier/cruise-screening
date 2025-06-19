@@ -1,11 +1,10 @@
-import yaml
-from flask import Flask, request, Response
-import requests # Keep requests for now, though it will be replaced for Gemini
+import logging.config
 import os
 import xml.etree.ElementTree as ET
-import logging
-import logging.config
-import google.generativeai as genai # Import the Gemini library
+
+import google.generativeai as genai  # Import the Gemini library
+import yaml
+from flask import Flask, request, Response
 
 app = Flask(__name__)
 

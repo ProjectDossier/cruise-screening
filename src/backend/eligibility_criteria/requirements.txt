@@ -1,6 +1,6 @@
-google-genai==1.20.0
-flask==3.0.3
-transformers==4.46.3
-torch==2.4.1
-accelerate==1.0.1
-bitsandbytes==0.42.0
+google-genai==1.2.0
+flask==3.1.0
+transformers==4.52.3
+torch==2.7.0
+accelerate==1.7.0
+bitsandbytes==0.45.5

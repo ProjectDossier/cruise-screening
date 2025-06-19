@@ -1,15 +1,11 @@
-import yaml
-from flask import Flask, request, Response, url_for
-import requests 
-from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
-import torch
+import logging.config
 import os
 import xml.etree.ElementTree as ET
 
-import logging
-import logging.config
-from logging.handlers import RotatingFileHandler
-
+import torch
+import yaml
+from flask import Flask, request, Response
+from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 
 app = Flask(__name__)
 

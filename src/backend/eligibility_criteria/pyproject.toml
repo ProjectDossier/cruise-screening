@@ -3,7 +3,7 @@ python-implementation = "CPython"
 [project]
 name = "eligibility-criteria"
 version = "1.0.0.0"
-requires-python = ">=3.12.9"
+requires-python = ">=3.12.3"
 authors = [
     { name="Miłosz Górlaczyk", email="goralczyk.milosz2k@gmail.com" },
     { name="Konrad Bodzioch", email="kbodzio@student.agh.edu.pl" },
@@ -18,7 +18,8 @@ classifiers = [
 ]
 
 [project.scripts]
-run-api = "ecriteria.main:main"
+run-api-external = "ecriteria.app:main"
+run-api-internal = "ecriteria.app_local_model:main"
 
 [build-system]
 requires = ["setuptools>=75.8.0"]
