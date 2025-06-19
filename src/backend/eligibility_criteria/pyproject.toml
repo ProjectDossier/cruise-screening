@@ -10,7 +10,7 @@ authors = [
     { name="Dominik Breksa", email="dominikbreksa@gmail.com" },
 ]
 description = "Application for managing eligibility criteria for article selection."
-dynamic = ["dependencies"]
+dynamic = ["dependencies", "optional-dependencies"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
@@ -18,12 +18,16 @@ classifiers = [
 ]
 
 [project.scripts]
-run-api-external = "ecriteria.app:main"
-run-api-internal = "ecriteria.app_local_model:main"
+run-api-internal = "ecriteria_internal.app:main"
+run-api-external = "ecriteria_external.app:main"
 
 [build-system]
 requires = ["setuptools>=75.8.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[tool.setuptools.dynamic.dependencies]
+file = ["requirements.txt"]
+
+[tool.setuptools.dynamic.optional-dependencies]
+internal = {file = ["requirements_internal.txt"]}
+external = {file = ["requirements_external.txt"]}

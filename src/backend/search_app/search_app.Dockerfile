@@ -3,7 +3,7 @@ FROM python:3.8.12-buster
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements_external.txt
 
 ENV FLASK_APP=/app/search_app.py
 

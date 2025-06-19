@@ -39,7 +39,7 @@ $ source activate cruise-literature
 Use pip to install requirements (you will need `g++` to install fasttext):
 
 ```bash
-(cruise-literature)$ pip install -r requirements.txt
+(cruise-literature)$ pip install -r requirements_external.txt
 ```
 
 npm install bulma-calendar

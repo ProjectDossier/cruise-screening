@@ -8,7 +8,7 @@ services:
           - https_proxy
           - no_proxy
           - config_file=search_app_config.json
-        dockerfile: search_app.Dockerfile
+        dockerfile: search_app.external.Dockerfile
     image: dossier/cruise-literature-search_app:1
     restart: on-failure
     ports:
