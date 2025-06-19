@@ -14,7 +14,7 @@ dynamic = ["dependencies", "optional-dependencies"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
-    "Operating System :: OS Independent",
+    "Operating System :: OS Unix",
 ]
 
 [project.scripts]
@@ -25,9 +25,6 @@ run-api-external = "ecriteria_external.app:main"
 requires = ["setuptools>=75.8.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic.dependencies]
-file = ["requirements.txt"]
-
-[tool.setuptools.dynamic.optional-dependencies]
-internal = {file = ["requirements_internal.txt"]}
-external = {file = ["requirements_external.txt"]}
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {internal = {file = ["requirements_internal.txt"]}, external = {file = ["requirements_external.txt"]}}

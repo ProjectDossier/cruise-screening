@@ -1,4 +1,6 @@
 data
+logs
+build
 model
 test
 docker-compose.yaml

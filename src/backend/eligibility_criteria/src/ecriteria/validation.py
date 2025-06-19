@@ -1,8 +1,7 @@
-
 import xml.etree.ElementTree as ET
 
 
-def validate_xml(input_xml: str) -> None:
+def validate_xml(input_xml: bytes) -> None:
     tree = ET.fromstring(input_xml)
     if tree.tag != "request":
         raise ValueError("Root tag must be <request>.")

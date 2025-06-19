@@ -1,4 +1,4 @@
-POST http://localhost:5000/generate
+POST http://localhost:5000/generate_pico
 Content-Type: application/xml
 
 <request>
