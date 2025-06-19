@@ -3,7 +3,7 @@ port: 5000
 debug: false
 max_content_length: 8192
 gen_model: "gemini-1.5-flash"
-model_path: "./model"
+model_path: "./model/"
 instruction: "You are an expert in evidence-based medicine. Based on the provided abstract, extract the PICO eligibility criteria in XML format indicated by the output tag. Make the response short and concise. <output><PICO><Population>...</Population><Intervention>...</Intervention><Comparison>...</Comparison><Outcome>...</Outcome></PICO></output>"
 max_tokens: 512
 temperature: 0.1
