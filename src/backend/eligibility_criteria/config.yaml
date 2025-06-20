@@ -1,0 +1,35 @@
+host: 0.0.0.0
+port: 5000
+debug: false
+max_content_length: 8192
+gen_model: "gemini-1.5-flash"
+model_path: "./model/"
+instruction: "You are an expert in evidence-based medicine. Based on the provided abstract, extract the PICO eligibility criteria in XML format indicated by the output tag. Make the response short and concise. <output><PICO><Population>...</Population><Intervention>...</Intervention><Comparison>...</Comparison><Outcome>...</Outcome></PICO></output>"
+max_tokens: 512
+temperature: 0.1
+logging:
+  version: 1
+  formatters:
+    default:
+      format: "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+  handlers:
+    stdout:
+      class: logging.StreamHandler
+      formatter: default
+      stream: ext://sys.stdout
+      level: INFO
+    stderr:
+      class: logging.StreamHandler
+      formatter: default
+      stream: ext://sys.stderr
+      level: ERROR
+    file:
+      class: logging.handlers.RotatingFileHandler
+      formatter: default
+      filename: ./logs/app.log
+      maxBytes: 1048576
+      backupCount: 5
+      level: ERROR
+  root:
+    level: INFO
+    handlers: [stdout, stderr, file]

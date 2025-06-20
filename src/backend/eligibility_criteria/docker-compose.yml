@@ -1,0 +1,28 @@
+services:
+  eligibility-criteria-internal:
+    image: eligibility-criteria-backend-internal:latest
+    build:
+      context: .
+      dockerfile: internal.Dockerfile
+    container_name: backend-internal-app
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  eligibility-criteria-external:
+      image: eligibility-criteria-backend-external:latest
+      build:
+        context: .
+        dockerfile: external.Dockerfile
+      container_name: backend-external-app
+      ports:
+        - "5000:5000"
+      restart: unless-stopped

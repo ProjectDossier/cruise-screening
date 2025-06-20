@@ -1,0 +1,30 @@
+python-implementation = "CPython"
+
+[project]
+name = "eligibility-criteria"
+version = "1.0.0.0"
+requires-python = ">=3.12.3"
+authors = [
+    { name="Miłosz Górlaczyk", email="goralczyk.milosz2k@gmail.com" },
+    { name="Konrad Bodzioch", email="kbodzio@student.agh.edu.pl" },
+    { name="Dominik Breksa", email="dominikbreksa@gmail.com" },
+]
+description = "Application for managing eligibility criteria for article selection."
+dynamic = ["dependencies", "optional-dependencies"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Unix",
+]
+
+[project.scripts]
+run-api-internal = "ecriteria_internal.app:main"
+run-api-external = "ecriteria_external.app:main"
+
+[build-system]
+requires = ["setuptools>=75.8.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {internal = {file = ["requirements_internal.txt"]}, external = {file = ["requirements_external.txt"]}}

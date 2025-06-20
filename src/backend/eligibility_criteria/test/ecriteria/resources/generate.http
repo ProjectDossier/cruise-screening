@@ -1,0 +1,15 @@
+POST http://localhost:5000/generate_pico
+Content-Type: application/xml
+
+<request>
+  <xml_input>
+    <article_abstract>
+      <objectives>To compare the benefits and harms of LAMA+LABA versus LABA+ICS for treatment of people with stable COPD.</objectives>
+        <search_methods>We performed an electronic search of the Cochrane Airways Group Specialised Register, ClinicalTrials.gov, and the World Health Organization Clinical Trials Search Portal, followed by handsearches. Two review authors screened the selected articles. The most recent search was run on 10 September 2022.</search_methods>
+        <selection_criteria>We included parallel or cross‐over randomised controlled trials of at least one month's duration, comparing LAMA+LABA and LABA+ICS for stable COPD. We included studies conducted in an outpatient setting and irrespective of blinding.</selection_criteria>
+        <data_collection_and_analysis>Two review authors independently extracted data and evaluated risk of bias. We resolved any discrepancies through discussion. We analysed dichotomous data as odds ratios (ORs), and continuous data as mean differences (MDs), with 95% confidence intervals (CIs) using Review Manager 5. Primary outcomes were: participants with one or more exacerbations of COPD; serious adverse events; quality of life, as measured by the St. George's Respiratory Questionnaire (SGRQ) total score change from baseline; and trough forced expiratory volume in one second (FEV 1 ). We used the GRADE framework to rate our certainty of the evidence in each meta‐analysis as high, moderate, low or very low.</data_collection_and_analysis>
+        <main_results>This review updates the first version of the review, published in 2017, and increases the number of included studies from 11 to 19 (22,354 participants). The median number of participants per study was 700. In each study, between 54% and 91% (median 70%) of participants were males. Study participants had an average age of 64 years and percentage predicted FEV 1 of 51.5% (medians of study means). Included studies had a generally low risk of selection, performance, detection, attrition, and reporting biases. All but two studies were sponsored by pharmaceutical companies, which had varying levels of involvement in study design, conduct, and data analysis.</main_results>
+        <authors_conclusions>Combination LAMA+LABA therapy probably holds similar benefits to LABA+ICS for exacerbations and quality of life, as measured by the St George's Respiratory Questionnaire, for people with moderate to severe COPD, but offers a larger improvement in FEV 1 and a slightly lower risk of pneumonia. There is little to no difference between LAMA+LABA and LAMA+ICS in the odds of having a serious adverse event. Whilst all‐cause death may be lower with LABA+ICS, there was a very small number of events in the analysis, translating to a low absolute risk. Findings are based on moderate‐ to high‐certainty evidence from heterogeneous trials with an observation period of less than one year. This review should be updated again in a few years.</authors_conclusions>
+    </article_abstract>
+  </xml_input>
+</request>
